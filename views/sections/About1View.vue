@@ -11,7 +11,7 @@
             <div class="col-lg-6 order-1 order-lg-2" data-aos="zoom-in" data-aos-delay="100">
               <div class="about-img">
                 <img src="assets/img/library-front.jpg" alt="">
-                <a href="https://www.youtube.com/watch?v=dUDYGlHYvD8" class="glightbox play-btn"></a>
+                <a href="https://www.youtube.com/watch?v=jCCmf0swyDk" class="glightbox play-btn"></a>
               </div>
             </div>
             <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
