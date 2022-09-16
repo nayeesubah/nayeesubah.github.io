@@ -1,8 +1,8 @@
 <template>
   <div>
   <Head>
-      <Title>{{title}} | Home Page</Title>
-      <Meta name="description" :content="title" />
+      <Title>{{title}}</Title>
+      <Meta name="description" content="Nayee Subah Foundation has been founded with the sole aim of creation of awareness about education and its propagation, social reforms" />
       <Style type="text/css" children="body { background-color: green; }" />
     </Head>
     <NuxtLayout name="default">
@@ -29,12 +29,12 @@ definePageMeta({
   layout: false,
 });
 
-const title = ref('Nayee Subah Foundation')
+const title = ref('Nayee Subah Foundation | Hope for a Better Education')
 const route = useRoute()
 
 useHead({
   meta: [
-    { name: 'og:title', content: title },
+    { name: 'og:title', content: title.value },
     { name: 'og:image', content: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg' }
   ]
 })
