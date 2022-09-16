@@ -1,4 +1,4 @@
-import { defineNuxtConfig } from 'nuxt'
+const ogImage = '@/assets/img/nsf-white-background-logo.jpg';
 
 // https://v3.nuxtjs.org/api/configuration/nuxt.config
 export default defineNuxtConfig({
@@ -11,7 +11,7 @@ export default defineNuxtConfig({
           meta: [
             // <meta name="viewport" content="width=device-width, initial-scale=1">
             { name: 'viewport', content: 'width=device-width, initial-scale=1' },
-            { name: 'og:image', property: 'og:image', content: '@/assets/img/nsf-white-background-logo.jpg'},
+            { hid: 'og:image', property: 'og:image', content: process.env.baseUrl + ogImage},
           ],
         }
     }

@@ -58,8 +58,10 @@
         headerScrolledDown.value = false;
       }
   }
-  const { select, on } = useSelectorHelper();
+  const { select, on, onscroll, scrollto } = useSelectorHelper();
+
   onMounted(() => {
+
     /**
      * Mobile nav toggle
      */
@@ -77,6 +79,24 @@
         this.nextElementSibling.classList.toggle('dropdown-active')
       }
     }, true)
+      /**
+     * Scrool with ofset on links with a class name .scrollto
+     */
+    on('click', '.scrollto', function(e) {
+      if (select(this.hash)) {
+        e.preventDefault()
+
+        let navbar = select('#navbar')
+        if (navbar.classList.contains('navbar-mobile')) {
+          navbar.classList.remove('navbar-mobile')
+          let navbarToggle = select('.mobile-nav-toggle')
+          navbarToggle.classList.toggle('bi-list')
+          navbarToggle.classList.toggle('bi-x')
+        }
+        scrollto(this.hash)
+      }
+    }, true)
+
     console.log('hi mounted header');
     window.addEventListener('scroll', handleSCroll);
   })

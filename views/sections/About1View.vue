@@ -70,7 +70,7 @@
   top: 20px;
   width: 60px;
   height: 60px;
-  z-index: 99999;
+  z-index: 4;
   content: "";
   border-left: 5px solid #ef6603;
   border-top: 5px solid #ef6603;
