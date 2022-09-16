@@ -30,5 +30,13 @@ definePageMeta({
 });
 
 const title = ref('Nayee Subah Foundation')
+const route = useRoute()
+
+useHead({
+  meta: [
+    { name: 'og:title', content: title },
+    { name: 'og:image', content: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg' }
+  ]
+})
 </script>
 
