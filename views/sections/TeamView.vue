@@ -43,7 +43,7 @@
               <div class="member-info">
                 <h4>Rafique Anwar</h4>
                 <span>Secretary</span>
-                <p>Quo esse repellendus quia id. Est eum et accusantium pariatur fugit nihil minima suscipit corporis. Voluptate sed quas reiciendis animi neque sapiente.</p>
+                <p>He is a businessman with prior experience in hotel industry, he's also a philanthropist by nature, a learner by attitude and a very down to earth person with a vision to propagate education among the deprived.</p>
               </div>
             </div>
           </div><!-- End Chefs Member -->
@@ -62,7 +62,7 @@
               <div class="member-info">
                 <h4>Mumtaj Ansari</h4>
                 <span>Treasurer</span>
-                <p>Vero omnis enim consequatur. Voluptas consectetur unde qui molestiae deserunt. Voluptates enim aut architecto porro aspernatur molestiae modi.</p>
+                <p>He is an electronic geek with an inclination towards numbers. His credibility and sense of responsibility is commendable. He believes in SHARING IS CARING. He is eveready to sacrifice for noble cause.</p>
               </div>
             </div>
           </div><!-- End Chefs Member -->
