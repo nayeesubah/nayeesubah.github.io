@@ -1,6 +1,6 @@
 <template>
   <!-- ======= Header ======= -->
-  <header id="header" class="fixed-top d-flex align-items-center  header-transparent " :class="{'header-scrolled': headerScrolledDown}">
+  <header id="header" class="fixed-top d-flex align-items-center " :class="{'header-scrolled': headerScrolledDown, ' header-transparent' : route.name=='index'}">
     <div class="container d-flex align-items-center justify-content-between">
 
       <div class="logo">
@@ -49,6 +49,8 @@
 </template>
 <script setup>
 
+  const route = useRoute()
+  console.log('current route name', route.name)
   let headerScrolledDown = ref(false)
 
   function handleSCroll(event) {
