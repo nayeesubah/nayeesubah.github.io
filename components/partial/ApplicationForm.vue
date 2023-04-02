@@ -39,22 +39,22 @@
             <form @submit.prevent="onSubmit" role="form" class="php-email-form">
               <div class="row">
                 <div class="col-md-6 form-group form-floating">
-                  <input type="text" v-model="name" name="name" class="form-control" id="name" placeholder="Your Name">
-                  <label for="floatingName">Your Name</label>
+                  <input type="text" v-model="name" name="name" class="form-control" id="name" placeholder="Your Name" required>
+                  <label for="floatingName">Your Name <span class="text-danger">*</span></label>
                 </div>
                 <div class="col-md-6 form-group form-floating mt-3 mt-md-0">
-                  <input type="text" v-model="father_name" class="form-control" name="father_name" id="father_name" placeholder="Father's Name">
-                  <label for="floatingFatherName">Father's Name</label>
+                  <input type="text" v-model="father_name" class="form-control" name="father_name" id="father_name" placeholder="Father's Name" required>
+                  <label for="floatingFatherName">Father's Name <span class="text-danger">*</span></label>
                 </div>
               </div>
               <div class="row mt-3">
                 <div class="col-md-4 form-group form-floating">
-                    <input type="number" v-model="phone" class="form-control" name="phone" id="phone" placeholder="Phone">
-                    <label for="floatingPhone">Phone</label>
+                    <input type="number" v-model="phone" class="form-control" name="phone" id="phone" placeholder="Phone" required>
+                    <label for="floatingPhone">Phone <span class="text-danger">*</span></label>
                 </div>
                 <div class="col-md-4 form-group form-floating mt-3 mt-md-0">
-                    <input type="email" v-model="email" class="form-control" name="email" id="email" placeholder="Your Email">
-                    <label for="floatingEmail">Your Email</label>
+                    <input type="email" v-model="email" class="form-control" name="email" id="email" placeholder="Your Email" required>
+                    <label for="floatingEmail">Your Email <span class="text-danger">*</span></label>
                 </div>
 
                 <div class="col-md-4 form-group form-floating mt-3 mt-md-0">
@@ -81,14 +81,22 @@
                 <label for="floatingOfficeAddress">Office Address</label>
               </div>
               <div class="form-group form-floating mt-3">
-                <select class="form-select" aria-label="Monthly Subscription" v-model="monthly_subscription" name="monthly_subscription" id="monthly_subscription" placeholder="Monthly Subscription">
-                        <!-- <option selected>Monthly Subscription</option> -->
+                <select class="form-select" aria-label="Monthly Subscription" v-model="monthly_subscription" name="monthly_subscription" id="monthly_subscription" placeholder="Monthly Subscription" required>
+                        <option selected>Monthly Subscription</option>
                         <option value="₹200/-">₹200/-</option>
                         <option value="₹100/-">₹100/-</option>
                         <option value="₹500/-">₹500/-</option>
                     </select>
-                <label for="floatingMonthlySubscription">Monthly Subscription</label>
+                <label for="floatingMonthlySubscription">Monthly Subscription <span class="text-danger">*</span></label>
               </div>
+              <div class="col-12">
+                <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="terms_and_condition" required>
+                <label class="form-check-label" for="terms_and_condition">
+                    By Clicking Submit, you agree on our terms and condtion.
+                </label>
+                </div>
+            </div>
               <!-- <div class="form-group mt-3">
                 <textarea class="form-control" v-model="message" name="message" rows="5" placeholder="Message"></textarea>
               </div> -->
@@ -97,7 +105,7 @@
                 <div class="error-message"></div>
                 <div class="sent-message">Your message has been sent. Thank you!</div>
               </div>
-              <div class="text-center"><button type="submit">Send Message <span v-if="displayLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></button></div>
+              <div class="text-center"><button type="submit">Submit <span v-if="displayLoading" class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span></button></div>
             </form>
 
           </div>
@@ -108,6 +116,20 @@
     </section><!-- End Contact Section -->
 </template>
   <script setup>
+    useHead({
+    meta: [
+        { name: 'og:title', content: 'Application Form | Nayee Subah Foundation' },
+        { name: 'og:image', content: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg' }
+    ]
+    })
+    useServerSeoMeta({
+        title: 'Application Form | Nayee Subah Foundation',
+        ogTitle: 'Application Form | Nayee Subah Foundation',
+        description: "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved.",
+        ogDescription: "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved.",
+        ogImage: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg',
+        twitterCard: 'summary_large_image',
+    })
     let displayLoading = ref(false);
     const name = ref("");
     const father_name = ref("");

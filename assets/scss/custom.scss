@@ -1674,9 +1674,10 @@ section {
 .form-floating > label {
   left:auto;
   padding: 0.60rem 0.75rem;
-  
 }
-
+.php-email-form .form-check input {
+  height: 16px;
+}
 
 /*--------------------------------------------------------------
 # Footer
