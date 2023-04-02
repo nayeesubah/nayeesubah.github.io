@@ -8,12 +8,12 @@
     "postinstall": "nuxt prepare"
   },
   "devDependencies": {
-    "nuxt": "^3.0.0-rc.11",
-    "sass": "^1.54.9",
-    "sass-loader": "^13.0.2"
+    "nuxt": "^3.3.2",
+    "sass": "^1.60.0",
+    "sass-loader": "^13.2.2"
   },
   "dependencies": {
-    "bootstrap": "^5.2.1",
+    "bootstrap": "^5.2.3",
     "glightbox": "^3.2.0"
   }
 }

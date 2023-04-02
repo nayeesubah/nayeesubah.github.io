@@ -10,7 +10,7 @@
           <div class="row">
             <div class="col-lg-6 order-1 order-lg-2" data-aos="zoom-in" data-aos-delay="100">
               <div class="about-img">
-                <img src="assets/img/library-front.jpg" alt="">
+                <img src="~/assets/img/library-front.jpg" alt="">
                 <a href="https://www.youtube.com/watch?v=jCCmf0swyDk" class="glightbox play-btn"></a>
               </div>
             </div>
@@ -41,7 +41,7 @@
 # About
 --------------------------------------------------------------*/
 .about {
-  /* background: url("@/assets/img/village-sunrise.jpg") center center; */
+  /* background: url("@/~/assets/img/village-sunrise.jpg") center center; */
   background-size: cover;
   position: relative;
   padding: 80px 0;

@@ -3,10 +3,10 @@
       <div class="container">
 
         <div class="d-flex justify-content-between align-items-center">
-          <h2>Inner Page</h2>
+          <h2>Application Form</h2>
           <ol>
-            <li><a href="index.html">Home</a></li>
-            <li>Inner Page</li>
+            <li><a href="/">Home</a></li>
+            <li>Application Form</li>
           </ol>
         </div>
 
@@ -15,9 +15,9 @@
 
     <section class="inner-page">
       <div class="container">
-        <p>
-          Example inner page template
-        </p>
+
+          <PartialApplicationForm/>
+
       </div>
     </section>
 </template>

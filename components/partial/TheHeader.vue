@@ -5,8 +5,8 @@
 
       <div class="logo">
         <h1>
-        <a href="index.html">
-        <img src="assets/img/nsf-logo.png" alt="Nayee Subah Foundation"> 
+        <a href="/">
+        <img src="~/assets/img/nsf-logo.png" alt="Nayee Subah Foundation"> 
         <!-- Nayee Subah Foundation -->
         </a>
         </h1>
