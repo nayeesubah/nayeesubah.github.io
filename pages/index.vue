@@ -3,7 +3,6 @@
   <Head>
       <Title>{{title}}</Title>
       <Meta name="description" content="Nayee Subah Foundation has been founded with the sole aim of creation of awareness about education and its propagation, social reforms" />
-      <Style type="text/css" children="body { background-color: green; }" />
     </Head>
     <NuxtLayout name="default">
     <template #hero> <PartialTheHero/>  </template>

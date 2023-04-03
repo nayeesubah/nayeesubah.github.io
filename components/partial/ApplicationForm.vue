@@ -8,7 +8,7 @@
           <!-- <p>Become a Volunteer</p> -->
         </div>
 
-        <div class="row mt-5">
+        <div class="row mt-2">
 
           <!-- <div class="col-lg-4" data-aos="fade-right">
             <div class="info">
@@ -34,7 +34,7 @@
 
           </div> -->
 
-          <div class="col-lg-12 mt-5 mt-lg-0" data-aos="fade-left">
+          <div class="col-lg-12 mt-2 mt-lg-0" data-aos="fade-left">
 
             <form @submit.prevent="onSubmit" role="form" class="php-email-form">
               <div class="row">
@@ -116,20 +116,6 @@
     </section><!-- End Contact Section -->
 </template>
   <script setup>
-    useHead({
-    meta: [
-        { name: 'og:title', content: 'Application Form | Nayee Subah Foundation' },
-        { name: 'og:image', content: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg' }
-    ]
-    })
-    useServerSeoMeta({
-        title: 'Application Form | Nayee Subah Foundation',
-        ogTitle: 'Application Form | Nayee Subah Foundation',
-        description: "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved.",
-        ogDescription: "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved.",
-        ogImage: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg',
-        twitterCard: 'summary_large_image',
-    })
     let displayLoading = ref(false);
     const name = ref("");
     const father_name = ref("");
@@ -151,7 +137,8 @@
             // "Accept": "application/json",
         };
 
-        const nsf_form_link = `https://docs.google.com/forms/d/e/1FAIpQLSchlP02Hhp9BHMPhcRATJFprAIff_ZI6DkLvzrdVQzbXKh3Lw/formResponse?usp=pp_url&entry.625392549=${name.value}&entry.1716368597=${father_name.value}&entry.230583180=${phone.value}&entry.1373582208=${email.value}&entry.1270927980=${dob.value}&entry.994258151=${profession.value}&entry.1429577132=${department.value}&entry.616186246=${residential_address.value}&entry.2072691197=${office_address.value}&entry.644765867=Anual+(Salana)&entry.1172089541=%E2%82%B92400/-&entry.1022248178=%E2%82%B9200/-&submit=Submit`
+        const nsf_form_link = `https://docs.google.com/forms/d/e/1FAIpQLSegiqLAnHwoth_4LC8eD5jXbvm96AgpW_cs5OAe9YSjZKqP9w/formResponse?usp=pp_url&entry.625392549=${name.value}&entry.1716368597=${father_name.value}&entry.230583180=${phone.value}&entry.1373582208=${email.value}&entry.1270927980=${dob.value}&entry.994258151=${profession.value}&entry.1429577132=${department.value}&entry.616186246=${residential_address.value}&entry.2072691197=${office_address.value}&entry.1016078682=${monthly_subscription.value}&submit=Submit`
+
         // console.log('nsf_form_link', nsf_form_link);
         const res = fetch(nsf_form_link, {
             method: "GET",
