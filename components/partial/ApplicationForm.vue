@@ -36,7 +36,7 @@
 
           <div class="col-lg-12 mt-2 mt-lg-0" data-aos="fade-left">
 
-            <form @submit.prevent="onSubmit" role="form" class="php-email-form">
+            <form @submit.prevent="onSubmit" role="form" class="php-email-form needs-validation">
               <div class="row">
                 <div class="col-md-6 form-group form-floating">
                   <input type="text" v-model="name" name="name" class="form-control" id="name" placeholder="Your Name" required>
@@ -58,8 +58,8 @@
                 </div>
 
                 <div class="col-md-4 form-group form-floating mt-3 mt-md-0">
-                    <input type="date" v-model="dob" class="form-control" name="dob" id="dob" placeholder="Your Date of Birth">
-                    <label for="floatingDob">Date of Birth</label>
+                    <input type="date" v-model="dob" class="form-control" name="dob" id="dob" placeholder="Your Date of Birth" required>
+                    <label for="floatingDob">Date of Birth <span class="text-danger">*</span></label>
                 </div>
               </div>
               <div class="row mt-3">
@@ -129,7 +129,8 @@
     const monthly_subscription = ref("");
 
     function onSubmit(e) {
-        console.log('event', office_address.value);
+        console.log('phone', phone.value);
+        console.log('phone.length', phone.value.length);
         displayLoading.value = true;
         const headers = {
             // "Access-Control-Allow-Origin": "*",
