@@ -82,8 +82,8 @@
               </div>
               <div class="form-group form-floating mt-3">
                 <select class="form-select" aria-label="Monthly Subscription" v-model="monthly_subscription" name="monthly_subscription" id="monthly_subscription" placeholder="Monthly Subscription" required>
-                        <option selected>Monthly Subscription</option>
-                        <option value="₹200/-">₹200/-</option>
+                        <!-- <option selected>Monthly Subscription</option> -->
+                        <option selected value="₹200/-">₹200/-</option>
                         <option value="₹100/-">₹100/-</option>
                         <option value="₹500/-">₹500/-</option>
                     </select>
@@ -113,56 +113,75 @@
         </div>
 
       </div>
+      <Teleport to="body">
+          <!-- use the modal component, pass in the prop -->
+          <modal :show="showModal" @close="closeModal()">
+            <template #header>
+              <h3>Thank You !</h3>
+            </template>
+          </modal>
+        </Teleport>
     </section><!-- End Contact Section -->
 </template>
-  <script setup>
-    let displayLoading = ref(false);
-    const name = ref("");
-    const father_name = ref("");
-    const phone = ref("");
-    const email = ref("");
-    const dob = ref("");
-    const profession = ref("");
-    const department = ref("");
-    const residential_address = ref("");
-    const office_address = ref("");
-    const monthly_subscription = ref("");
+<script setup>
+  import Modal from './Modal.vue'
+  const showModal = ref(false);
+  let displayLoading = ref(false);
+  const name = ref("");
+  const father_name = ref("");
+  const phone = ref("");
+  const email = ref("");
+  const dob = ref("");
+  const profession = ref("");
+  const department = ref("");
+  const residential_address = ref("");
+  const office_address = ref("");
+  const monthly_subscription = ref("");
 
-    function onSubmit(e) {
-        console.log('phone', phone.value);
-        console.log('phone.length', phone.value.length);
-        displayLoading.value = true;
-        const headers = {
-            // "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json",
-            // "Accept": "application/json",
-        };
+  function closeModal()  {
+    showModal.value = false;
+    navigateTo('/');
+  }
 
-        const nsf_form_link = `https://docs.google.com/forms/d/e/1FAIpQLSegiqLAnHwoth_4LC8eD5jXbvm96AgpW_cs5OAe9YSjZKqP9w/formResponse?usp=pp_url&entry.625392549=${name.value}&entry.1716368597=${father_name.value}&entry.230583180=${phone.value}&entry.1373582208=${email.value}&entry.1270927980=${dob.value}&entry.994258151=${profession.value}&entry.1429577132=${department.value}&entry.616186246=${residential_address.value}&entry.2072691197=${office_address.value}&entry.1016078682=${monthly_subscription.value}&submit=Submit`
+  function onSubmit(e) {
+      console.log('phone', phone.value);
+      const ph = phone.value;
+      console.log('phone.length', ph.count);
+      // const phoneLength = computed(() => phone.value.length )
+      displayLoading.value = true;
+      const headers = {
+          // "Access-Control-Allow-Origin": "*",
+          "Content-Type": "application/json",
+          // "Accept": "application/json",
+      };
 
-        // console.log('nsf_form_link', nsf_form_link);
-        const res = fetch(nsf_form_link, {
-            method: "GET",
-            mode: "no-cors",
-            headers: headers,
-        })
-        res
-        .then(result => {
-            console.log('result', result)
-            displayLoading.value = false;
-            name.value = '';
-            father_name.value = '';
-            phone.value = '';
-            email.value = '';
-            dob.value = '';
-            profession.value = '';
-            department.value = '';
-            residential_address.value = '';
-            office_address.value = '';
+      const nsf_form_link = `https://docs.google.com/forms/d/e/1FAIpQLSegiqLAnHwoth_4LC8eD5jXbvm96AgpW_cs5OAe9YSjZKqP9w/formResponse?usp=pp_url&entry.625392549=${name.value}&entry.1716368597=${father_name.value}&entry.230583180=${phone.value}&entry.1373582208=${email.value}&entry.1270927980=${dob.value}&entry.994258151=${profession.value}&entry.1429577132=${department.value}&entry.616186246=${residential_address.value}&entry.2072691197=${office_address.value}&entry.1016078682=${monthly_subscription.value}&submit=Submit`
 
-        })
-        .catch(error => console.log('error', error));
-        console.log('res', res);
-    }
+      // console.log('nsf_form_link', nsf_form_link);
+      const res = fetch(nsf_form_link, {
+          method: "GET",
+          mode: "no-cors",
+          headers: headers,
+      })
+      res
+      .then(result => {
+          console.log('result', result)
+          displayLoading.value = false;
+          showModal.value = true;
+          name.value = '';
+          father_name.value = '';
+          phone.value = '';
+          email.value = '';
+          dob.value = '';
+          profession.value = '';
+          department.value = '';
+          residential_address.value = '';
+          office_address.value = '';
+          monthly_subscription.value = '';
 
-  </script>
+      })
+      .catch(error => console.log('error', error));
+      console.log('res', res);
+  }
+
+</script>

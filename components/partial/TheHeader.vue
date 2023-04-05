@@ -16,7 +16,7 @@
 
       <nav id="navbar" class="navbar">
         <ul>
-          <li><a class="nav-link scrollto" :href="url('#hero')">Home</a></li>
+          <li><a class="nav-link scrollto" :class="{active : route.name == 'index'}" :href="url('#hero')">Home</a></li>
           <li><a class="nav-link scrollto" :href="url('#about')">About</a></li>
           <li><a class="nav-link scrollto" :href="url('#services')">What we do</a></li>
           <li><a class="nav-link scrollto " :href="url('#portfolio')">Gallery</a></li>
