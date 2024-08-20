@@ -22,9 +22,9 @@
                 </div>
               </div>
               <div class="member-info">
-                <h4>Md Irfan</h4>
+                <h4>Mohammed Irfan</h4>
                 <span>Founder</span>
-                <p>Mohammad Irfan is the founder of Nayee Subah Foundation. He is a 30 years old social worker and currently a Software Engineer. He has also woked in Indian Institute Of Remote Sensing (IIRS) ISRO.</p>
+                <p>Mohammed Irfan is the visionary founder of Nayee Subah Foundation Initiative, a dynamic organization dedicated to transforming lives through education, social reform, and empowerment in rural communities. Combining his expertise as a Software Engineer with a deep commitment to social change, Mohammed has made significant contributions throughout his career, including a notable tenure at the Indian Institute of Remote Sensing (IIRS) ISRO. </p>
               </div>
             </div>
           </div><!-- End Chefs Member -->

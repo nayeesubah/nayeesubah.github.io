@@ -4,5 +4,8 @@ export default defineNuxtConfig({
     css: [
         // SCSS file in the project
         '@/assets/scss/main.scss'
+    ],
+    plugins: [
+      { src: '@/assets/js/main.js', mode: 'client' }
     ]
 })

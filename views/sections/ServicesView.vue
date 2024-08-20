@@ -13,7 +13,7 @@
             <div class="icon-box" data-aos="zoom-in-left">
               <div class="icon"><i class="bi bi-briefcase" style="color: #ff689b;"></i></div>
               <h4 class="title"><a href="">Coaching Center</a></h4>
-              <p class="description">We provides an NCRT curriculum focusing on discussions, debates, outcome-based, and interdisciplinary learning.</p>
+              <p class="description">We provides an NCERT curriculum focusing on discussions, debates, outcome-based, and interdisciplinary learning.</p>
             </div>
           </div>
           <div class="col-lg-4 col-md-6 mt-5 mt-md-0">

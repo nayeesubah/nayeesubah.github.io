@@ -36,7 +36,7 @@
 
           <div class="col-lg-12 mt-2 mt-lg-0" data-aos="fade-left">
 
-            <form @submit.prevent="onSubmit" role="form" class="php-email-form needs-validation">
+            <form @submit.prevent="onSubmit" role="form" class="php-email-form needs-validation " :class="{ 'was-validated': isValidPhoneNumber }" novalidate>
               <div class="row">
                 <div class="col-md-6 form-group form-floating">
                   <input type="text" v-model="name" name="name" class="form-control" id="name" placeholder="Your Name" required>
@@ -49,7 +49,7 @@
               </div>
               <div class="row mt-3">
                 <div class="col-md-4 form-group form-floating">
-                    <input type="number" v-model="phone" class="form-control" name="phone" id="phone" placeholder="Phone" required>
+                    <input type="number" v-model="phone" class="form-control" :class="{ 'is-invalid': !isValidPhoneNumber }" name="phone" id="phone" placeholder="Phone" required>
                     <label for="floatingPhone">Phone <span class="text-danger">*</span></label>
                 </div>
                 <div class="col-md-4 form-group form-floating mt-3 mt-md-0">
@@ -130,6 +130,7 @@
   const name = ref("");
   const father_name = ref("");
   const phone = ref("");
+  const isValidPhoneNumber = ref(false);
   const email = ref("");
   const dob = ref("");
   const profession = ref("");
@@ -145,8 +146,13 @@
 
   function onSubmit(e) {
       console.log('phone', phone.value);
-      const ph = phone.value;
-      console.log('phone.length', ph.count);
+      const indianPhoneNumberRegex = /^[789]\d{9}$/;
+      isValidPhoneNumber.value = indianPhoneNumberRegex.test(phone.value)
+      if (!isValidPhoneNumber.value) {
+        // alert('Please enter valid mobile number');
+        return;
+      }
+      console.log('isValidPhoneNumber.value', isValidPhoneNumber.value)
       // const phoneLength = computed(() => phone.value.length )
       displayLoading.value = true;
       const headers = {
@@ -182,6 +188,13 @@
       })
       .catch(error => console.log('error', error));
       console.log('res', res);
+  }
+  function handleSCroll(event) {
+      if (window.scrollY > 100) {
+        topbarScrolledDown.value = true;  
+      } else {
+        topbarScrolledDown.value = false;
+      }
   }
 
 </script>

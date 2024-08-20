@@ -1,8 +1,4 @@
 <template>
-    <Head>
-      <Title>{{title}}</Title>
-      <Meta name="description" content="Join our global team today. We're looking for individuals with a passion and real drive for dawah to get involved." />
-    </Head>
     <section class="breadcrumbs">
       <div class="container">
 
@@ -26,19 +22,34 @@
     </section>
 </template>
 <script setup>
+
 const title = ref('Application Form | Nayee Subah Foundation')
-useHead({
-  meta: [
-      { name: 'og:title', content: title.value },
-      { name: 'og:image', content: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg' }
-  ]
+const imgUrl = 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg'
+const description = "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved."
+
+useSeoMeta({
+  title: title.value,
+  description: description,
+  ogTitle: title.value,
+  ogImage: imgUrl,
+  ogDescription: description,
+  ogUrl: imgUrl,
+  twitterTitle: title.value,
+  twitterDescription: description,
+  twitterImage: imgUrl,
+  twitterCard: 'summary_large_image'
 })
-useServerSeoMeta({
-  title: 'Application Form | Nayee Subah Foundation',
-  ogTitle: 'Application Form | Nayee Subah Foundation',
-  description: "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved.",
-  ogDescription: "Join our global team of volunteers today. We're looking for individuals with a passion and real drive for dawah to get involved.",
-  ogImage: 'https://nayeesubah.github.io/_nuxt/nsf-white-background-logo.ff31b0f6.jpg',
-  twitterCard: 'summary_large_image',
+
+useHead({
+  htmlAttrs: {
+    lang: 'en'
+  },
+  link: [
+    {
+      rel: 'icon',
+      type: 'image/png',
+      href: '/favicon.png'
+    }
+  ]
 })
 </script>

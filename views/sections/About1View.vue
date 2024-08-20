@@ -8,16 +8,16 @@
           </div>
   
           <div class="row">
-            <div class="col-lg-6 order-1 order-lg-2" data-aos="zoom-in" data-aos-delay="100">
+            <div class="about-video col-lg-6 order-1 order-lg-2" data-aos="zoom-in" data-aos-delay="100">
               <div class="about-img">
                 <img src="~/assets/img/library-front.jpg" alt="">
-                <a href="https://www.youtube.com/watch?v=jCCmf0swyDk" class="glightbox play-btn"></a>
+                <a href="https://www.youtube.com/watch?v=jCCmf0swyDk" class="about-glightbox play-btn" @click="onPlay"></a>
               </div>
             </div>
             <div class="col-lg-6 pt-4 pt-lg-0 order-2 order-lg-1 content">
               <!-- <h3>DRIVEN BY COMMITMENT POWERED BY HUMANS</h3> -->
               <p class="fst-italic">
-                Nayee Subah Foundation has been founded with the sole aim of creation of awareness about education and its propagation, social reforms, unity of the Muslim. The Muslim community, undoubtedly, is going through a very sensitive, tough and trying day. The ever-changing situations and misfortunes of the time have pushed them into economic and academic backwardness that is beyond imagination.
+                Nayee Subah Foundation has been founded with the sole aim of creation of awareness about education and its propagation, social reforms and uplifting the underprivileged in rural areas. The Muslim community, undoubtedly, is going through a very sensitive, tough and trying day. The ever-changing situations and misfortunes of the time have pushed them into economic and academic backwardness that is beyond imagination.
               </p>
               <h3>We are on the Mission to:</h3>
             <ul>
@@ -28,13 +28,24 @@
               <li><i class="bi bi-check-circle"></i> To conduct various program and career guiding seminars</li>
               <li><i class="bi bi-check-circle"></i> Combat Child labour and substance abuse</li>
             </ul>
-            <a href="#" class="btn-learn-more">Learn More</a>
+            <a href="/about-us" class="btn-learn-more">Learn More</a>
             </div>
           </div>
   
         </div>
     </section><!-- End About Section -->
 </template>
+
+<script lang="ts" setup>
+// import GLightbox from 'glightbox';
+
+  // function onPlay() {
+  //   const portfolioLightbox = GLightbox({
+  //     selector: '.about-glightbox'
+  //   });
+  // }
+
+</script>
 
 <style scope>
 /*--------------------------------------------------------------
@@ -49,7 +60,7 @@
 .about:before {
   content: "";
   /* background: rgba(14, 32, 54, 0.7); */
-  position: absolute;
+  /* position: absolute; */
   bottom: 0;
   top: 0;
   left: 0;
