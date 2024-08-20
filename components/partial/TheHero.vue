@@ -1,6 +1,6 @@
 <template>
   <!-- ======= Hero Section ======= -->
-  <section id="hero" :style="{ backgroundImage: `url(${imageUrl})` }" class="d-flex flex-column justify-content-end align-items-center">
+  <section id="hero" class="d-flex flex-column justify-content-end align-items-center">
     <div id="heroCarousel" data-bs-interval="5000" class="container carousel carousel-fade" data-bs-ride="carousel">
 
       <!-- Slide 1 -->
@@ -44,22 +44,22 @@
 </template>
 <script lang="ts" setup>
   // const baseUrl = '/assets/img/';
-  const baseUrl = '/_nuxt/assets/img/';
-  const images = ['sunrise.jpg', 'village-sunrise.jpg', 'village-sunrise1.jpg'];
-  const imageUrl = ref('');
+  // const baseUrl = '/_nuxt/assets/img/';
+  // const images = ['sunrise.jpg', 'village-sunrise.jpg', 'village-sunrise1.jpg'];
+  // const imageUrl = ref('');
 
-  const changeBackgroundImage = () => {
-    const randomIndex = Math.floor(Math.random() * images.length);
-    imageUrl.value = baseUrl + images[randomIndex];
-  };
+  // const changeBackgroundImage = () => {
+  //   const randomIndex = Math.floor(Math.random() * images.length);
+  //   imageUrl.value = baseUrl + images[randomIndex];
+  // };
 
-  onMounted(() => {
-    changeBackgroundImage();
+  // onMounted(() => {
+  //   changeBackgroundImage();
 
-    // let intervalId = setInterval(changeBackgroundImage, 2000);
+  //   // let intervalId = setInterval(changeBackgroundImage, 2000);
 
-    onBeforeUnmount(() => {
-      // clearInterval(intervalId);
-    });
-  });
+  //   onBeforeUnmount(() => {
+  //     // clearInterval(intervalId);
+  //   });
+  // });
 </script>
