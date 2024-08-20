@@ -7,10 +7,6 @@ export default defineNuxtConfig({
       '@/assets/scss/main.scss'
   ],
 
-  experimental: {
-    compatibilityDate: '2024-08-20'
-  },
-
   render: {
     injectScripts: false
   },
