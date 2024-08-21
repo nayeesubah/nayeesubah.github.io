@@ -6,25 +6,25 @@
         <ul class="nav nav-tabs row d-flex">
           <li class="nav-item col-3" data-aos="zoom-in">
             <a class="nav-link active show" data-bs-toggle="tab" href="#tab-1">
-              <i class="ri-gps-line"></i>
+              <i class="bi bi-activity"></i>
               <h4 class="d-none d-lg-block">Our Activities</h4>
             </a>
           </li>
           <li class="nav-item col-3" data-aos="zoom-in" data-aos-delay="100">
             <a class="nav-link" data-bs-toggle="tab" href="#tab-2">
-              <i class="ri-body-scan-line"></i>
+              <i class="bi bi-person-walking"></i>
               <h4 class="d-none d-lg-block">Join Hands</h4>
             </a>
           </li>
           <li class="nav-item col-3" data-aos="zoom-in" data-aos-delay="200">
             <a class="nav-link" data-bs-toggle="tab" href="#tab-3">
-              <i class="ri-sun-line"></i>
+              <i class="bi bi-chat-right-heart"></i>
               <h4 class="d-none d-lg-block">Our message</h4>
             </a>
           </li>
           <li class="nav-item col-3" data-aos="zoom-in" data-aos-delay="300">
             <a class="nav-link" data-bs-toggle="tab" href="#tab-4">
-              <i class="ri-store-line"></i>
+              <i class="bi bi-bullseye"></i>
               <h4 class="d-none d-lg-block">Our Vision</h4>
             </a>
           </li>
