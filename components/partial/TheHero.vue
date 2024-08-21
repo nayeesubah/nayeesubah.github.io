@@ -7,7 +7,7 @@
       <div class="carousel-item active">
         <div class="carousel-container">
           <h2 class="animate__animated animate__fadeInDown">Welcome to <span>Nayee Subah Foundation</span></h2>
-          <p class="animate__animated fanimate__adeInUp">On A Mission of creation of awareness about education and its propagation, social reforms, unity of the Country and to make a better tomorrow.</p>
+          <p class="animate__animated fanimate__adeInUp">Join us in our mission to create awareness about the importance of education, drive social reforms, and promote unity across the country. We are committed to making a difference in the lives of the underprivileged and working towards a better tomorrow for all. Your support and involvement can help us turn this vision into reality.</p>
           <a href="#about" class="btn-get-started animate__animated animate__fadeInUp scrollto">Read More</a>
         </div>
       </div>
@@ -16,7 +16,7 @@
       <div class="carousel-item">
         <div class="carousel-container">
           <h2 class="animate__animated animate__fadeInDown">Hope for a Better Tomorrow</h2>
-          <p class="animate__animated animate__fadeInUp">Ut velit est quam dolor ad a aliquid qui aliquid. Sequi ea ut et est quaerat sequi nihil ut aliquam. Occaecati alias dolorem mollitia ut. Similique ea voluptatem. Esse doloremque accusamus repellendus deleniti vel. Minus et tempore modi architecto.</p>
+          <p class="animate__animated animate__fadeInUp">We believe in the power of hope to transform lives and communities. Our mission is to uplift the underprivileged, bridge educational gaps, and foster sustainable development. Together, we can create a brighter future where every individual has the opportunity to thrive and contribute to a more just and equitable world.</p>
           <a href="#about" class="btn-get-started animate__animated animate__fadeInUp scrollto">Read More</a>
         </div>
       </div>
@@ -25,7 +25,7 @@
       <div class="carousel-item">
         <div class="carousel-container">
           <h2 class="animate__animated animate__fadeInDown">Helping each other can make world better</h2>
-          <p class="animate__animated animate__fadeInUp">Ut velit est quam dolor ad a aliquid qui aliquid. Sequi ea ut et est quaerat sequi nihil ut aliquam. Occaecati alias dolorem mollitia ut. Similique ea voluptatem. Esse doloremque accusamus repellendus deleniti vel. Minus et tempore modi architecto.</p>
+          <p class="animate__animated animate__fadeInUp">At Nayee Subah Foundation, we know that collective action can bring about lasting change. By supporting one another, we can break down barriers, lift up those in need, and build stronger, more resilient communities. Together, let’s make the world a better place—one act of kindness at a time.</p>
           <a href="#about" class="btn-get-started animate__animated animate__fadeInUp scrollto">Read More</a>
         </div>
       </div>
