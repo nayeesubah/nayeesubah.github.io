@@ -1,0 +1,316 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Hero from "../components/Hero.astro";
+import StatCard from "../components/StatCard.astro";
+import ActivityCard from "../components/ActivityCard.astro";
+import TestimonialCard from "../components/TestimonialCard.astro";
+import BlogCard from "../components/BlogCard.astro";
+import ImpactCard from "../components/ImpactCard.astro";
+import VideoThumbnail from "../components/VideoThumbnail.astro";
+import { getCollection } from "astro:content";
+import { getSiteSettings } from "../lib/site";
+
+const settings = await getSiteSettings();
+
+const featuredActivities = (await getCollection("activities"))
+  .filter((a) => a.data.featured)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4);
+
+const latestPosts = (await getCollection("blog"))
+  .filter((p) => p.data.published)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+const featuredTestimonials = (await getCollection("testimonials"))
+  .filter((t) => t.data.featured)
+  .slice(0, 3);
+
+const stats = [
+  { label: "Active Members", value: "150+", icon: "M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" },
+  { label: "Lives Impacted", value: "2,000+", icon: "M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z" },
+  { label: "Students Educated", value: "500+", icon: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" },
+  { label: "Volunteers", value: "50+", icon: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" },
+];
+
+const impactNumbers = [
+  { value: "500+", label: "Children Educated", icon: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" },
+  { value: "3,000+", label: "Books in Library", icon: "M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" },
+  { value: "2,000+", label: "Patients Treated", icon: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z" },
+  { value: "200+", label: "Women Empowered", icon: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" },
+];
+
+const whyNSF = [
+  {
+    title: "Education First",
+    description: "We believe education is the most powerful tool for breaking the cycle of poverty and building a better future.",
+    icon: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342",
+  },
+  {
+    title: "Community Unity",
+    description: "We bring communities together regardless of background, fostering harmony and collective progress.",
+    icon: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  },
+  {
+    title: "Transparency",
+    description: "Complete openness in all our operations — every rupee is tracked, every decision is shared.",
+    icon: "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  },
+  {
+    title: "Rural Focus",
+    description: "We concentrate our efforts on underserved rural communities where the need is greatest and resources are scarcest.",
+    icon: "M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21",
+  },
+];
+---
+
+<BaseLayout
+  preloadHero
+  title="NGO in Giridih, Jharkhand — Education & Community Development"
+  description="Nayee Subah Foundation is a non-profit NGO in Giridih, Jharkhand working for education, healthcare, skill development, women empowerment, and community development in rural India."
+>
+  <Hero heroVideoUrl={settings.heroVideoUrl} />
+
+  {/* Founder's Message */}
+  <section class="py-16 sm:py-20 lg:py-24 bg-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-5 gap-10 lg:gap-16 items-center">
+        <div class="lg:col-span-2 flex justify-center">
+          <div class="relative">
+            <div class="h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-accent-soft flex items-center justify-center text-accent text-6xl sm:text-7xl font-bold ring-4 ring-accent/20 ring-offset-4 ring-offset-section">
+              MI
+            </div>
+            <div class="absolute -bottom-2 -right-2 rounded-full bg-accent text-accent-text p-3 shadow-lg">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003Z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-3">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">Founder's Message</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
+            A Vision for <span class="text-accent">a New Dawn</span>
+          </h2>
+          <div class="space-y-4 text-muted leading-relaxed text-lg">
+            <p>
+              "Nayee Subah Foundation was born from a simple belief — that every child, regardless of where they are born, deserves the opportunity to learn, grow, and build a future. Growing up in Jharkhand, I saw brilliant minds held back not by lack of talent, but by lack of access."
+            </p>
+            <p>
+              "Our mission is to bridge that gap. Whether through education, healthcare, skill development, or community empowerment, we are building a new dawn — one where no dream is too distant, and no child is left behind."
+            </p>
+          </div>
+          <div class="mt-6 flex items-center gap-4">
+            <div class="h-px flex-1 bg-border max-w-16" />
+            <div>
+              <p class="font-semibold text-body">Mohammed Irfan</p>
+              <p class="text-sm text-muted">Founder, Nayee Subah Foundation</p>
+              <p class="text-xs text-muted/60">Software Engineer | Former Researcher, IIRS ISRO</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Stats Bar */}
+  <section class="py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        {stats.map((stat) => <StatCard {...stat} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* About Intro */}
+  <section class="py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">About Nayee Subah Foundation</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
+            Empowering Through
+            <span class="text-accent"> Education & Unity</span>
+          </h2>
+          <p class="text-muted leading-relaxed text-lg mb-6">
+            Nayee Subah Foundation has been founded with the sole aim of creation of awareness about education and its propagation, social reforms, unity and community development. We work tirelessly to uplift underprivileged communities in rural Jharkhand.
+          </p>
+          <p class="text-muted leading-relaxed mb-8">
+            Through our coaching center, library, healthcare camps, career guidance, women empowerment, and farmer support programs, we are creating lasting change — one community at a time.
+          </p>
+          <a href="/about/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200">
+            Learn Our Mission
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-accent-soft flex items-center justify-center">
+            <div class="text-center p-8">
+              <span class="text-6xl">📚</span>
+              <p class="mt-4 text-sm text-accent font-medium">Education for All</p>
+            </div>
+          </div>
+          <div class="aspect-[3/4] rounded-2xl overflow-hidden mt-8 bg-section flex items-center justify-center">
+            <div class="text-center p-8">
+              <span class="text-6xl">🌾</span>
+              <p class="mt-4 text-sm text-accent font-medium">Rural Development</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {/* Community Library */}
+  <section class="py-16 sm:py-20 lg:py-24 bg-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">Community Library</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
+            Knowledge for <span class="text-accent">Every Child</span>
+          </h2>
+          <p class="text-muted leading-relaxed text-lg mb-6">
+            Nayee Subah Foundation establishes libraries in rural villages across Giridih to foster a culture of reading and academic excellence among underprivileged children.
+          </p>
+          <p class="text-muted leading-relaxed mb-6">
+            Our libraries provide free access to textbooks, competitive exam guides, storybooks, and reference materials — helping students prepare for board exams, engineering and medical entrance tests, and other competitive examinations.
+          </p>
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="card p-4 text-center">
+              <div class="text-2xl font-bold text-accent">3,000+</div>
+              <div class="text-sm text-muted">Books in Library</div>
+            </div>
+            <div class="card p-4 text-center">
+              <div class="text-2xl font-bold text-accent">500+</div>
+              <div class="text-sm text-muted">Students Served</div>
+            </div>
+          </div>
+          <a href="/activities/community-library/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200">
+            Learn More
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+        <div>
+          <VideoThumbnail videoUrl={settings.aboutVideoUrl} thumbnailUrl={settings.aboutVideoThumbnail} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Our Approach */}
+  <section class="py-16 sm:py-20 lg:py-24 bg-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="section-title mb-12 sm:mb-16">
+        <h2>Our <span class="text-accent">Approach</span></h2>
+        <p>The principles that guide our mission in rural Jharkhand.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {whyNSF.map((item) => (
+          <div class="text-center group">
+            <div class="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-text">
+              <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d={item.icon} /></svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-3">{item.title}</h3>
+            <p class="text-muted text-sm leading-relaxed">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Impact Numbers */}
+  <section class="py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="section-title mb-12 sm:mb-16">
+        <h2>Our <span class="text-accent">Impact</span></h2>
+        <p>Measurable change in the communities we serve.</p>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {impactNumbers.map((item) => <ImpactCard {...item} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* Featured Activities */}
+  {featuredActivities.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24 bg-section">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12 sm:mb-16">
+          <h2>Our <span class="text-accent">Activities</span></h2>
+          <p>Explore the initiatives we're working on.</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredActivities.map((activity) => <ActivityCard activity={activity} />)}
+        </div>
+        <div class="text-center mt-10">
+          <a href="/activities/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-8 py-4 text-lg font-medium hover:bg-accent-hover transition-all duration-200">
+            View All Activities
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Testimonials */}
+  {featuredTestimonials.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12 sm:mb-16">
+          <h2>What People <span class="text-accent">Say</span></h2>
+          <p>Hear from those whose lives have been touched by our work.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {featuredTestimonials.map((t) => (
+            <TestimonialCard
+              name={t.data.name}
+              content={t.data.content}
+              role={t.data.type}
+              avatar={t.data.avatar}
+              rating={t.data.rating}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Blog */}
+  {latestPosts.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24 bg-section">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12 sm:mb-16">
+          <h2>From the <span class="text-accent">Field</span></h2>
+          <p>Stories, updates, and insights from our work in rural Jharkhand.</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {latestPosts.map((post) => <BlogCard post={post} />)}
+        </div>
+        <div class="text-center mt-10">
+          <a href="/blog/" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-btn-secondary-border text-body px-6 py-3 font-medium hover:bg-btn-secondary-hover-bg hover:text-btn-secondary-hover-text transition-all duration-200">
+            View All News
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* CTA */}
+  <section class="py-16 sm:py-20 lg:py-24 relative overflow-hidden bg-inverse">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(5,150,105,0.1),transparent_60%)]" />
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-inverted mb-4">
+        Build a New Dawn With Us
+      </h2>
+      <p class="text-inverted/60 text-lg max-w-2xl mx-auto mb-8">
+        Whether through monthly membership, a one-time donation, or your time as a volunteer — your contribution brings education, hope, and opportunity to rural Jharkhand.
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href="/donate/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-8 py-4 text-lg font-medium hover:bg-accent-hover transition-all duration-200">
+          Support Our Work
+        </a>
+        <a href="/members/join/" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-inverted/30 text-inverted px-8 py-4 text-lg font-medium hover:bg-inverted hover:text-inverse transition-all duration-200">
+          Become a Member
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

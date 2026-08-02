@@ -1,0 +1,262 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { getCollection } from "astro:content";
+import { formatINR, MONTHS } from "../../lib/site";
+
+const members = await getCollection("members");
+const cities = [...new Set(members.map((m) => m.data.city))].sort();
+const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((a, b) => a - b);
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+
+const memberData = members.map((m) => ({
+  id: m.id,
+  name: m.data.name,
+  city: m.data.city,
+  plan: m.data.subscriptionAmount,
+  memberId: m.data.memberId,
+  status: m.data.membershipStatus,
+}));
+
+const allPayments = (await getCollection("payments")).map((p) => ({
+  memberId: p.data.memberId,
+  year: p.data.year,
+  month: p.data.month,
+  status: p.data.status,
+  amount: p.data.amount,
+}));
+---
+
+<BaseLayout
+  title="Contribution Matrix"
+  description="Yearly contribution matrix for Nayee Subah Foundation members. View payment status by month with filters for year, plan, city, and status."
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/members/matrix/" class="mb-8" />
+        <div class="max-w-3xl mb-12">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">Contributions</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
+            Contribution <span class="text-accent">Matrix</span>
+          </h1>
+          <p class="text-muted text-lg leading-relaxed">
+            Yearly overview of member contributions. Each cell shows the payment status for that month.
+          </p>
+        </div>
+
+        <div id="matrix-controls" class="flex flex-wrap items-center gap-4 mb-8">
+          <select id="filter-year" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+            {years.map((y) => (
+              <option value={y} selected={y === currentYear}>{y}</option>
+            ))}
+          </select>
+
+          <select id="filter-plan" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+            <option value="all">All Plans</option>
+            {plans.map((p) => (
+              <option value={p}>{formatINR(p)}/month</option>
+            ))}
+          </select>
+
+          <select id="filter-city" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+            <option value="all">All Cities</option>
+            {cities.map((c) => (
+              <option value={c}>{c}</option>
+            ))}
+          </select>
+
+          <label class="flex items-center gap-2 text-sm text-muted cursor-pointer">
+            <input type="checkbox" id="filter-active" class="rounded border-input-border text-accent focus:ring-accent/50" checked />
+            Active members only
+          </label>
+
+          <span id="row-count" class="text-sm text-muted ml-auto"></span>
+        </div>
+
+        <div class="overflow-x-auto rounded-xl border border-border">
+          <table class="w-full text-sm whitespace-nowrap">
+            <thead>
+              <tr class="bg-accent-soft/50 border-b border-border">
+                <th class="sticky left-0 bg-accent-soft/50 z-10 text-left py-3 px-4 font-medium text-muted min-w-[180px]">Member</th>
+                {MONTHS.map((m) => (
+                  <th class="text-center py-3 px-2 font-medium text-muted min-w-[56px]">{m.slice(0, 3)}</th>
+                ))}
+                <th class="text-right py-3 px-4 font-medium text-muted min-w-[80px]">Total</th>
+              </tr>
+            </thead>
+            <tbody id="matrix-body"></tbody>
+            <tfoot id="matrix-foot">
+              <tr class="bg-accent-soft/30 border-t-2 border-border font-semibold">
+                <td class="sticky left-0 bg-accent-soft/30 z-10 py-3 px-4 text-body">Summary</td>
+                {MONTHS.map((_, idx) => (
+                  <td class="text-center py-3 px-2" id={`summary-${idx}`}></td>
+                ))}
+                <td class="text-right py-3 px-4 text-body" id="summary-total"></td>
+              </tr>
+            </tfoot>
+          </table>
+        </div>
+
+        <div class="mt-6 flex flex-wrap items-center gap-6 text-xs text-muted">
+          <span class="flex items-center gap-1.5">
+            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-success text-white text-[10px] font-bold">\u2713</span> Paid
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block h-3 w-1 bg-muted/30"></span> Due
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-warning text-white text-[10px] font-bold">P</span> Partial
+          </span>
+          <span class="flex items-center gap-1.5">
+            <span class="inline-block h-1 w-1 rounded-full bg-muted/30"></span> Not Updated
+          </span>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ memberData, allPayments }}>
+  const MONTHS_3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+
+  const filterYear = document.getElementById("filter-year");
+  const filterPlan = document.getElementById("filter-plan");
+  const filterCity = document.getElementById("filter-city");
+  const filterActive = document.getElementById("filter-active");
+  const rowCount = document.getElementById("row-count");
+  const tbody = document.getElementById("matrix-body");
+
+  function buildPayments(memberId, year) {
+    const payments = {};
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const targetMonth = year < currentYear ? 11 : (year === currentYear ? currentMonth : -1);
+
+    const realMap = {};
+    for (const p of allPayments) {
+      if (p.memberId === memberId && p.year === year) realMap[p.month] = p;
+    }
+
+    for (let m = 0; m < 12; m++) {
+      const key = `${year}-${m}`;
+      if (realMap[m] !== undefined) {
+        payments[key] = realMap[m].status;
+      } else if (m <= targetMonth) {
+        payments[key] = "due";
+      } else {
+        payments[key] = "not-updated";
+      }
+    }
+    return payments;
+  }
+
+  const colorMap = {
+    "paid": "bg-success text-white",
+    "due": "text-muted",
+    "partial": "bg-partial text-white",
+    "not-updated": "text-muted/40",
+  };
+  const labelMap = {
+    "paid": "Paid",
+    "due": "Due",
+    "partial": "Partial",
+    "not-updated": "Not Updated",
+  };
+
+  function formatINR(n) {
+    return "₹" + n.toLocaleString("en-IN");
+  }
+
+  function render() {
+    const year = parseInt(filterYear.value);
+    const plan = filterPlan.value;
+    const city = filterCity.value.toLowerCase();
+    const activeOnly = filterActive.checked;
+
+    const filtered = memberData.filter((m) => {
+      return (plan === "all" || String(m.plan) === plan) &&
+             (city === "all" || m.city.toLowerCase() === city) &&
+             (!activeOnly || m.status === "active");
+    });
+
+    let html = "";
+    let summaryPaid = Array(12).fill(0);
+    let summaryDue = Array(12).fill(0);
+    let summaryPartial = Array(12).fill(0);
+    let grandTotal = 0;
+
+    for (const m of filtered) {
+      const payments = buildPayments(m.memberId, year);
+      let rowTotal = 0;
+      const cells = [];
+
+      for (let i = 0; i < 12; i++) {
+        const key = `${year}-${i}`;
+        const status = payments[key] || "not-updated";
+        const color = colorMap[status] || "bg-neutral-200 text-white";
+        const label = labelMap[status] || "?";
+
+        if (status === "paid") {
+          rowTotal += m.plan;
+          summaryPaid[i]++;
+        } else if (status === "partial") {
+          rowTotal += Math.floor(m.plan / 2);
+          summaryPartial[i]++;
+        } else if (status === "due") {
+          summaryDue[i]++;
+        }
+
+        cells.push(`<td class="text-center py-3 px-2">
+          <span class="inline-flex items-center justify-center text-[12px] font-normal ${color}" title="${label}">
+            ${status === "paid" ? "\u2713" : status === "partial" ? "P" : status === "due" ? "\u2014" : "\u00B7"}
+          </span>
+        </td>`);
+      }
+
+      grandTotal += rowTotal;
+
+      html += `<tr class="matrix-row border-b border-border/50 hover:bg-accent-soft/30 transition-colors">
+        <td class="sticky left-0 bg-card z-10 py-3 px-4 font-medium text-body">
+          <a href="/members/${m.id}/" class="hover:text-accent transition-colors">${m.name}</a>
+        </td>
+        ${cells.join("")}
+        <td class="text-right py-3 px-4 font-semibold text-body">${formatINR(rowTotal)}</td>
+      </tr>`;
+    }
+
+    // Summary row
+    let summaryCells = "";
+    for (let i = 0; i < 12; i++) {
+      const parts = [];
+      if (summaryPaid[i] > 0) parts.push(`<span class="text-success">${summaryPaid[i]}</span>`);
+      if (summaryDue[i] > 0) parts.push(`<span class="text-muted">${summaryDue[i]}</span>`);
+      if (summaryPartial[i] > 0) parts.push(`<span class="text-warning">${summaryPartial[i]}</span>`);
+      summaryCells += `<td class="text-center py-3 px-2"><span class="text-[10px]">${parts.join(" / ") || "\u2014"}</span></td>`;
+    }
+
+    tbody.innerHTML = html;
+    document.getElementById("summary-total").textContent = formatINR(grandTotal);
+    for (let i = 0; i < 12; i++) {
+      const el = document.getElementById(`summary-${i}`);
+      if (el) {
+        const parts = [];
+        if (summaryPaid[i] > 0) parts.push(`<span class="text-success">${summaryPaid[i]}</span>`);
+        if (summaryDue[i] > 0) parts.push(`<span class="text-muted">${summaryDue[i]}</span>`);
+        if (summaryPartial[i] > 0) parts.push(`<span class="text-warning">${summaryPartial[i]}</span>`);
+        el.innerHTML = `<span class="text-[10px]">${parts.join(" / ") || "\u2014"}</span>`;
+      }
+    }
+
+    rowCount.textContent = `${filtered.length} of ${memberData.length} members`;
+  }
+
+  filterYear.addEventListener("change", render);
+  filterPlan.addEventListener("change", render);
+  filterCity.addEventListener("change", render);
+  filterActive.addEventListener("change", render);
+
+  render();
+</script>

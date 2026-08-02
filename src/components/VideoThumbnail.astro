@@ -1,0 +1,178 @@
+---
+export interface Props {
+  videoUrl?: string;
+  thumbnailUrl?: string;
+}
+
+const { videoUrl, thumbnailUrl } = Astro.props;
+---
+
+{
+  videoUrl && (
+    <div class="video-wrapper" data-video-url={videoUrl}>
+      <div class="group relative aspect-[4/3] rounded-2xl overflow-hidden bg-accent-soft cursor-pointer video-trigger">
+        {
+          thumbnailUrl ? (
+            <img
+              src={thumbnailUrl}
+              alt=""
+              class="absolute inset-0 w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
+              loading="lazy"
+            />
+          ) : (
+            <div class="absolute inset-0 flex items-center justify-center bg-gradient-to-br from-accent/10 to-accent/5">
+              <svg class="w-16 h-16 text-accent/30" viewBox="0 0 24 24" fill="currentColor">
+                <path d="M19.615 3.184c-3.604-.246-11.631-.245-15.23 0C.488 3.45.029 5.804 0 12c.029 6.185.484 8.549 4.385 8.816 3.6.245 11.626.246 15.23 0C23.512 20.55 23.971 18.196 24 12c-.029-6.185-.484-8.549-4.385-8.816zM9 16V8l8 4-8 4z"/>
+              </svg>
+            </div>
+          )
+        }
+        <div class="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+        <div class="absolute inset-0 flex items-center justify-center pointer-events-none">
+          <div class="play-ring" />
+          <div class="play-button relative flex items-center justify-center w-16 h-16 rounded-full bg-white/90 shadow-lg transition-transform duration-300 group-hover:scale-110">
+            <svg class="w-6 h-6 text-accent ml-0.5" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M8 5v14l11-7z"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <div class="video-modal" data-video-modal role="dialog" aria-modal="true" aria-label="Video player">
+        <div class="video-modal-backdrop" />
+        <div class="video-modal-content">
+          <button class="video-modal-close" aria-label="Close video">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M18 6L6 18M6 6l12 12"/>
+            </svg>
+          </button>
+          <div class="video-modal-player">
+            <iframe data-video-iframe width="100%" height="100%" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen />
+          </div>
+        </div>
+      </div>
+    </div>
+  )
+}
+
+<script>
+  function getYouTubeEmbedUrl(url) {
+    if (!url) return null;
+    const match = url.match(
+      /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/
+    ) || url.match(/^([a-zA-Z0-9_-]{11})$/);
+    return match ? `https://www.youtube.com/embed/${match[1]}?autoplay=1&rel=0` : null;
+  }
+
+  document.querySelectorAll("[data-video-url]").forEach((wrapper) => {
+    const trigger = wrapper.querySelector(".video-trigger");
+    const modal = wrapper.querySelector("[data-video-modal]");
+    const iframe = wrapper.querySelector("[data-video-iframe]");
+    const closeBtn = wrapper.querySelector(".video-modal-close");
+
+    if (!trigger || !modal || !iframe || !closeBtn) return;
+
+    const embedUrl = getYouTubeEmbedUrl(wrapper.dataset.videoUrl);
+    if (!embedUrl) return;
+
+    trigger.addEventListener("click", () => {
+      iframe.src = embedUrl;
+      modal.classList.add("open");
+      document.body.style.overflow = "hidden";
+    });
+
+    function closeModal() {
+      modal.classList.remove("open");
+      iframe.src = "";
+      document.body.style.overflow = "";
+    }
+
+    closeBtn.addEventListener("click", closeModal);
+
+    modal.addEventListener("click", (e) => {
+      if (e.target === modal || e.target.classList.contains("video-modal-backdrop")) {
+        closeModal();
+      }
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+  });
+</script>
+
+<style>
+  .play-ring {
+    position: absolute;
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.25);
+    animation: pulse-ring 2s ease-out infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% { transform: scale(0.8); opacity: 1; }
+    100% { transform: scale(1.5); opacity: 0; }
+  }
+
+  .video-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9999;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .video-modal.open {
+    display: flex;
+  }
+
+  .video-modal-backdrop {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(4px);
+  }
+
+  .video-modal-content {
+    position: relative;
+    width: 90%;
+    max-width: 960px;
+    aspect-ratio: 16 / 9;
+  }
+
+  .video-modal-close {
+    position: absolute;
+    top: -44px;
+    right: 0;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    border: none;
+    transition: background 0.2s;
+  }
+
+  .video-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+  }
+
+  .video-modal-player {
+    width: 100%;
+    height: 100%;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .video-modal-player iframe {
+    width: 100%;
+    height: 100%;
+  }
+</style>

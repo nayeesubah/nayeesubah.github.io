@@ -1,0 +1,135 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { getSiteSettings } from "../../lib/site";
+
+const settings = await getSiteSettings();
+const phoneClean = (p: string) => p.replace(/[^0-9]/g, "");
+---
+
+<BaseLayout
+  title="Apply to Volunteer — Register Your Interest"
+  description="Register to volunteer with Nayee Subah Foundation NGO. Share your skills, time, and passion to support education and community development in rural Jharkhand."
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/volunteer/join/" class="mb-8" />
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-20">
+          <div>
+            <span class="text-accent font-semibold text-sm uppercase tracking-widest">Volunteer</span>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
+              Join Us as a <span class="text-accent">Volunteer</span>
+            </h1>
+            <p class="text-muted text-lg leading-relaxed mb-8">
+              Ready to make a difference? Fill out the form and our volunteer coordinator will get in touch with you. Whether you have specific skills or just a willingness to help, there's a place for you at Nayee Subah Foundation.
+            </p>
+
+            <div class="space-y-6">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">No experience needed</h3>
+                  <p class="text-muted text-sm mt-1">We welcome volunteers of all backgrounds and skill levels.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v6h4.5m4.5 0a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Flexible hours</h3>
+                  <p class="text-muted text-sm mt-1">Volunteer at your convenience — weekends, evenings, or during events.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Skill development</h3>
+                  <p class="text-muted text-sm mt-1">Gain valuable experience and develop new skills while serving the community.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-6 sm:p-8">
+            <h2 class="text-2xl font-semibold mb-6">Registration Form</h2>
+            <form id="volunteer-form" class="space-y-5">
+              <div>
+                <label for="name" class="block text-sm font-medium mb-2">Full Name</label>
+                <input type="text" id="name" name="name" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="Your full name" />
+              </div>
+              <div class="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                  <input type="email" id="email" name="email" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="your@email.com" />
+                </div>
+                <div>
+                  <label for="phone" class="block text-sm font-medium mb-2">Phone</label>
+                  <input type="tel" id="phone" name="phone" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="+91 ..." />
+                </div>
+              </div>
+              <div>
+                <label for="skills" class="block text-sm font-medium mb-2">Skills / Areas of Interest</label>
+                <input type="text" id="skills" name="skills" class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="e.g. Teaching, Healthcare, Photography, Events..." />
+              </div>
+              <div>
+                <label for="availability" class="block text-sm font-medium mb-2">Availability</label>
+                <select id="availability" name="availability" class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors">
+                  <option value="">Select your availability</option>
+                  <option value="weekends">Weekends</option>
+                  <option value="weekdays">Weekdays</option>
+                  <option value="evenings">Evenings</option>
+                  <option value="full-time">Full Time</option>
+                  <option value="flexible">Flexible</option>
+                  <option value="event-based">Event-based only</option>
+                </select>
+              </div>
+              <div>
+                <label for="message" class="block text-sm font-medium mb-2">Why do you want to volunteer?</label>
+                <textarea id="message" name="message" rows="4" class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors resize-none" placeholder="Tell us about yourself and why you'd like to join..."></textarea>
+              </div>
+              <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200 w-full py-4">
+                Submit Registration
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ whatsappNumber: phoneClean(settings.social?.whatsapp ?? settings.phone[0]) }}>
+  document.getElementById("volunteer-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const name = form.querySelector("#name").value.trim();
+    const email = form.querySelector("#email").value.trim();
+    const phone = form.querySelector("#phone").value.trim();
+    const skills = form.querySelector("#skills").value.trim();
+    const availability = form.querySelector("#availability").value;
+    const message = form.querySelector("#message").value.trim();
+
+    const text = [
+      `*New Volunteer Registration from nayeesubah.org*`,
+      ``,
+      `*Name:* ${name}`,
+      `*Email:* ${email}`,
+      `*Phone:* ${phone}`,
+      `*Skills:* ${skills || "Not specified"}`,
+      `*Availability:* ${availability || "Not specified"}`,
+      ``,
+      `*Message:*`,
+      `${message || "No message provided"}`,
+    ].join("\n");
+
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  });
+</script>

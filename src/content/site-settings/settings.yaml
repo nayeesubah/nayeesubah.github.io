@@ -1,0 +1,26 @@
+siteName: Nayee Subah Foundation
+tagline: Empower, Educate, Transform
+description: Nayee Subah Foundation has been founded with the sole aim of creation of awareness about education and its propagation, social reforms, unity and community development. We are dedicated to uplifting underprivileged communities in rural areas through education, healthcare, and social welfare.
+url: https://nayeesubah.org
+logo: /images/nsf-logo.png
+logoDark: /images/nsf-logo-dark.png
+favicon: /favicon.svg
+phone:
+  - +91 9708156668
+email: nsfgiridih@gmail.com
+address: Vill- Kakni, Gumgi, Tisri, Giridih - 815317, Jharkhand, India
+workingHours: Mon–Sat, 9:00–17:00
+social:
+  facebook: https://facebook.com/nayeesubahfoundation
+  instagram: https://instagram.com/nayeesubahfoundation
+  youtube: https://youtube.com/@nayeesubahfoundation
+  whatsapp: '+919708156668'
+googleMapsEmbedUrl: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.908!2d86.123!3d24.123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sNayee+Subah+Foundation!5e0!3m2!1sen!2sin!4v1
+aboutVideoUrl: https://youtu.be/jCCmf0swyDk?si=nsPQcNoiaar-fLJJ
+heroVideoUrl: https://youtu.be/Om6tc4VZz4Q?si=b1ulNhDlQkxRFuMu
+aboutVideoThumbnail: /images/library-front.jpg
+currency: INR
+language: ''
+languages:
+  - en
+  - hi

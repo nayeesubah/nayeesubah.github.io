@@ -1,0 +1,17 @@
+items:
+  - label: Home
+    href: /
+  - label: About
+    href: /about/
+  - label: Activities
+    href: /activities/
+  - label: Members
+    href: /members/
+  - label: Investment
+    href: /investment/
+  - label: Gallery
+    href: /gallery/
+  - label: News
+    href: /blog/
+  - label: Contact
+    href: /contact/

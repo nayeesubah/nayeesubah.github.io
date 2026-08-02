@@ -1,0 +1,90 @@
+---
+import BaseLayout from "../layouts/BaseLayout.astro";
+import Breadcrumb from "../components/Breadcrumb.astro";
+import ActivityCard from "../components/ActivityCard.astro";
+import { getCollection } from "astro:content";
+
+const activities = (await getCollection("activities"))
+  .sort((a, b) => a.data.order - b.data.order);
+
+const categories = [
+  { id: "education", label: "Education" },
+  { id: "healthcare", label: "Healthcare" },
+  { id: "skill-development", label: "Skill Development" },
+  { id: "women-empowerment", label: "Women Empowerment" },
+  { id: "youth-development", label: "Youth Development" },
+  { id: "employment", label: "Employment Support" },
+  { id: "disaster-relief", label: "Disaster Relief" },
+  { id: "blood-donation", label: "Blood Donation" },
+  { id: "tree-plantation", label: "Tree Plantation" },
+  { id: "scholarships", label: "Scholarships" },
+  { id: "community-development", label: "Community Development" },
+  { id: "food-distribution", label: "Food Distribution" },
+  { id: "awareness-campaigns", label: "Awareness Campaigns" },
+  { id: "library", label: "Library" },
+  { id: "helping-local-farmers", label: "Helping Local Farmers" },
+];
+---
+
+<BaseLayout
+  title="NGO Programs & Activities — Education, Healthcare, Skill Development"
+  description="Explore Nayee Subah Foundation's NGO programs and activities in Jharkhand — education, healthcare, skill development, women empowerment, and community development initiatives."
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/activities/" class="mb-8" />
+        <div class="max-w-3xl mb-12">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">Our Work</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
+            Our <span class="text-accent">Activities</span>
+          </h1>
+          <p class="text-muted text-lg leading-relaxed">
+            Explore the various initiatives and programs we run to create positive change in communities.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-10" id="category-filters">
+          <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-text transition-colors" data-category="all">All</button>
+          {categories.map((cat) => (
+            <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-soft text-accent hover:bg-accent hover:text-accent-text transition-colors" data-category={cat.id}>
+              {cat.label}
+            </button>
+          ))}
+        </div>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="activities-grid">
+          {activities.map((activity) => (
+            <div class="activity-item" data-category={activity.data.category}>
+              <ActivityCard activity={activity} />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  const buttons = document.querySelectorAll(".filter-btn");
+  const items = document.querySelectorAll(".activity-item");
+
+  buttons.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const cat = btn.dataset.category;
+      buttons.forEach((b) => {
+        b.className = b.className.replace("bg-accent text-accent-text", "bg-accent-soft text-accent")
+          .replace("bg-accent-soft text-accent", "bg-accent-soft text-accent");
+      });
+      btn.className = btn.className.replace("bg-accent-soft text-accent", "bg-accent text-accent-text");
+
+      items.forEach((item) => {
+        if (cat === "all" || item.dataset.category === cat) {
+          item.style.display = "";
+        } else {
+          item.style.display = "none";
+        }
+      });
+    });
+  });
+</script>

@@ -1,0 +1,224 @@
+---
+import { getSiteSettings } from "../lib/site";
+import { t, defaultLang } from "../i18n/ui";
+import { getRelativeLocaleUrl } from "astro:i18n";
+
+const settings = await getSiteSettings();
+const currentYear = new Date().getFullYear();
+const locale = Astro.currentLocale || defaultLang;
+
+const phoneClean = (p: string) => p.replace(/[^0-9]/g, "");
+
+const columns = [
+  {
+    title: t(locale, "footer.quickLinks"),
+    links: [
+      { label: t(locale, "nav.home"), href: "/" },
+      { label: t(locale, "nav.about"), href: "/about/" },
+      { label: t(locale, "nav.activities"), href: "/activities/" },
+      { label: t(locale, "nav.events"), href: "/events/" },
+      { label: t(locale, "nav.gallery"), href: "/gallery/" },
+      { label: t(locale, "nav.news"), href: "/blog/" },
+      { label: t(locale, "nav.contact"), href: "/contact/" },
+    ],
+  },
+  {
+    title: t(locale, "footer.ourWork"),
+    links: [
+      { label: "Education", href: "/activities/education/" },
+      { label: "Healthcare", href: "/activities/healthcare/" },
+      { label: "Skill Development", href: "/activities/skill-development/" },
+      { label: "Women Empowerment", href: "/activities/women-empowerment/" },
+      { label: "Community Development", href: "/activities/community-development/" },
+    ],
+  },
+  {
+    title: t(locale, "footer.support"),
+    links: [
+      { label: t(locale, "nav.donate").replace(" Now", ""), href: "/donate/" },
+      { label: t(locale, "common.join"), href: "/members/join/" },
+      { label: t(locale, "nav.volunteer"), href: "/volunteer/" },
+      { label: "FAQ", href: "/faq/" },
+      { label: t(locale, "footer.privacy"), href: "/privacy/" },
+    ],
+  },
+];
+
+const localizedColumns = columns.map((col) => ({
+  ...col,
+  links: col.links.map((l) => ({ ...l, href: getRelativeLocaleUrl(locale, l.href) })),
+}));
+
+const mapsHref = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(settings.address ?? "New Delhi, India")}`;
+---
+
+<footer class="bg-inverse text-inverted border-t border-white/10">
+
+  <!-- CTA band -->
+  <div class="border-b border-white/10">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 flex flex-col md:flex-row md:items-center md:justify-between gap-6">
+      <div>
+        <p class="text-lg sm:text-xl font-semibold text-inverted">{t(locale, "footer.ctaTitle")}</p>
+        <p class="mt-1 text-sm text-white/60">{t(locale, "footer.ctaSubtitle")}</p>
+      </div>
+      <div class="flex flex-wrap gap-3 shrink-0">
+        <a
+          href={getRelativeLocaleUrl(locale, "/donate/")}
+          class="inline-flex items-center justify-center rounded-md bg-accent px-5 py-2.5 text-sm font-semibold text-white hover:opacity-90 transition-opacity"
+        >
+          {t(locale, "nav.donate")}
+        </a>
+        <a
+          href={getRelativeLocaleUrl(locale, "/volunteer/")}
+          class="inline-flex items-center gap-2 justify-center rounded-md border border-white/20 px-5 py-2.5 text-sm font-semibold hover:border-white/40 transition-colors"
+        >
+          {t(locale, "nav.volunteer")}
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16">
+    <div class="grid grid-cols-2 gap-x-6 gap-y-12 lg:grid-cols-12 lg:gap-x-8">
+
+      <!-- Brand -->
+      <div class="col-span-2 lg:col-span-4">
+        <a href={getRelativeLocaleUrl(locale, "/")} class="inline-block" aria-label="Nayee Subah Foundation Home">
+          <img src="/images/nsf-logo-dark.webp" alt="NSF" class="h-14 w-auto" />
+          <span class="ml-2 text-sm text-white/60">Nayee Subah Foundation</span>
+        </a>
+        <p class="mt-4 text-white/60 leading-relaxed text-sm max-w-xs">
+          {settings.description}
+        </p>
+
+        <div class="mt-6 flex gap-4">
+          {settings.social?.facebook && (
+            <a href={settings.social.facebook} target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-accent transition-colors" aria-label="Facebook">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            </a>
+          )}
+          {settings.social?.instagram && (
+            <a href={settings.social.instagram} target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-accent transition-colors" aria-label="Instagram">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0z"/></svg>
+            </a>
+          )}
+          {settings.social?.youtube && (
+            <a href={settings.social.youtube} target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-accent transition-colors" aria-label="YouTube">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M23.498 6.186a3.016 3.016 0 00-2.122-2.136C19.505 3.545 12 3.545 12 3.545s-7.505 0-9.377.505A3.017 3.017 0 00.502 6.186C0 8.07 0 12 0 12s0 3.93.502 5.814a3.016 3.016 0 002.122 2.136c1.871.505 9.376.505 9.376.505s7.505 0 9.377-.505a3.015 3.015 0 002.122-2.136C24 15.93 24 12 24 12s0-3.93-.502-5.814zM9.545 15.568V8.432L15.818 12l-6.273 3.568z"/></svg>
+            </a>
+          )}
+          {settings.social?.whatsapp && (
+            <a href={`https://wa.me/${phoneClean(settings.social.whatsapp)}`} target="_blank" rel="noopener noreferrer" class="text-white/40 hover:text-accent transition-colors" aria-label="WhatsApp">
+              <svg class="h-5 w-5" fill="currentColor" viewBox="0 0 24 24"><path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 1.75.46 3.45 1.32 4.95L2 22l5.25-1.38a9.9 9.9 0 004.79 1.22h.01c5.46 0 9.91-4.45 9.91-9.91 0-2.65-1.03-5.14-2.9-7.01A9.82 9.82 0 0012.04 2zm0 18.13h-.01a8.2 8.2 0 01-4.18-1.15l-.3-.18-3.12.82.83-3.04-.2-.31a8.22 8.22 0 01-1.26-4.36c0-4.54 3.7-8.24 8.25-8.24 2.2 0 4.27.86 5.83 2.42a8.17 8.17 0 012.41 5.83c0 4.55-3.7 8.21-8.25 8.21z"/></svg>
+            </a>
+          )}
+        </div>
+      </div>
+
+      <!-- Link columns -->
+      {localizedColumns.map((col) => (
+        <div class="col-span-1 lg:col-span-2">
+          <h3 class="font-semibold text-sm uppercase tracking-widest text-accent mb-4">{col.title}</h3>
+          <ul class="space-y-3">
+            {col.links.map((link) => (
+              <li>
+                <a
+                  href={link.href}
+                  class="text-white/60 hover:text-inverted transition-colors text-sm rounded-sm"
+                >
+                  {link.label}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))}
+
+      <!-- Contact -->
+      <div class="col-span-2 lg:col-span-2">
+        <h3 class="font-semibold text-sm uppercase tracking-widest text-accent mb-4">{t(locale, "footer.contact")}</h3>
+        <ul class="space-y-4 text-sm text-white/60">
+          <li class="flex items-start gap-3">
+            <svg class="h-5 w-5 mt-0.5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg>
+            <div>
+              <span class="block">{settings.address}</span>
+              <a href={mapsHref} target="_blank" rel="noopener noreferrer" class="text-accent hover:underline text-xs">{t(locale, "footer.getDirections")}</a>
+            </div>
+          </li>
+          <li class="flex items-start gap-3">
+            <svg class="h-5 w-5 mt-0.5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 002.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 01-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 00-1.091-.852H4.5A2.25 2.25 0 002.25 4.5v2.25z"/></svg>
+            <div>
+              {settings.phone.map((p) => {
+                const clean = phoneClean(p);
+                return (
+                  <a href={`tel:${clean}`} class="block hover:text-white rounded-sm">
+                    {clean.replace(/(\d{4})(\d{4})(\d+)?/, (_, a, b, c) => c ? `${a} ${b} ${c}` : `${a} ${b}`)}
+                  </a>
+                );
+              })}
+            </div>
+          </li>
+          {settings.email && (
+          <li class="flex items-center gap-3">
+            <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 01-2.25 2.25h-15a2.25 2.25 0 01-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0019.5 4.5h-15a2.25 2.25 0 00-2.25 2.25m19.5 0v.243a2.25 2.25 0 01-1.07 1.916l-7.5 4.615a2.25 2.25 0 01-2.36 0L3.32 8.91a2.25 2.25 0 01-1.07-1.916V6.75"/></svg>
+            <a href={`mailto:${settings.email}`} class="hover:text-white rounded-sm">{settings.email}</a>
+          </li>
+          )}
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-white/10 py-6">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm text-white/40">
+      <p>&copy; {currentYear} Nayee Subah Foundation. {t(locale, "footer.rights")}</p>
+      <div class="flex items-center gap-6">
+        <a href={getRelativeLocaleUrl(locale, "/privacy/")} class="hover:text-inverted transition-colors">{t(locale, "footer.privacy")}</a>
+        <a href={getRelativeLocaleUrl(locale, "/terms/")} class="hover:text-inverted transition-colors">{t(locale, "footer.terms")}</a>
+        <button
+          id="back-to-top"
+          type="button"
+          aria-label={t(locale, "footer.backToTop")}
+          class="inline-flex items-center gap-1.5 hover:text-inverted transition-colors rounded-sm"
+        >
+          {t(locale, "footer.backToTop")}
+          <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 15.75l7.5-7.5 7.5 7.5"/></svg>
+        </button>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .route-line {
+    color: color-mix(in srgb, currentColor 35%, transparent);
+  }
+  .route-label {
+    fill: currentColor;
+    font-size: 9px;
+    letter-spacing: 0.05em;
+    opacity: 0.6;
+  }
+  .route-ship {
+    animation: route-travel 5s ease-in-out infinite;
+  }
+  @keyframes route-travel {
+    0% { transform: translateX(20px); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateX(218px); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .route-ship {
+      animation: none;
+      transform: translateX(119px);
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  document.getElementById("back-to-top")?.addEventListener("click", () => {
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>

@@ -1,0 +1,54 @@
+---
+import BaseLayout from "../../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../../components/Breadcrumb.astro";
+import { getCollection } from "astro:content";
+
+const posts = (await getCollection("blog")).filter((p) => p.data.published);
+
+const tags = new Map<string, { tag: string; count: number }>();
+for (const post of posts) {
+  for (const tag of post.data.tags ?? []) {
+    const key = tag.toLowerCase().replace(/\s+/g, "-");
+    const existing = tags.get(key);
+    if (existing) existing.count++;
+    else tags.set(key, { tag, count: 1 });
+  }
+}
+const sortedTags = [...tags.entries()].sort((a, b) => b[1].count - a[1].count);
+---
+
+<BaseLayout
+  title="Blog Tags — Explore Articles by Topic"
+  description="Browse Nayee Subah Foundation blog articles by topic — education, healthcare, community development, events, and more."
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/blog/" class="mb-8" />
+        <div class="section-title text-left max-w-2xl">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">Blog / Tags</span>
+          <h1 class="text-4xl sm:text-5xl font-bold tracking-tight mt-3 mb-6">All Tags</h1>
+          <p class="text-muted text-lg">
+            Explore our articles by topic.
+          </p>
+        </div>
+
+        <div class="flex flex-wrap gap-3 mt-10">
+          {sortedTags.map(([key, { tag, count }]) => (
+            <a
+              href={`/blog/tags/${key}/`}
+              class="group inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-card border border-border hover:border-accent-border hover:bg-accent-soft transition-all duration-200"
+            >
+              <span class="text-sm font-medium text-body/80 group-hover:text-accent transition-colors">#{tag}</span>
+              <span class="text-xs text-muted">({count})</span>
+            </a>
+          ))}
+        </div>
+
+        {sortedTags.length === 0 && (
+          <p class="text-muted mt-10">No tags yet.</p>
+        )}
+      </div>
+    </section>
+  </div>
+</BaseLayout>

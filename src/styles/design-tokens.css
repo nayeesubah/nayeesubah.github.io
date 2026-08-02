@@ -1,0 +1,105 @@
+@theme {
+  /* -- Brand Colors (Warm Emerald - Growth, Hope, Community) -- */
+  --color-brand-50:  #ecfdf5;
+  --color-brand-100: #d1fae5;
+  --color-brand-200: #a7f3d0;
+  --color-brand-300: #6ee7b7;
+  --color-brand-400: #34d399;
+  --color-brand-500: #059669;
+  --color-brand-600: #059669;
+  --color-brand-700: #047857;
+  --color-brand-800: #065f46;
+  --color-brand-900: #064e3b;
+  --color-brand-950: #022c22;
+
+  /* -- Warm Accent (Saffron/Amber - Hope, Warmth) -- */
+  --color-warm-50:  #fffbeb;
+  --color-warm-100: #fef3c7;
+  --color-warm-200: #fde68a;
+  --color-warm-300: #fcd34d;
+  --color-warm-400: #fbbf24;
+  --color-warm-500: #d97706;
+  --color-warm-600: #d97706;
+  --color-warm-700: #b45309;
+  --color-warm-800: #92400e;
+  --color-warm-900: #78350f;
+
+  /* -- Neutral Palette -- */
+  --color-neutral-50: #fafafa;
+  --color-neutral-100: #f5f5f5;
+  --color-neutral-200: #e5e5e5;
+  --color-neutral-300: #d4d4d4;
+  --color-neutral-400: #a3a3a3;
+  --color-neutral-500: #8a8a8a;
+  --color-neutral-600: #737373;
+  --color-neutral-700: #4a4a4a;
+  --color-neutral-800: #2d2d2d;
+  --color-neutral-900: #1a1a1a;
+  --color-neutral-950: #0d0d0d;
+
+  /* -- Status Colors -- */
+  --color-success: #22c55e;
+  --color-warning: #eab308;
+  --color-error: #ef4444;
+  --color-info: #3b82f6;
+  --color-partial: #eab308;
+  --color-not-updated: #9ca3af;
+
+  /* -- Typography -- */
+  --font-sans: "Inter", system-ui, -apple-system, sans-serif;
+  --font-heading: "Inter", system-ui, sans-serif;
+  --font-display: "Inter", system-ui, sans-serif;
+  --font-alt: "Inter", system-ui, -apple-system, sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, monospace;
+
+  /* -- Border Radius -- */
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-full: 9999px;
+
+  /* -- Shadows -- */
+  --shadow-sm: 0 1px 2px 0 rgb(0 0 0 / 0.05);
+  --shadow-md: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+  --shadow-lg: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+
+  /* -- Semantic Tokens (overridden per theme in themes.css) -- */
+  --color-page: #fafafa;
+  --color-card: #ffffff;
+  --color-section: #f0fdf4;
+  --color-inverse: #064e3b;
+  --color-body: #2d2d2d;
+  --color-muted: #666666;
+  --color-inverted: #ffffff;
+  --color-accent: #059669;
+  --color-accent-hover: #047857;
+  --color-accent-text: #ffffff;
+  --color-accent-soft: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  --color-accent-border: #6ee7b7;
+  --color-border: color-mix(in srgb, var(--color-muted) 10%, transparent);
+  --color-border-strong: #d4d4d4;
+  --color-hero: #064e3b;
+  --color-nav-bg: color-mix(in srgb, #ffffff 70%, transparent);
+  --color-nav-border: color-mix(in srgb, var(--color-muted) 10%, transparent);
+  --color-btn-secondary-border: #2d2d2d;
+  --color-btn-secondary-text: #2d2d2d;
+  --color-btn-secondary-hover-bg: #2d2d2d;
+  --color-btn-secondary-hover-text: #ffffff;
+  --color-input-border: #d4d4d4;
+  --color-selection-mix: #059669;
+
+  /* -- Animations -- */
+  --animate-fade-in: fade-in 0.6s ease-out;
+  --animate-slide-up: slide-up 0.6s ease-out;
+
+  @keyframes fade-in {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+
+  @keyframes slide-up {
+    from { opacity: 0; transform: translateY(1.5rem); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+}

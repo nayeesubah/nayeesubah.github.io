@@ -1,0 +1,404 @@
+---
+import { getCollection } from "astro:content";
+
+export async function getStaticPaths() {
+  const members = await getCollection("members");
+  return members.map((member) => ({
+    params: { slug: member.id },
+    props: { member },
+  }));
+}
+
+const { member } = Astro.props;
+const { data } = member;
+const initials = data.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+const verifyUrl = `https://nayeesubah.org/members/verify/${data.memberId}/`;
+const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
+  year: "numeric", month: "short",
+});
+---
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="noindex,follow" />
+  <title>ID Card — {data.name}</title>
+  <script is:inline src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      font-family: "Inter", system-ui, -apple-system, sans-serif;
+      background: #f0fdf4;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .controls {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .controls button {
+      padding: 0.75rem 2rem;
+      border-radius: 0.75rem;
+      border: none;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .btn-print {
+      background: #059669;
+      color: #fff;
+    }
+    .btn-print:hover { background: #047857; }
+
+    .btn-back {
+      background: #fff;
+      color: #2d2d2d;
+      border: 1px solid #e5e5e5;
+    }
+    .btn-back:hover { background: #f5f5f5; }
+
+    .id-card {
+      width: 400px;
+      background: #ffffff;
+      border-radius: 1.25rem;
+      overflow: hidden;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 4px 8px rgba(0, 0, 0, 0.04);
+      position: relative;
+    }
+
+    .card-header {
+      background: linear-gradient(135deg, #059669 0%, #047857 50%, #065f46 100%);
+      padding: 1.75rem 2rem 1.5rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .card-header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 20% 20%, rgba(255,255,255,0.08) 0%, transparent 60%);
+    }
+
+    .card-header::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: radial-gradient(circle at 80% 80%, rgba(255,255,255,0.05) 0%, transparent 50%);
+    }
+
+    .card-logo {
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 0.5rem;
+      position: relative;
+      z-index: 1;
+      font-size: 1.25rem;
+    }
+
+    .card-logo img {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .card-org {
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.02em;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-org-sub {
+      color: rgba(255,255,255,0.7);
+      font-size: 0.65rem;
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-top: 0.15rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .card-body {
+      padding: 1.75rem 2rem 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .card-photo {
+      width: 96px;
+      height: 96px;
+      border-radius: 50%;
+      background: #f0fdf4;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: -3rem;
+      margin-bottom: 1rem;
+      border: 4px solid #fff;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      overflow: hidden;
+      position: relative;
+      z-index: 2;
+    }
+
+    .card-photo img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .card-photo span {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #059669;
+    }
+
+    .card-name {
+      font-size: 1.35rem;
+      font-weight: 700;
+      color: #1a1a1a;
+      text-align: center;
+      line-height: 1.3;
+    }
+
+    .card-id {
+      font-family: ui-monospace, SFMono-Regular, monospace;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #059669;
+      letter-spacing: 0.08em;
+      margin-top: 0.2rem;
+    }
+
+    .card-divider {
+      width: 60%;
+      height: 2px;
+      background: linear-gradient(to right, transparent, #d1fae5, transparent);
+      margin: 0.9rem 0;
+    }
+
+    .card-details {
+      display: flex;
+      justify-content: center;
+      gap: 2rem;
+      width: 100%;
+      margin-bottom: 1rem;
+    }
+
+    .card-detail {
+      text-align: center;
+    }
+
+    .card-detail-label {
+      font-size: 0.6rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      color: #8a8a8a;
+    }
+
+    .card-detail-value {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #2d2d2d;
+      margin-top: 0.1rem;
+    }
+
+    .card-footer {
+      padding: 0 2rem 1.75rem;
+      display: flex;
+      align-items: flex-end;
+      gap: 1.25rem;
+    }
+
+    .card-qr {
+      width: 90px;
+      height: 90px;
+      flex-shrink: 0;
+      border: 2px solid #e5e5e5;
+      border-radius: 0.5rem;
+      padding: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: #fff;
+    }
+
+    .card-qr canvas, .card-qr img {
+      width: 100% !important;
+      height: 100% !important;
+    }
+
+    .card-verify {
+      flex: 1;
+    }
+
+    .card-verify-label {
+      font-size: 0.55rem;
+      text-transform: uppercase;
+      letter-spacing: 0.12em;
+      color: #8a8a8a;
+    }
+
+    .card-verify-url {
+      font-size: 0.65rem;
+      color: #059669;
+      font-weight: 500;
+      word-break: break-all;
+      margin-top: 0.15rem;
+    }
+
+    .card-verify-hint {
+      font-size: 0.6rem;
+      color: #a3a3a3;
+      margin-top: 0.25rem;
+    }
+
+    .card-watermark {
+      position: absolute;
+      bottom: 1rem;
+      right: 1.5rem;
+      font-size: 0.45rem;
+      color: rgba(0,0,0,0.04);
+      font-weight: 700;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+      pointer-events: none;
+    }
+
+    @media print {
+      body {
+        background: #fff;
+        padding: 0;
+        min-height: auto;
+      }
+
+      .controls {
+        display: none !important;
+      }
+
+      @page {
+        size: 100mm 160mm;
+        margin: 0;
+      }
+
+      .id-card {
+        box-shadow: none;
+        border-radius: 0;
+        width: 100mm;
+        height: 160mm;
+        page-break-after: avoid;
+      }
+
+      .card-header {
+        border-radius: 0;
+      }
+
+      .card-photo {
+        margin-top: -2.5rem;
+      }
+    }
+
+    @media screen and (max-width: 480px) {
+      body { padding: 1rem; }
+      .id-card { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="controls">
+    <button class="btn-back" onclick="history.back()">← Back</button>
+    <button class="btn-print" onclick="window.print()">🖨 Print ID Card</button>
+  </div>
+
+  <div class="id-card">
+    <div class="card-header">
+      <div class="card-logo">
+        <img src="/images/nsf-logo.png" alt="NSF" />
+      </div>
+      <div class="card-org">Nayee Subah Foundation</div>
+      <div class="card-org-sub">Membership Identity Card</div>
+    </div>
+
+    <div class="card-body">
+      <div class="card-photo">
+        {data.photo ? (
+          <img src={data.photo} alt={data.name} />
+        ) : (
+          <span>{initials}</span>
+        )}
+      </div>
+
+      <div class="card-name">{data.name}</div>
+      <div class="card-id">{data.memberId}</div>
+
+      <div class="card-divider"></div>
+
+      <div class="card-details">
+        <div class="card-detail">
+          <div class="card-detail-label">Since</div>
+          <div class="card-detail-value">{joinedDate}</div>
+        </div>
+        <div class="card-detail">
+          <div class="card-detail-label">Status</div>
+          <div class="card-detail-value" style="color: #059669;">Active</div>
+        </div>
+        <div class="card-detail">
+          <div class="card-detail-label">City</div>
+          <div class="card-detail-value">{data.city}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-footer">
+      <div class="card-qr" id="qrcode"></div>
+      <div class="card-verify">
+        <div class="card-verify-label">Verification URL</div>
+        <div class="card-verify-url">{verifyUrl}</div>
+        <div class="card-verify-hint">Scan QR or visit link to verify</div>
+      </div>
+    </div>
+
+    <div class="card-watermark">NSF</div>
+  </div>
+
+  <script define:vars={{ verifyUrl }}>
+    document.addEventListener("DOMContentLoaded", function() {
+      var el = document.getElementById("qrcode");
+      if (typeof QRCode !== "undefined" && el) {
+        new QRCode(el, {
+          text: verifyUrl,
+          width: 90,
+          height: 90,
+          colorDark: "#1a1a1a",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H,
+        });
+      }
+    });
+  </script>
+</body>
+</html>

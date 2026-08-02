@@ -1,0 +1,334 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import StatusBadge from "../../components/StatusBadge.astro";
+import { getCollection } from "astro:content";
+import { formatINR } from "../../lib/site";
+
+export async function getStaticPaths() {
+  const members = await getCollection("members");
+  return members.map((member) => ({
+    params: { slug: member.id },
+    props: { member },
+  }));
+}
+
+const { member } = Astro.props;
+const { data } = member;
+const initials = data.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+
+const currentYear = new Date().getFullYear();
+const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+
+const allPayments = (await getCollection("payments"))
+  .filter((p) => p.data.memberId === data.memberId)
+  .map((p) => ({ year: p.data.year, month: p.data.month, status: p.data.status, amount: p.data.amount }));
+
+const memberInfo = {
+  id: member.id,
+  name: data.name,
+  memberId: data.memberId,
+  subscriptionAmount: data.subscriptionAmount,
+};
+---
+
+<BaseLayout
+  title={`${data.name} — Member Profile`}
+  description={`Member profile for ${data.name} — ${data.memberId}, ${data.city}, ${data.state}`}
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path={`/members/${member.id}/`} class="mb-8" />
+
+        <div class="grid lg:grid-cols-3 gap-8 lg:gap-12">
+          <div class="lg:col-span-1">
+            <div class="card p-8 text-center">
+              <div class="mx-auto h-24 w-24 rounded-full bg-accent/10 flex items-center justify-center overflow-hidden ring-4 ring-accent/10 mb-4">
+                {data.photo ? (
+                  <img src={data.photo} alt={data.name} class="h-full w-full object-cover" />
+                ) : (
+                  <span class="text-accent font-bold text-3xl">{initials}</span>
+                )}
+              </div>
+              <h1 class="text-2xl font-bold text-body">{data.name}</h1>
+              <p class="text-sm text-muted mt-1">{data.memberId}</p>
+              <div class="mt-4 flex justify-center">
+                <StatusBadge status={data.membershipStatus} size="md" />
+              </div>
+              <div class="mt-6 pt-6 border-t border-border space-y-3 text-sm text-left">
+                <div class="flex items-center gap-3">
+                  <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 6.75c0 8.284 6.716 15 15 15h2.25a2.25 2.25 0 0 0 2.25-2.25v-1.372c0-.516-.351-.966-.852-1.091l-4.423-1.106c-.44-.11-.902.055-1.173.417l-.97 1.293c-.282.376-.769.542-1.21.38a12.035 12.035 0 0 1-7.143-7.143c-.162-.441.004-.928.38-1.21l1.293-.97c.363-.271.527-.734.417-1.173L6.963 3.102a1.125 1.125 0 0 0-1.091-.852H4.5A2.25 2.25 0 0 0 2.25 4.5v2.25Z" />
+                  </svg>
+                  <span class="text-muted">{data.mobile}</span>
+                </div>
+                {data.email && (
+                  <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
+                    </svg>
+                    <a href={`mailto:${data.email}`} class="text-accent hover:underline truncate">{data.email}</a>
+                  </div>
+                )}
+                <div class="flex items-center gap-3">
+                  <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1 1 15 0Z" />
+                  </svg>
+                  <span class="text-muted">{data.city}, {data.state}</span>
+                </div>
+                <div class="flex items-center gap-3">
+                  <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M20.25 14.15v4.25c0 1.094-.787 2.036-1.872 2.18-2.087.277-4.216.42-6.378.42s-4.291-.143-6.378-.42c-1.085-.144-1.872-1.086-1.872-2.18v-4.25m16.5 0a2.18 2.18 0 0 0 .75-1.661V8.706c0-1.081-.768-2.015-1.837-2.175a48.114 48.114 0 0 0-3.413-.387m4.5 8.006c-.194.165-.42.295-.673.38A23.978 23.978 0 0 1 12 15.75c-2.648 0-5.195-.429-7.577-1.22a2.016 2.016 0 0 1-.673-.38m0 0A2.18 2.18 0 0 1 3 12.489V8.706c0-1.081.768-2.015 1.837-2.175a48.111 48.111 0 0 1 3.413-.387m7.5 0V5.25A2.25 2.25 0 0 0 13.5 3h-3a2.25 2.25 0 0 0-2.25 2.25v.894m7.5 0a48.667 48.667 0 0 0-7.5 0M12 12.75h.008v.008H12v-.008Z" />
+                  </svg>
+                  <span class="text-muted">{data.occupation}</span>
+                </div>
+                {data.bloodGroup && (
+                  <div class="flex items-center gap-3">
+                    <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Z" />
+                      <path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3" />
+                    </svg>
+                    <span class="text-muted">{data.bloodGroup}</span>
+                  </div>
+                )}
+                <div class="flex items-center gap-3">
+                  <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                  </svg>
+                  <span class="text-muted">{formatINR(data.subscriptionAmount)}/month</span>
+                </div>
+              </div>
+              <a href={`/members/id-card/${member.id}/`} class="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-accent text-accent-text text-sm font-semibold hover:bg-accent-hover transition-colors" target="_blank">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5.586a1 1 0 0 1 .707.293l5.414 5.414a1 1 0 0 1 .293.707V19a2 2 0 0 1-2 2Z" />
+                </svg>
+                Generate ID Card
+              </a>
+            </div>
+          </div>
+
+          <div class="lg:col-span-2 space-y-8">
+            <div class="flex items-center justify-between">
+              <h2 class="text-xl font-bold text-body">Payment Overview</h2>
+              <select id="payment-year" class="px-4 py-2 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+                {years.map((y) => (
+                  <option value={y} selected={y === currentYear}>{y}</option>
+                ))}
+              </select>
+            </div>
+
+            <div id="payment-stats" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+            <div class="card p-6">
+              <div id="payment-matrix"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+<script define:vars={{ memberInfo, years, allPayments }}>
+  const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+  const MONTHS_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
+
+  const yearSelect = document.getElementById("payment-year");
+  const statsContainer = document.getElementById("payment-stats");
+  const matrixContainer = document.getElementById("payment-matrix");
+
+  function buildPayments(memberId, year, realPayments) {
+    const payments = {};
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const targetMonth = year < currentYear ? 11 : (year === currentYear ? currentMonth : -1);
+
+    const realMap = {};
+    for (const p of realPayments) {
+      if (p.year === year) realMap[p.month] = p;
+    }
+
+    for (let m = 0; m < 12; m++) {
+      const key = `${year}-${m}`;
+      if (realMap[m] !== undefined) {
+        payments[key] = realMap[m].status;
+      } else if (m <= targetMonth) {
+        payments[key] = "due";
+      } else {
+        payments[key] = "not-updated";
+      }
+    }
+    return payments;
+  }
+
+  function formatINR(n) {
+    return "₹" + n.toLocaleString("en-IN");
+  }
+
+  function render(year) {
+    const payments = buildPayments(memberInfo.memberId, year, allPayments);
+    const amount = memberInfo.subscriptionAmount;
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    const targetMonth = year < currentYear ? 11 : (year === currentYear ? currentMonth : -1);
+
+    let totalPaid = 0;
+    let totalDue = 0;
+    let totalPartial = 0;
+
+    for (let m = 0; m <= targetMonth; m++) {
+      const s = payments[`${year}-${m}`];
+      if (s === "paid") totalPaid++;
+      else if (s === "due") totalDue++;
+      else if (s === "partial") totalPartial++;
+    }
+
+    const currentKey = `${currentYear}-${currentMonth}`;
+    const currentStatus = payments[currentKey] || "not-updated";
+    const currentMonthName = MONTHS_FULL[currentMonth];
+
+    const statusIcon = currentStatus === "paid" ? "✓" : currentStatus === "partial" ? "~" : "—";
+    const statusColor = currentStatus === "paid" ? "bg-success" : currentStatus === "partial" ? "bg-warning" : "bg-muted/20";
+
+    const totalPending = totalDue + totalPartial;
+    const totalPaidAmount = totalPaid * amount;
+    const totalDueAmount = totalPending * amount;
+
+    statsContainer.innerHTML = `
+      <div class="card p-5 text-center">
+        <div class="text-3xl font-black">
+          <span class="inline-flex items-center justify-center h-10 w-10 rounded-full text-sm font-bold text-white ${statusColor}">${statusIcon}</span>
+        </div>
+        <p class="text-xs uppercase tracking-wider text-muted mt-2">${currentMonthName} Status</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl font-black text-warning">${totalPending}</div>
+        <p class="text-xs uppercase tracking-wider text-muted mt-2">Pending Months</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl font-black text-success">${formatINR(totalPaidAmount)}</div>
+        <p class="text-xs uppercase tracking-wider text-muted mt-2">Amount Paid</p>
+      </div>
+      <div class="card p-5 text-center">
+        <div class="text-3xl font-black text-error">${formatINR(totalDueAmount)}</div>
+        <p class="text-xs uppercase tracking-wider text-muted mt-2">Amount Due</p>
+      </div>
+    `;
+
+    const colorMap = {
+      "paid": "bg-success text-white",
+      "due": "text-muted",
+      "partial": "bg-partial text-white",
+      "not-updated": "text-muted/40",
+    };
+    const labelMap = {
+      "paid": "Paid",
+      "due": "Due",
+      "partial": "Partial",
+      "not-updated": "Not Updated",
+    };
+
+    let totalCollected = 0;
+    const cells = [];
+
+    for (let i = 0; i < 12; i++) {
+      const key = `${year}-${i}`;
+      const status = payments[key] || "not-updated";
+      const color = colorMap[status] || "text-muted";
+      const label = labelMap[status] || "?";
+
+      if (status === "paid") totalCollected += amount;
+      else if (status === "partial") totalCollected += Math.floor(amount / 2);
+
+      cells.push(`<td class="text-center py-3 px-2">
+        <span class="inline-flex items-center justify-center text-[12px] font-normal ${color}" title="${label}">
+          ${status === "paid" ? "\u2713" : status === "partial" ? "P" : status === "due" ? "\u2014" : "\u00B7"}
+        </span>
+      </td>`);
+    }
+
+    matrixContainer.innerHTML = `
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-xl font-bold text-body">Payment Matrix — ${year}</h2>
+      </div>
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm whitespace-nowrap">
+          <thead>
+            <tr class="bg-accent-soft/50 border-b border-border">
+              <th class="text-left py-3 px-4 font-medium text-muted">Month</th>
+              <th class="text-center py-3 px-4 font-medium text-muted">Status</th>
+              <th class="text-right py-3 px-4 font-medium text-muted">Amount</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${MONTHS_FULL.map((month, i) => {
+              const key = `${year}-${i}`;
+              const status = payments[key] || "not-updated";
+              const color = colorMap[status] || "bg-neutral-200 text-white";
+              const label = labelMap[status] || "?";
+              let rowAmount = 0;
+              if (status === "paid") rowAmount = amount;
+              else if (status === "partial") rowAmount = Math.floor(amount / 2);
+              return `<tr class="border-b border-border/50 hover:bg-accent-soft/30 transition-colors">
+                <td class="py-3 px-4 font-medium text-body">${month}</td>
+                <td class="text-center py-3 px-4">
+                  <span class="inline-flex items-center justify-center text-[12px] font-normal ${color}" title="${label}">${status === "paid" ? "\u2713" : status === "partial" ? "P" : status === "due" ? "\u2014" : "\u00B7"}</span>
+                </td>
+                <td class="text-right py-3 px-4 text-muted">${rowAmount > 0 ? formatINR(rowAmount) : "\u2014"}</td>
+              </tr>`;
+            }).join("")}
+          </tbody>
+          <tfoot>
+            <tr class="bg-accent-soft/30 border-t-2 border-border font-semibold">
+              <td class="py-3 px-4 text-body">Total</td>
+              <td></td>
+              <td class="text-right py-3 px-4 text-body">${formatINR(totalCollected)}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="mt-4 flex flex-wrap items-center gap-4 text-xs text-muted">
+        <span class="flex items-center gap-1.5"><span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-success text-white text-[10px] font-bold">\u2713</span> Paid</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-3 w-1 bg-muted/30"></span> Due</span>
+        <span class="flex items-center gap-1.5"><span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-warning text-white text-[10px] font-bold">P</span> Partial</span>
+        <span class="flex items-center gap-1.5"><span class="inline-block h-1 w-1 rounded-full bg-muted/30"></span> Not Updated</span>
+      </div>
+      ${duplicateKeys.length > 0 ? `
+        <div class="mt-4 p-3 rounded-xl bg-error/10 border border-error/20">
+          <p class="text-xs font-semibold text-error">⚠ Duplicate payments found for:</p>
+          <ul class="mt-1 text-xs text-error/80">
+            ${duplicateKeys.map(k => {
+              const [y, m] = k.split("-");
+              return `<li>${MONTHS_FULL[parseInt(m)]} ${y} — ${duplicates[k].length} entries</li>`;
+            }).join("")}
+          </ul>
+        </div>
+      ` : ""}
+      ${allPayments.filter(p => p.year === year).length > 0 ? `
+        <div class="mt-4 p-3 rounded-xl bg-accent/5 border border-accent/20">
+          <p class="text-xs font-semibold text-accent">✓ ${allPayments.filter(p => p.year === year).length} CMS payment record(s) for ${year}</p>
+          <ul class="mt-1 text-xs text-muted space-y-0.5">
+            ${allPayments.filter(p => p.year === year).sort((a, b) => a.month - b.month).map(p =>
+              `<li>${MONTHS_FULL[p.month]} — ${p.status === "paid" ? "Paid" : "Partial"} (₹${p.amount.toLocaleString("en-IN")})</li>`
+            ).join("")}
+          </ul>
+        </div>
+      ` : ""}
+    `;
+  }
+
+  // Check for duplicate payments
+  const duplicates = {};
+  for (const p of allPayments) {
+    const key = `${p.year}-${p.month}`;
+    if (!duplicates[key]) duplicates[key] = [];
+    duplicates[key].push(p);
+  }
+  const duplicateKeys = Object.keys(duplicates).filter(k => duplicates[k].length > 1);
+
+  yearSelect.addEventListener("change", () => render(parseInt(yearSelect.value)));
+  render(parseInt(yearSelect.value));
+</script>
+</BaseLayout>

@@ -1,0 +1,36 @@
+---
+import { getPaymentStatusLabel, getPaymentStatusColor } from "../lib/site";
+import type { PaymentStatus } from "../lib/site";
+
+interface Props {
+  status: PaymentStatus | string;
+  size?: "sm" | "md" | "lg";
+}
+
+const { status, size = "sm" } = Astro.props;
+
+const sizeClasses = {
+  sm: "px-2 py-0.5 text-xs",
+  md: "px-3 py-1 text-sm",
+  lg: "px-4 py-1.5 text-sm",
+};
+
+const isPaymentStatus = ["paid", "due", "partial", "not-updated"].includes(status);
+const colorClass = isPaymentStatus
+  ? getPaymentStatusColor(status as PaymentStatus)
+  : status === "active"
+    ? "bg-success text-white"
+    : status === "inactive" || status === "suspended"
+      ? "bg-error text-white"
+      : status === "upcoming"
+        ? "bg-info text-white"
+        : status === "ongoing"
+          ? "bg-warning text-black"
+          : status === "completed" || status === "Available"
+            ? "bg-success text-white"
+            : "bg-neutral-200 text-neutral-700";
+---
+
+<span class={`inline-flex items-center rounded-full font-medium ${colorClass} ${sizeClasses[size]}`}>
+  {isPaymentStatus ? getPaymentStatusLabel(status as PaymentStatus) : status.charAt(0).toUpperCase() + status.slice(1)}
+</span>

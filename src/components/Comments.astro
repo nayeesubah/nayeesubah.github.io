@@ -1,0 +1,49 @@
+---
+interface Props {
+  pathname: string;
+  title?: string;
+}
+
+const { pathname, title } = Astro.props;
+
+const repo = import.meta.env.PUBLIC_GISCUS_REPO;
+const repoId = import.meta.env.PUBLIC_GISCUS_REPO_ID;
+const category = import.meta.env.PUBLIC_GISCUS_CATEGORY || "Blog";
+const categoryId = import.meta.env.PUBLIC_GISCUS_CATEGORY_ID;
+
+const enabled = Boolean(repo && repoId && categoryId);
+---
+
+{
+  enabled ? (
+    <section class="mt-16 pt-8 border-t border-border">
+      <h2 class="text-2xl font-bold mb-6">Comments</h2>
+      <div class="giscus" data-repo={repo} data-repo-id={repoId} data-category={category} data-category-id={categoryId} data-mapping="specific" data-term={title ?? pathname} data-strict="0" data-reactions-enabled="1" data-emit-metadata="0" data-input-position="top" data-theme="preferred_color_scheme" data-lang="en" data-loading="lazy" />
+      <script
+        is:inline
+        src="https://giscus.app/client.js"
+        data-repo={repo}
+        data-repo-id={repoId}
+        data-category={category}
+        data-category-id={categoryId}
+        data-mapping="specific"
+        data-term={title ?? pathname}
+        data-strict="0"
+        data-reactions-enabled="1"
+        data-emit-metadata="0"
+        data-input-position="top"
+        data-theme="preferred_color_scheme"
+        data-lang="en"
+        data-loading="lazy"
+        async
+      />
+    </section>
+  ) : (
+    <section class="mt-16 pt-8 border-t border-border">
+      <h2 class="text-2xl font-bold mb-4">Comments</h2>
+      <p class="text-muted text-sm">
+        Comments are coming soon.
+      </p>
+    </section>
+  )
+}

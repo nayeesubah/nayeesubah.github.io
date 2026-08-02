@@ -1,0 +1,54 @@
+.dark {
+  --color-page: var(--color-neutral-950);
+  --color-card: var(--color-neutral-900);
+  --color-section: var(--color-neutral-900);
+  --color-inverse: var(--color-neutral-950);
+
+  --color-body: #ffffff;
+  --color-muted: #a3a3a3;
+  --color-inverted: #ffffff;
+
+  --color-accent: var(--color-brand-400);
+  --color-accent-hover: var(--color-brand-300);
+  --color-accent-text: var(--color-neutral-950);
+  --color-accent-border: var(--color-brand-600);
+
+  --color-border: color-mix(in srgb, #ffffff 10%, transparent);
+  --color-border-strong: var(--color-neutral-700);
+
+  --color-hero: var(--color-neutral-950);
+
+  --color-nav-bg: color-mix(in srgb, var(--color-neutral-950) 60%, transparent);
+  --color-nav-border: color-mix(in srgb, #ffffff 10%, transparent);
+
+  --color-btn-secondary-border: #ffffff;
+  --color-btn-secondary-text: #ffffff;
+  --color-btn-secondary-hover-bg: #ffffff;
+  --color-btn-secondary-hover-text: var(--color-neutral-900);
+
+  --color-input-border: var(--color-neutral-700);
+
+  --color-selection-mix: var(--color-brand-400);
+}
+
+/* -- Warm Theme (Alternate) -- */
+[data-theme="warm"] {
+  --color-accent: var(--color-warm-600);
+  --color-accent-hover: var(--color-warm-500);
+  --color-accent-text: #ffffff;
+  --color-accent-soft: color-mix(in srgb, var(--color-warm-600) 12%, transparent);
+  --color-accent-border: var(--color-warm-300);
+  --color-selection-mix: var(--color-warm-600);
+  --color-hero: var(--color-warm-900);
+  --color-inverse: var(--color-warm-800);
+}
+
+[data-theme="warm"].dark {
+  --color-accent: var(--color-warm-400);
+  --color-accent-hover: var(--color-warm-300);
+  --color-accent-text: #000000;
+  --color-accent-soft: color-mix(in srgb, var(--color-warm-500) 20%, transparent);
+  --color-accent-border: var(--color-warm-700);
+  --color-selection-mix: var(--color-warm-400);
+  --color-hero: var(--color-warm-900);
+}

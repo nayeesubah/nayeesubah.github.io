@@ -1,0 +1,41 @@
+description: "Nayee Subah Foundation is a non-profit social organization dedicated to improving society through education, community development, humanitarian support, skill development, employment opportunities, health awareness, and social welfare."
+columns:
+  - title: "Quick Links"
+    links:
+      - label: Home
+        href: /
+      - label: About Us
+        href: /about/
+      - label: Activities
+        href: /activities/
+      - label: Gallery
+        href: /gallery/
+      - label: News
+        href: /blog/
+      - label: Contact
+        href: /contact/
+  - title: "Our Work"
+    links:
+      - label: Education
+        href: /activities/education/
+      - label: Healthcare
+        href: /activities/healthcare/
+      - label: Skill Development
+        href: /activities/skill-development/
+      - label: Women Empowerment
+        href: /activities/women-empowerment/
+      - label: Community Development
+        href: /activities/community-development/
+  - title: "Support"
+    links:
+      - label: Donate
+        href: /donate/
+      - label: Become a Member
+        href: /members/join/
+      - label: Volunteer
+        href: /volunteer/
+      - label: FAQ
+        href: /faq/
+      - label: Privacy Policy
+        href: /privacy/
+bottomText: "© 2025 Nayee Subah Foundation. All rights reserved."

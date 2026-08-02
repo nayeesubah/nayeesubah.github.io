@@ -1,0 +1,165 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { getSiteSettings } from "../../lib/site";
+
+const settings = await getSiteSettings();
+const phoneClean = (p: string) => p.replace(/[^0-9]/g, "");
+---
+
+<BaseLayout
+  title="Become a Member — Support Community Development"
+  description="Join Nayee Subah Foundation as a member. Contribute to community development through monthly subscriptions and be part of positive change in rural India."
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/members/join/" class="mb-8" />
+        <div class="grid lg:grid-cols-2 gap-12 lg:gap-20">
+          <div>
+            <span class="text-accent font-semibold text-sm uppercase tracking-widest">Membership</span>
+            <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
+              Become a <span class="text-accent">Member</span>
+            </h1>
+            <p class="text-muted text-lg leading-relaxed mb-8">
+              Join Nayee Subah Foundation and be part of a community dedicated to creating lasting change. Your monthly subscription directly funds our education, healthcare, skill development, and community welfare programs.
+            </p>
+
+            <div class="space-y-6 mb-10">
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Transparent Contributions</h3>
+                  <p class="text-muted text-sm mt-1">Choose your monthly subscription amount — every rupee goes directly to community programs.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75m-3-7.036A11.959 11.959 0 0 1 3.598 6 11.99 11.99 0 0 0 3 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285Z" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Vote & Participate</h3>
+                  <p class="text-muted text-sm mt-1">Active members get voting rights in foundation decisions and can participate in all activities.</p>
+                </div>
+              </div>
+              <div class="flex items-start gap-4">
+                <div class="h-12 w-12 rounded-xl bg-accent-soft flex items-center justify-center shrink-0">
+                  <svg class="h-6 w-6 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" /></svg>
+                </div>
+                <div>
+                  <h3 class="font-semibold">Community Network</h3>
+                  <p class="text-muted text-sm mt-1">Connect with like-minded individuals committed to social change and community development.</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="card p-6 border-accent-border/30 bg-accent-soft/20">
+              <h3 class="font-semibold mb-2">Membership Plans</h3>
+              <p class="text-muted text-sm mb-4">Choose a plan that works for you. All contributions support our education, healthcare, and community programs.</p>
+              <div class="grid grid-cols-2 gap-3 mb-3">
+                <div class="text-center p-3 rounded-xl bg-card border border-border">
+                  <div class="text-xl font-bold text-accent">₹200</div>
+                  <div class="text-xs text-muted mt-1">Monthly</div>
+                </div>
+                <div class="text-center p-3 rounded-xl bg-accent text-accent-text border-2 border-accent">
+                  <div class="text-xl font-bold">₹2,400</div>
+                  <div class="text-xs mt-1 opacity-80">Annual</div>
+                </div>
+              </div>
+              <div class="text-center p-3 rounded-xl bg-accent-soft/40 border border-accent-border/30">
+                <div class="text-xl font-bold text-accent">₹15,000</div>
+                <div class="text-xs text-muted mt-1">Lifetime (Honorary) Membership</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card p-6 sm:p-8">
+            <h2 class="text-2xl font-semibold mb-6">Membership Registration</h2>
+            <form id="membership-form" class="space-y-5">
+              <div>
+                <label for="name" class="block text-sm font-medium mb-2">Full Name</label>
+                <input type="text" id="name" name="name" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="Your full name" />
+              </div>
+              <div class="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label for="email" class="block text-sm font-medium mb-2">Email</label>
+                  <input type="email" id="email" name="email" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="your@email.com" />
+                </div>
+                <div>
+                  <label for="phone" class="block text-sm font-medium mb-2">Phone</label>
+                  <input type="tel" id="phone" name="phone" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="+91 ..." />
+                </div>
+              </div>
+              <div class="grid sm:grid-cols-2 gap-5">
+                <div>
+                  <label for="city" class="block text-sm font-medium mb-2">City</label>
+                  <input type="text" id="city" name="city" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="Your city" />
+                </div>
+                <div>
+                  <label for="state" class="block text-sm font-medium mb-2">State</label>
+                  <input type="text" id="state" name="state" required class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="Your state" />
+                </div>
+              </div>
+              <div>
+                <label for="occupation" class="block text-sm font-medium mb-2">Occupation</label>
+                <input type="text" id="occupation" name="occupation" class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors" placeholder="e.g. Teacher, Engineer, Business..." />
+              </div>
+              <div>
+                <label for="plan" class="block text-sm font-medium mb-2">Monthly Subscription Plan</label>
+                <select id="plan" name="plan" class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors">
+                  <option value="200">₹200/month — Basic</option>
+                  <option value="500" selected>₹500/month — Standard</option>
+                  <option value="1000">₹1,000/month — Premium</option>
+                  <option value="other">Other amount</option>
+                </select>
+              </div>
+              <div>
+                <label for="message" class="block text-sm font-medium mb-2">Why do you want to join?</label>
+                <textarea id="message" name="message" rows="3" class="w-full rounded-xl border border-accent-border/20 bg-transparent px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent transition-colors resize-none" placeholder="Tell us why you'd like to become a member..."></textarea>
+              </div>
+              <button type="submit" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200 w-full py-4">
+                Submit Registration
+                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ whatsappNumber: phoneClean(settings.social?.whatsapp ?? settings.phone[0]) }}>
+  document.getElementById("membership-form")?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    const form = e.currentTarget;
+    const name = form.querySelector("#name").value.trim();
+    const email = form.querySelector("#email").value.trim();
+    const phone = form.querySelector("#phone").value.trim();
+    const city = form.querySelector("#city").value.trim();
+    const state = form.querySelector("#state").value.trim();
+    const occupation = form.querySelector("#occupation").value.trim();
+    const plan = form.querySelector("#plan").value;
+    const message = form.querySelector("#message").value.trim();
+
+    const text = [
+      `*New Membership Registration from nayeesubah.org*`,
+      ``,
+      `*Name:* ${name}`,
+      `*Email:* ${email}`,
+      `*Phone:* ${phone}`,
+      `*City:* ${city}`,
+      `*State:* ${state}`,
+      `*Occupation:* ${occupation || "Not specified"}`,
+      `*Plan:* ₹${plan}/month`,
+      ``,
+      `*Message:*`,
+      `${message || "No message provided"}`,
+    ].join("\n");
+
+    const url = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(text)}`;
+    window.open(url, "_blank", "noopener,noreferrer");
+  });
+</script>

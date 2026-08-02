@@ -1,0 +1,62 @@
+---
+import StatusBadge from "./StatusBadge.astro";
+import type { PaymentStatus } from "../lib/site";
+import { MONTHS } from "../lib/site";
+
+interface Props {
+  payments: Record<string, PaymentStatus>;
+  year: number;
+  memberName: string;
+  subscriptionAmount: number;
+}
+
+const { payments, year, memberName, subscriptionAmount } = Astro.props;
+
+let totalPaid = 0;
+let totalDue = 0;
+
+const months = MONTHS.map((name, idx) => {
+  const key = `${year}-${idx}`;
+  const status: PaymentStatus = payments[key] || "not-updated";
+  if (status === "paid") totalPaid += subscriptionAmount;
+  else if (status === "due" || status === "partial") totalDue += subscriptionAmount;
+  return { name, key, status };
+});
+---
+
+<div class="overflow-x-auto">
+  <table class="w-full text-sm">
+    <thead>
+      <tr class="border-b border-border">
+        <th class="text-left py-3 px-3 font-medium text-muted">Month</th>
+        <th class="text-center py-3 px-3 font-medium text-muted">Status</th>
+        <th class="text-right py-3 px-3 font-medium text-muted">Amount</th>
+      </tr>
+    </thead>
+    <tbody>
+      {months.map(({ name, key, status }) => (
+        <tr class="border-b border-border/50 hover:bg-accent-soft/30 transition-colors">
+          <td class="py-2.5 px-3 font-medium">{name}</td>
+          <td class="py-2.5 px-3 text-center">
+            <div class="inline-flex justify-center">
+              <StatusBadge status={status} size="sm" />
+            </div>
+          </td>
+          <td class="py-2.5 px-3 text-right text-muted">
+            {status === "paid" ? `₹${subscriptionAmount}` : status === "partial" ? `₹${Math.floor(subscriptionAmount / 2)}` : "—"}
+          </td>
+        </tr>
+      ))}
+    </tbody>
+    <tfoot>
+      <tr class="font-semibold border-t-2 border-border">
+        <td class="py-3 px-3">Total</td>
+        <td class="py-3 px-3 text-center">
+          <span class="text-success">₹{totalPaid} paid</span>
+          {totalDue > 0 && <span class="text-error ml-2">₹{totalDue} due</span>}
+        </td>
+        <td class="py-3 px-3 text-right">₹{totalPaid + totalDue}</td>
+      </tr>
+    </tfoot>
+  </table>
+</div>

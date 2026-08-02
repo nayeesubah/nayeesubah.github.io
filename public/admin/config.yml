@@ -1,0 +1,1066 @@
+# yaml-language-server: $schema=https://unpkg.com/@sveltia/cms/schema/sveltia-cms.json
+
+app_title: Nayee Subah
+backend:
+  name: github
+  repo: nayeesubah/nayeesubah.github.io
+  branch: main
+
+media_folder: "public/images"
+public_folder: "/images"
+logo:
+  src: /nsf-logo.png
+  show_in_header: true
+
+
+collections:
+  - name: "site-settings"
+    label: "Site Settings"
+    files:
+      - label: "Settings"
+        name: "settings"
+        file: "src/content/site-settings/settings.yaml"
+        fields:
+          - { label: "Site Name", name: "siteName", widget: "string" }
+          - { label: "Tagline", name: "tagline", widget: "string" }
+          - { label: "Description", name: "description", widget: "text" }
+          - { label: "URL", name: "url", widget: "string" }
+          - { label: "Logo", name: "logo", widget: "image", required: false }
+          - { label: "Logo (Dark)", name: "logoDark", widget: "image", required: false }
+          - { label: "Favicon", name: "favicon", widget: "string", required: false }
+          - label: "Phone Numbers"
+            name: "phone"
+            widget: "list"
+            field: { label: "Phone", name: "phone", widget: "string" }
+          - { label: "Email", name: "email", widget: "string", required: false }
+          - { label: "Address", name: "address", widget: "text", required: false }
+          - { label: "Working Hours", name: "workingHours", widget: "string", required: false }
+          - label: "Social Links"
+            name: "social"
+            widget: "object"
+            required: false
+            fields:
+              - { label: "Facebook URL", name: "facebook", widget: "string", required: false }
+              - { label: "Instagram URL", name: "instagram", widget: "string", required: false }
+              - { label: "YouTube URL", name: "youtube", widget: "string", required: false }
+              - { label: "WhatsApp Number", name: "whatsapp", widget: "string", required: false }
+          - { label: "Google Maps Embed URL", name: "googleMapsEmbedUrl", widget: "string", required: false }
+          - { label: "About Video URL", name: "aboutVideoUrl", widget: "string", required: false, hint: "YouTube URL for the About section video" }
+          - { label: "Hero Video URL", name: "heroVideoUrl", widget: "string", required: false, hint: "YouTube URL for the Hero section play button" }
+          - { label: "About Video Thumbnail", name: "aboutVideoThumbnail", widget: "image", required: false, hint: "Thumbnail image for the About section video" }
+          - { label: "Currency", name: "currency", widget: "string", default: "INR" }
+          - { label: "Default Language", name: "language", widget: "string", default: "en", required: false }
+          - label: "Available Languages"
+            name: "languages"
+            widget: "list"
+            default: ["en", "hi"]
+            field: { label: "Language Code", name: "code", widget: "string" }
+
+  - name: "navigation"
+    label: "Navigation"
+    files:
+      - label: "Main Navigation"
+        name: "nav"
+        file: "src/content/navigation/nav.yaml"
+        fields:
+          - label: "Menu Items"
+            name: "items"
+            widget: "list"
+            fields:
+              - { label: "Label", name: "label", widget: "string" }
+              - { label: "Href", name: "href", widget: "string" }
+              - label: "Dropdown Items"
+                name: "children"
+                widget: "list"
+                required: false
+                fields:
+                  - { label: "Label", name: "label", widget: "string" }
+                  - { label: "Href", name: "href", widget: "string" }
+
+  - name: "footer"
+    label: "Footer"
+    files:
+      - label: "Footer Content"
+        name: "footer"
+        file: "src/content/footer/footer.yaml"
+        fields:
+          - { label: "Description", name: "description", widget: "text", required: false }
+          - label: "Columns"
+            name: "columns"
+            widget: "list"
+            fields:
+              - { label: "Column Title", name: "title", widget: "string" }
+              - label: "Links"
+                name: "links"
+                widget: "list"
+                fields:
+                  - { label: "Label", name: "label", widget: "string" }
+                  - { label: "Href", name: "href", widget: "string" }
+          - { label: "Bottom Text", name: "bottomText", widget: "string", required: false }
+
+  - name: "blog"
+    label: "Blog Posts"
+    folder: "src/content/blog"
+    create: true
+    slug: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string", required: false, hint: "Leave empty to auto-generate from title" }
+      - { label: "Excerpt", name: "excerpt", widget: "text" }
+      - { label: "Author", name: "author", widget: "string", default: "Nayee Subah Foundation" }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Updated Date", name: "updatedDate", widget: "datetime", required: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Impact Stories", value: "Impact Stories" }
+          - { label: "Program Updates", value: "Program Updates" }
+          - { label: "Community News", value: "Community News" }
+          - { label: "Events", value: "Events" }
+          - { label: "Announcements", value: "Announcements" }
+          - { label: "Reports", value: "Reports" }
+          - { label: "General", value: "General" }
+        default: "General"
+      - label: "Tags"
+        name: "tags"
+        widget: "list"
+        required: false
+        field: { label: "Tag", name: "tag", widget: "string" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Published", name: "published", widget: "boolean", default: true }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "activities"
+    label: "Activities"
+    folder: "src/content/activities"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
+      - { label: "Icon", name: "icon", widget: "string", required: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Education", value: "education" }
+          - { label: "Healthcare", value: "healthcare" }
+          - { label: "Skill Development", value: "skill-development" }
+          - { label: "Women Empowerment", value: "women-empowerment" }
+          - { label: "Youth Development", value: "youth-development" }
+          - { label: "Employment", value: "employment" }
+          - { label: "Disaster Relief", value: "disaster-relief" }
+          - { label: "Blood Donation", value: "blood-donation" }
+          - { label: "Tree Plantation", value: "tree-plantation" }
+          - { label: "Scholarships", value: "scholarships" }
+          - { label: "Community Development", value: "community-development" }
+          - { label: "Food Distribution", value: "food-distribution" }
+          - { label: "Awareness Campaigns", value: "awareness-campaigns" }
+          - { label: "Library", value: "library" }
+          - { label: "Helping Local Farmers", value: "helping-local-farmers" }
+        default: "community-development"
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Volunteers", name: "volunteers", widget: "number", value_type: "int", default: 0, required: false }
+      - label: "Impact Numbers"
+        name: "impactNumbers"
+        widget: "map"
+        required: false
+        hint: "E.g. Students Reached: 500"
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "events"
+    label: "Events"
+    folder: "src/content/events"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string", required: false }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Venue", name: "venue", widget: "string" }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - label: "Organizers"
+        name: "organizers"
+        widget: "relation"
+        collection: "team"
+        multiple: true
+        search_fields: ["name"]
+        display_fields: ["name"]
+        value_field: "{{name}}"
+        required: false
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        options:
+          - { label: "Upcoming", value: "upcoming" }
+          - { label: "Ongoing", value: "ongoing" }
+          - { label: "Completed", value: "completed" }
+          - { label: "Cancelled", value: "cancelled" }
+        default: "upcoming"
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Registration Link", name: "registerLink", widget: "string", required: false, hint: "External URL for event registration (Google Form, Eventbrite, etc.)" }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+      - label: "Event Settings (Card Display)"
+        name: "cardDisplay"
+        widget: "object"
+        required: false
+        hint: "Override how this event appears on the listing cards"
+        fields:
+          - { label: "Custom Badge Text", name: "badgeText", widget: "string", required: false, hint: "Override the status badge text (e.g. 'Registration Open')" }
+          - { label: "Hide Countdown", name: "hideCountdown", widget: "boolean", default: false, hint: "Hide the 'X days away' countdown on the card" }
+          - { label: "Short Description", name: "shortDescription", widget: "text", required: false, hint: "Shorter description for the card (overrides the main description on cards)" }
+
+  - name: "members"
+    label: "Members"
+    folder: "src/content/members"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Full Name", name: "name", widget: "string" }
+      - { label: "Member ID", name: "memberId", widget: "string", hint: "Unique identifier for the member" }
+      - { label: "Joining Date", name: "joiningDate", widget: "datetime" }
+      - { label: "Photo", name: "photo", widget: "image", required: false }
+      - { label: "Mobile", name: "mobile", widget: "string" }
+      - { label: "Email", name: "email", widget: "string", required: false }
+      - { label: "City", name: "city", widget: "string" }
+      - { label: "State", name: "state", widget: "string" }
+      - { label: "Occupation", name: "occupation", widget: "string" }
+      - { label: "Blood Group", name: "bloodGroup", widget: "string", required: false }
+      - label: "Membership Status"
+        name: "membershipStatus"
+        widget: "select"
+        options:
+          - { label: "Active", value: "active" }
+          - { label: "Inactive", value: "inactive" }
+          - { label: "Suspended", value: "suspended" }
+        default: "active"
+      - { label: "Subscription Amount (₹)", name: "subscriptionAmount", widget: "number", value_type: "int", default: 200 }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "team"
+    label: "Team"
+    folder: "src/content/team"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Role", name: "role", widget: "string" }
+      - { label: "Bio", name: "bio", widget: "text", required: false }
+      - { label: "Photo", name: "image", widget: "image", required: false }
+      - { label: "Email", name: "email", widget: "string", required: false }
+      - { label: "Phone", name: "phone", widget: "string", required: false }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
+      - label: "Type"
+        name: "type"
+        widget: "select"
+        options:
+          - { label: "Committee", value: "committee" }
+          - { label: "Staff", value: "staff" }
+          - { label: "Volunteer", value: "volunteer" }
+        default: "committee"
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "payments"
+    label: "Payments"
+    folder: "src/content/payments"
+    create: true
+    slug: "{{memberId}}-{{year}}-{{month}}"
+    fields:
+      - label: "Member"
+        name: "memberId"
+        widget: "relation"
+        collection: "members"
+        search_fields: ["name", "memberId"]
+        display_fields: ["name", "memberId"]
+        value_field: "{{memberId}}"
+      - { label: "Year", name: "year", widget: "number", value_type: "int", default: 2025 }
+      - label: "Month"
+        name: "month"
+        widget: "select"
+        options:
+          - { label: "January (0)", value: 0 }
+          - { label: "February (1)", value: 1 }
+          - { label: "March (2)", value: 2 }
+          - { label: "April (3)", value: 3 }
+          - { label: "May (4)", value: 4 }
+          - { label: "June (5)", value: 5 }
+          - { label: "July (6)", value: 6 }
+          - { label: "August (7)", value: 7 }
+          - { label: "September (8)", value: 8 }
+          - { label: "October (9)", value: 9 }
+          - { label: "November (10)", value: 10 }
+          - { label: "December (11)", value: 11 }
+        default: 0
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        options:
+          - { label: "Paid", value: "paid" }
+          - { label: "Partial", value: "partial" }
+        default: "paid"
+      - { label: "Amount Paid (₹)", name: "amount", widget: "number", value_type: "int", hint: "Full subscription amount or partial" }
+      - { label: "Payment Date", name: "date", widget: "datetime", required: false }
+      - { label: "Notes", name: "notes", widget: "text", required: false }
+
+  - name: "testimonials"
+    label: "Testimonials"
+    folder: "src/content/testimonials"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Role", name: "role", widget: "string", required: false }
+      - label: "Type"
+        name: "type"
+        widget: "select"
+        options:
+          - { label: "Member", value: "member" }
+          - { label: "Volunteer", value: "volunteer" }
+          - { label: "Beneficiary", value: "beneficiary" }
+          - { label: "Sponsor", value: "sponsor" }
+        default: "beneficiary"
+      - label: "Linked Member"
+        name: "member"
+        widget: "relation"
+        collection: "members"
+        search_fields: ["name", "memberId"]
+        display_fields: ["name", "memberId"]
+        value_field: "{{memberId}}"
+        required: false
+        hint: "Link to a member if Type is 'Member'"
+      - { label: "Avatar", name: "avatar", widget: "image", required: false }
+      - { label: "Rating", name: "rating", widget: "number", value_type: "int", min: 1, max: 5, default: 5 }
+      - { label: "Content", name: "content", widget: "text" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "faq"
+    label: "FAQs"
+    folder: "src/content/faq"
+    create: true
+    slug: "{{question}}"
+    fields:
+      - { label: "Question", name: "question", widget: "string" }
+      - { label: "Answer", name: "answer", widget: "text" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Membership", value: "membership" }
+          - { label: "Donation", value: "donation" }
+          - { label: "Investment", value: "investment" }
+          - { label: "Volunteer", value: "volunteer" }
+          - { label: "Activities", value: "activities" }
+          - { label: "Transparency", value: "transparency" }
+          - { label: "General", value: "general" }
+        default: "general"
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  # ---------------------------------------------------------------------------
+  # Gallery — split into per-category collections so uploaded images are saved
+  # to a category-specific folder inside /public/images/ (e.g. /images/library).
+  # The "Media" field uses variable types: choosing Video reveals a Media URL.
+  # ---------------------------------------------------------------------------
+  - name: "gallery-library"
+    label: "Gallery — Library"
+    icon: menu_book
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "library" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/library"
+    public_folder: "/images/library"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: &gallery-category-options
+          - { label: "Library", value: "library" }
+          - { label: "Community Welfare", value: "community-welfare" }
+          - { label: "Education", value: "education" }
+          - { label: "Healthcare", value: "healthcare" }
+          - { label: "Skill Development", value: "skill-development" }
+          - { label: "Women Empowerment", value: "women-empowerment" }
+          - { label: "Events", value: "events" }
+          - { label: "General", value: "general" }
+        default: "library"
+        hint: "Album the photo belongs to. Uploads are saved to /images/library/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-community-welfare"
+    label: "Gallery — Community Welfare"
+    icon: volunteer_activism
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "community-welfare" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/community-welfare"
+    public_folder: "/images/community-welfare"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "community-welfare"
+        hint: "Album the photo belongs to. Uploads are saved to /images/community-welfare/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-education"
+    label: "Gallery — Education"
+    icon: school
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "education" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/education"
+    public_folder: "/images/education"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "education"
+        hint: "Album the photo belongs to. Uploads are saved to /images/education/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-healthcare"
+    label: "Gallery — Healthcare"
+    icon: medical_services
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "healthcare" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/healthcare"
+    public_folder: "/images/healthcare"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "healthcare"
+        hint: "Album the photo belongs to. Uploads are saved to /images/healthcare/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-skill-development"
+    label: "Gallery — Skill Development"
+    icon: handyman
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "skill-development" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/skill-development"
+    public_folder: "/images/skill-development"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "skill-development"
+        hint: "Album the photo belongs to. Uploads are saved to /images/skill-development/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-women-empowerment"
+    label: "Gallery — Women Empowerment"
+    icon: female
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "women-empowerment" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/women-empowerment"
+    public_folder: "/images/women-empowerment"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "women-empowerment"
+        hint: "Album the photo belongs to. Uploads are saved to /images/women-empowerment/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-events"
+    label: "Gallery — Events"
+    icon: celebration
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "events" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/events"
+    public_folder: "/images/events"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "events"
+        hint: "Album the photo belongs to. Uploads are saved to /images/events/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "gallery-general"
+    label: "Gallery — General"
+    icon: photo_library
+    folder: "src/content/gallery"
+    filter: { field: "category", value: "general" }
+    create: true
+    slug: "{{title}}"
+    media_folder: "/public/images/general"
+    public_folder: "/images/general"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options: *gallery-category-options
+        default: "general"
+        hint: "Album the photo belongs to. Uploads are saved to /images/general/."
+      - label: "Media"
+        name: "media"
+        widget: "object"
+        default: { type: "image" }
+        types:
+          - name: "image"
+            label: "Image"
+            fields:
+              - { label: "Image", name: "image", widget: "image" }
+          - name: "video"
+            label: "Video"
+            fields:
+              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
+              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
+      - label: "Related Project"
+        name: "project"
+        widget: "relation"
+        collection: "investment-projects"
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "pages"
+    label: "Pages"
+    folder: "src/content/pages"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string" }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "partners"
+    label: "Partners"
+    folder: "src/content/partners"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Organization Name", name: "name", widget: "string" }
+      - { label: "Logo", name: "logo", widget: "image" }
+      - { label: "Website URL", name: "url", widget: "string", required: false }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "success-stories"
+    label: "Success Stories"
+    folder: "src/content/success-stories"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Location", name: "location", widget: "string", required: false }
+      - { label: "Background", name: "background", widget: "text", required: false }
+      - { label: "Challenges", name: "challenges", widget: "text", required: false }
+      - { label: "How We Helped", name: "help", widget: "text" }
+      - { label: "Current Status", name: "status", widget: "string", required: false }
+      - label: "Images"
+        name: "images"
+        widget: "list"
+        required: false
+        field: { label: "Image", name: "image", widget: "image" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "volunteers"
+    label: "Volunteers"
+    folder: "src/content/volunteers"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Name", name: "name", widget: "string" }
+      - { label: "Photo", name: "photo", widget: "image", required: false }
+      - { label: "Email", name: "email", widget: "string", required: false }
+      - { label: "Phone", name: "phone", widget: "string", required: false }
+      - label: "Skills"
+        name: "skills"
+        widget: "list"
+        required: false
+        field: { label: "Skill", name: "skill", widget: "string" }
+      - { label: "Availability", name: "availability", widget: "string", required: false }
+      - label: "Projects Joined"
+        name: "projectsJoined"
+        widget: "relation"
+        collection: "activities"
+        multiple: true
+        search_fields: ["title"]
+        display_fields: ["title"]
+        value_field: "{{title}}"
+        required: false
+      - { label: "Recognition", name: "recognition", widget: "string", required: false }
+      - { label: "Active", name: "active", widget: "boolean", default: true }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "investment-projects"
+    label: "Investment Projects"
+    folder: "src/content/investment-projects"
+    create: true
+    slug: "{{slug}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Slug", name: "slug", widget: "string", required: false }
+      - { label: "Business Category", name: "businessCategory", widget: "string" }
+      - { label: "Investment Amount (₹)", name: "investmentAmount", widget: "number", value_type: "int", default: 0 }
+      - { label: "Start Date", name: "startDate", widget: "datetime" }
+      - label: "Status"
+        name: "status"
+        widget: "select"
+        options:
+          - { label: "Planning", value: "planning" }
+          - { label: "Active", value: "active" }
+          - { label: "Completed", value: "completed" }
+          - { label: "Paused", value: "paused" }
+        default: "active"
+      - { label: "Expected Return (₹)", name: "expectedReturn", widget: "number", value_type: "int", default: 0 }
+      - { label: "Actual Return (₹)", name: "actualReturn", widget: "number", value_type: "int", default: 0 }
+      - { label: "Description", name: "description", widget: "text" }
+      - { label: "Progress (%)", name: "progress", widget: "number", value_type: "int", min: 0, max: 100, default: 0 }
+      - label: "Risk Level"
+        name: "riskLevel"
+        widget: "select"
+        options:
+          - { label: "Low", value: "low" }
+          - { label: "Medium", value: "medium" }
+          - { label: "High", value: "high" }
+        default: "medium"
+      - label: "Images"
+        name: "images"
+        widget: "list"
+        required: false
+        field: { label: "Image", name: "image", widget: "image" }
+      - label: "Documents"
+        name: "documents"
+        widget: "list"
+        required: false
+        field: { label: "Document", name: "document", widget: "string" }
+      - { label: "Current Value (₹)", name: "currentValue", widget: "number", value_type: "int", default: 0 }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "income"
+    label: "Income (Manual)"
+    folder: "src/content/income"
+    create: true
+    slug: "{{date}}-{{description}}"
+    fields:
+      - { label: "Date", name: "date", widget: "datetime" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Program Revenue", value: "Program Revenue" }
+          - { label: "Other Income", value: "Other Income" }
+          - { label: "Grant Income", value: "Grant Income" }
+        default: "Program Revenue"
+      - { label: "Amount (₹)", name: "amount", widget: "number", value_type: "int" }
+      - { label: "Description", name: "description", widget: "text" }
+      - label: "Source/Payer"
+        name: "source"
+        widget: "relation"
+        collection: "donors"
+        search_fields: ["name"]
+        display_fields: ["name"]
+        value_field: "{{name}}"
+        required: false
+      - { label: "Notes", name: "notes", widget: "text", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "expenses"
+    label: "Expenses"
+    folder: "src/content/expenses"
+    create: true
+    slug: "{{date}}-{{description}}"
+    fields:
+      - { label: "Date", name: "date", widget: "datetime" }
+      - label: "Category"
+        name: "category"
+        widget: "select"
+        options:
+          - { label: "Operational Expenses", value: "Operational Expenses" }
+          - { label: "Program Expenses", value: "Program Expenses" }
+          - { label: "Administrative Costs", value: "Administrative Costs" }
+          - { label: "Emergency Fund", value: "Emergency Fund" }
+          - { label: "Reserve Fund", value: "Reserve Fund" }
+          - { label: "Community Welfare", value: "Community Welfare" }
+          - { label: "Salaries & Benefits", value: "Salaries & Benefits" }
+          - { label: "Utilities & Rent", value: "Utilities & Rent" }
+          - { label: "Transportation", value: "Transportation" }
+          - { label: "Supplies & Materials", value: "Supplies & Materials" }
+          - { label: "Other", value: "Other" }
+        default: "Operational Expenses"
+      - { label: "Amount (₹)", name: "amount", widget: "number", value_type: "int" }
+      - { label: "Description", name: "description", widget: "text" }
+      - label: "Vendor/Payee"
+        name: "vendor"
+        widget: "relation"
+        collection: "vendors"
+        search_fields: ["name"]
+        display_fields: ["name"]
+        value_field: "{{name}}"
+        required: false
+      - { label: "Notes", name: "notes", widget: "text", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "vendors"
+    label: "Vendors"
+    folder: "src/content/vendors"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Vendor Name", name: "name", widget: "string" }
+      - { label: "Contact Person", name: "contactPerson", widget: "string", required: false }
+      - { label: "Phone", name: "phone", widget: "string", required: false }
+      - { label: "Email", name: "email", widget: "string", required: false }
+      - { label: "Address", name: "address", widget: "text", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+
+  - name: "financial-reports"
+    label: "Financial Reports"
+    folder: "src/content/financial-reports"
+    create: true
+    slug: "{{title}}"
+    fields:
+      - { label: "Title", name: "title", widget: "string" }
+      - label: "Report Type"
+        name: "type"
+        widget: "select"
+        options:
+          - { label: "Income Summary", value: "income-summary" }
+          - { label: "Expense Summary", value: "expense-summary" }
+          - { label: "Membership Collection", value: "membership-collection" }
+          - { label: "Investment Income", value: "investment-income" }
+          - { label: "Donations", value: "donations" }
+          - { label: "Operational Expenses", value: "operational-expenses" }
+          - { label: "Program Expenses", value: "program-expenses" }
+          - { label: "Emergency Fund", value: "emergency-fund" }
+          - { label: "Reserve Fund", value: "reserve-fund" }
+          - { label: "Yearly Report", value: "yearly-report" }
+          - { label: "Audit Report", value: "audit-report" }
+          - { label: "Meeting Minutes", value: "meeting-minutes" }
+          - { label: "Annual Report", value: "annual-report" }
+          - { label: "Future Plans", value: "future-plans" }
+        default: "yearly-report"
+      - { label: "Fiscal Year", name: "year", widget: "number", value_type: "int" }
+      - { label: "Amount (₹)", name: "amount", widget: "number", value_type: "int", required: false }
+      - { label: "Description", name: "description", widget: "text", required: false }
+      - { label: "PDF / Document File", name: "file", widget: "string", required: false, hint: "Link to a PDF or document" }
+      - { label: "Date", name: "date", widget: "datetime", required: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "SEO Settings"
+        name: "seo"
+        widget: "object"
+        required: false
+        fields:
+          - { label: "Meta Title", name: "title", widget: "string", required: false }
+          - { label: "Meta Description", name: "description", widget: "text", required: false }
+          - { label: "OG Image", name: "image", widget: "image", required: false }
+          - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
+          - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
+      - { label: "Body", name: "body", widget: "markdown" }
+
+  - name: "donors"
+    label: "Donors"
+    folder: "src/content/donors"
+    create: true
+    slug: "{{name}}"
+    fields:
+      - { label: "Donor Name", name: "name", widget: "string" }
+      - label: "Type"
+        name: "type"
+        widget: "select"
+        options:
+          - { label: "Individual", value: "individual" }
+          - { label: "Corporate", value: "corporate" }
+        default: "individual"
+      - { label: "Donation Amount (₹)", name: "amount", widget: "number", value_type: "int", default: 0 }
+      - { label: "Date", name: "date", widget: "datetime" }
+      - { label: "Purpose", name: "purpose", widget: "string", required: false }
+      - { label: "Anonymous", name: "anonymous", widget: "boolean", default: false }
+      - { label: "Language", name: "lang", widget: "hidden", default: "en" }

@@ -1,0 +1,116 @@
+---
+import "../styles/global.css";
+import Navbar from "../components/Navbar.astro";
+import Footer from "../components/Footer.astro";
+import MobileBottomNav from "../components/MobileBottomNav.astro";
+import WhatsAppButton from "../components/WhatsAppButton.astro";
+import PwaToast from "../components/PwaToast.astro";
+import PwaInstallButton from "../components/PwaInstallButton.astro";
+import ThemePicker from "../components/ThemePicker.astro";
+import SEO from "../components/SEO.astro";
+import type { SEOProps } from "../lib/seo";
+import { languages, defaultLang } from "../i18n/ui";
+import { getAbsoluteLocaleUrl } from "astro:i18n";
+
+export interface Props {
+  seo?: SEOProps;
+  title?: string;
+  description?: string;
+  image?: string;
+  preloadHero?: boolean;
+}
+
+const { seo, title, description, image, preloadHero } = Astro.props;
+const seoProps = { ...seo, title, description, image };
+const currentLocale = Astro.currentLocale || defaultLang;
+const pathname = Astro.url.pathname.replace(/^\/[a-z]{2}\//, "").replace(/^\//, "");
+const localePath = pathname === "" ? "" : pathname;
+const alternateUrls = Object.keys(languages).map((locale) => ({
+  locale,
+  href: getAbsoluteLocaleUrl(locale, localePath),
+}));
+---
+
+<!doctype html>
+<html lang={currentLocale} class="scroll-smooth">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="color-scheme" content="light dark" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/manifest.json" />
+    <meta name="theme-color" content="#059669" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <meta name="apple-mobile-web-app-title" content="Nayee Subah Foundation" />
+    {preloadHero && <link rel="preload" as="image" href="/images/hero-bg.jpg" />}
+    <link rel="preload" as="font" type="font/woff2" crossorigin href="/fonts/inter-latin.woff2" />
+    <SEO {...seoProps} />
+    {alternateUrls.map(({ locale, href }) => (
+      <link rel="alternate" hreflang={locale} href={href} />
+    ))}
+    <link rel="alternate" hreflang="x-default" href={getAbsoluteLocaleUrl(defaultLang, localePath)} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "NGO",
+      name: "Nayee Subah Foundation",
+      url: "https://nayeesubah.org",
+      logo: "https://nayeesubah.org/favicon.svg",
+      description: "Nayee Subah Foundation is a non-profit social organization dedicated to improving society through education, community development, humanitarian support, skill development, employment opportunities, health awareness, and social welfare.",
+      address: { "@type": "PostalAddress", addressCountry: "IN" },
+      sameAs: ["https://facebook.com/nayeesubah", "https://instagram.com/nayeesubah", "https://youtube.com/@nayeesubah"],
+    })} />
+    <script type="application/ld+json" set:html={JSON.stringify({
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      name: "Nayee Subah Foundation",
+      url: "https://nayeesubah.org",
+    })} />
+    {import.meta.env.PUBLIC_UMAMI_URL && import.meta.env.PUBLIC_UMAMI_WEBSITE_ID && (
+      <script
+        defer
+        src={`${import.meta.env.PUBLIC_UMAMI_URL}/script.js`}
+        data-website-id={import.meta.env.PUBLIC_UMAMI_WEBSITE_ID}
+      />
+    )}
+    <script is:inline>
+      (function () {
+        // Restore dark mode (default dark)
+        const theme = localStorage.getItem("theme");
+        if (theme !== "light") {
+          document.documentElement.classList.add("dark");
+        }
+        // Restore color palette theme
+        const palette = localStorage.getItem("theme-palette");
+        if (palette && palette !== "brand") {
+          document.documentElement.setAttribute("data-theme", palette);
+        }
+      })();
+    </script>
+  </head>
+  <body class="flex flex-col min-h-screen bg-page text-body font-sans antialiased">
+    <a href="#main-content" class="sr-only focus:not-sr-only focus:fixed focus:top-4 focus:left-4 focus:z-50 focus:px-4 focus:py-2 focus:bg-accent focus:text-accent-text focus:rounded-xl focus:outline-none">
+      Skip to main content
+    </a>
+    <Navbar />
+    <main id="main-content" class="flex-1 pb-16 lg:pb-0">
+      <slot />
+    </main>
+    <Footer />
+    <MobileBottomNav />
+    <!-- <ThemePicker /> -->
+    <PwaToast />
+    <PwaInstallButton />
+    <WhatsAppButton />
+
+    <script>
+      if ("serviceWorker" in navigator) {
+        window.addEventListener("load", () => {
+          navigator.serviceWorker.register("/sw.js");
+        });
+      }
+    </script>
+  </body>
+</html>

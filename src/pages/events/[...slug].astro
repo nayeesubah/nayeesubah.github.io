@@ -1,0 +1,146 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import { getCollection, render } from "astro:content";
+
+export async function getStaticPaths() {
+  const events = await getCollection("events");
+  return events.map((event) => ({
+    params: { slug: event.id },
+    props: { event },
+  }));
+}
+
+const { event } = Astro.props;
+const { data } = event;
+const { Content } = await render(event);
+
+const statusConfig = {
+  upcoming: { label: "Upcoming", class: "bg-accent/10 text-accent" },
+  ongoing: { label: "Ongoing", class: "bg-info/10 text-info" },
+  completed: { label: "Completed", class: "bg-muted/10 text-muted" },
+  cancelled: { label: "Cancelled", class: "bg-error/10 text-error" },
+} as const;
+
+const cfg = statusConfig[data.status];
+
+function formatDate(d: Date) {
+  return d.toLocaleDateString("en-US", { weekday: "long", day: "numeric", month: "long", year: "numeric" });
+}
+
+const googleCalUrl = `https://www.google.com/calendar/render?action=TEMPLATE&text=${encodeURIComponent(data.title)}&dates=${data.date.toISOString().replace(/[-:]/g, "").split(".")[0]}Z/${data.date.toISOString().replace(/[-:]/g, "").split(".")[0]}Z&details=${encodeURIComponent(data.description)}&location=${encodeURIComponent(data.venue)}`;
+---
+
+
+<BaseLayout
+  title={data.title}
+  description={data.description}
+  image={data.image}
+  seo={{
+    type: "article",
+    publishedTime: data.date.toISOString(),
+    breadcrumbs: [
+      { label: "Events", href: "/events/" },
+      { label: data.title, href: `/events/${event.id}/` },
+    ],
+  }}
+>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path={`/events/${event.id}/`} class="mb-8" />
+        <article class="max-w-3xl mx-auto">
+          {data.image && (
+            <div class="aspect-[16/9] rounded-2xl overflow-hidden mb-8">
+              <img src={data.image} alt={data.title} class="h-full w-full object-cover" />
+            </div>
+          )}
+
+          <div class="flex items-center gap-3 text-sm mb-4 flex-wrap">
+            <span class={`px-3 py-1 rounded-full text-xs font-semibold ${cfg.class}`}>{cfg.label}</span>
+            {data.featured && (
+              <span class="px-3 py-1 rounded-full bg-warning/10 text-warning text-xs font-semibold">Featured</span>
+            )}
+          </div>
+
+          <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-6">{data.title}</h1>
+
+          <div class="grid sm:grid-cols-2 gap-4 mb-8">
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-section border border-border">
+              <svg class="h-5 w-5 mt-0.5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+              <div>
+                <p class="text-xs text-muted">Date</p>
+                <p class="text-sm font-semibold">{formatDate(data.date)}</p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 p-4 rounded-xl bg-section border border-border">
+              <svg class="h-5 w-5 mt-0.5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z" /><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z" /></svg>
+              <div>
+                <p class="text-xs text-muted">Venue</p>
+                <p class="text-sm font-semibold">{data.venue}</p>
+              </div>
+            </div>
+          </div>
+
+          {data.organizers.length > 0 && (
+            <div class="flex items-center gap-2 text-sm text-muted mb-8 flex-wrap">
+              <span>Organized by:</span>
+              {data.organizers.map((o) => (
+                <span class="px-3 py-1 rounded-full bg-accent-soft text-accent text-xs font-medium">{o}</span>
+              ))}
+            </div>
+          )}
+
+          <div class="flex flex-wrap gap-3 mb-10">
+            {data.registerLink && (
+              <a href={data.registerLink} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl bg-accent text-accent-text px-5 py-2.5 text-sm font-medium hover:bg-accent-hover transition-colors">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg>
+                Register Now
+              </a>
+            )}
+            <a href={googleCalUrl} target="_blank" rel="noopener noreferrer" class="inline-flex items-center gap-2 rounded-xl border-2 border-btn-secondary-border text-btn-secondary-text px-5 py-2.5 text-sm font-medium hover:bg-btn-secondary-hover-bg hover:text-btn-secondary-hover-text transition-all duration-200">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
+              Add to Google Calendar
+            </a>
+            <button id="share-event-btn" class="inline-flex items-center gap-2 rounded-xl border-2 border-btn-secondary-border text-btn-secondary-text px-5 py-2.5 text-sm font-medium hover:bg-btn-secondary-hover-bg hover:text-btn-secondary-hover-text transition-all duration-200">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M7.217 10.907a2.25 2.25 0 100 2.186m0-2.186c.18.324.283.696.283 1.093s-.103.77-.283 1.093m0-2.186l9.566-5.314m-9.566 7.5l9.566 5.314m0 0a2.25 2.25 0 103.935 2.186 2.25 2.25 0 00-3.935-2.186zm0-12.814a2.25 2.25 0 103.933-2.185 2.25 2.25 0 00-3.933 2.185z" /></svg>
+              Share Event
+            </button>
+          </div>
+
+          <div class="prose prose-lg dark:prose-invert max-w-none">
+            {data.description && <p class="text-lg text-muted mb-6">{data.description}</p>}
+            <Content />
+          </div>
+
+          <div class="mt-10 pt-8 border-t border-border">
+            <a href="/events/" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-btn-secondary-border text-btn-secondary-text px-6 py-3 font-medium hover:bg-btn-secondary-hover-bg hover:text-btn-secondary-hover-text transition-all duration-200">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M10.5 19.5L3 12m0 0l7.5-7.5M3 12h18" /></svg>
+              View All Events
+            </a>
+          </div>
+        </article>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script>
+  document.getElementById("share-event-btn")?.addEventListener("click", async () => {
+    const url = window.location.href;
+    const title = document.title;
+    if (navigator.share) {
+      try {
+        await navigator.share({ title, url });
+      } catch {}
+    } else {
+      try {
+        await navigator.clipboard.writeText(url);
+        const btn = document.getElementById("share-event-btn");
+        const original = btn.innerHTML;
+        btn.innerHTML = `<svg class="h-4 w-4 text-success" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M4.5 12.75l6 6 9-13.5" /></svg> Link copied!`;
+        setTimeout(() => btn.innerHTML = original, 2000);
+      } catch {}
+    }
+  });
+</script>
