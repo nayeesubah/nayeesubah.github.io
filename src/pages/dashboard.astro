@@ -1,47 +1,136 @@
 ---
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
+import StatusBadge from "../components/StatusBadge.astro";
 import { getCollection } from "astro:content";
-import { formatINR } from "../lib/site";
+import { formatINR, MONTHS } from "../lib/site";
 
-const collections = [
-  { name: "members", label: "Members", icon: "M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" },
-  { name: "activities", label: "Activities", icon: "M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25" },
-  { name: "events", label: "Events", icon: "M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 0 1 2.25-2.25h13.5A2.25 2.25 0 0 1 21 7.5v11.25m-18 0A2.25 2.25 0 0 0 5.25 21h13.5A2.25 2.25 0 0 0 21 18.75m-18 0v-7.5A2.25 2.25 0 0 1 5.25 9h13.5A2.25 2.25 0 0 1 21 11.25v7.5" },
-  { name: "blog", label: "Blog Posts", icon: "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" },
-  { name: "team", label: "Team Members", icon: "M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" },
-  { name: "testimonials", label: "Testimonials", icon: "M7.5 8.25h9m-9 3H12m-9.75 1.51c0 1.6 1.123 2.994 2.707 3.227 1.129.166 2.27.293 3.423.379.35.026.67.21.865.501L12 21l2.755-4.133a1.14 1.14 0 0 1 .865-.501 48.172 48.172 0 0 0 3.423-.379c1.584-.233 2.707-1.626 2.707-3.228V6.741c0-1.602-1.123-2.995-2.707-3.228A48.394 48.394 0 0 0 12 3c-2.392 0-4.744.175-7.043.513C3.373 3.746 2.25 5.14 2.25 6.741v6.018Z" },
-  { name: "faq", label: "FAQ", icon: "M9.879 7.519c1.171-1.025 3.071-1.025 4.242 0 1.172 1.025 1.172 2.687 0 3.712-.203.179-.43.326-.67.442-.745.361-1.45.999-1.45 1.827v.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 5.25h.008v.008H12v-.008Z" },
-  { name: "gallery", label: "Gallery", icon: "M2.25 15.75l5.159-5.159a2.25 2.25 0 0 1 3.182 0l5.159 5.159m-1.5-1.5l1.409-1.41a2.25 2.25 0 0 1 3.182 0l2.909 2.91m-18 3.75h16.5a1.5 1.5 0 0 0 1.5-1.5V6a1.5 1.5 0 0 0-1.5-1.5H3.75A1.5 1.5 0 0 0 2.25 6v12a1.5 1.5 0 0 0 1.5 1.5Zm10.5-11.25h.008v.008h-.008V8.25Z" },
-  { name: "partners", label: "Partners", icon: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z" },
-  { name: "volunteers", label: "Volunteers", icon: "M6 4.5h16.5M6 9.75h16.5M6 15h16.5M6 20.25h16.5M3 4.5h.008v.008H3V4.5Zm0 5.25h.008v.008H3V9.75Zm0 5.25h.008v.008H3V15Zm0 5.25h.008v.008H3v-.008Z" },
-  { name: "success-stories", label: "Success Stories", icon: "M11.48 3.499a.562.562 0 0 1 1.04 0l2.125 5.111a.563.563 0 0 0 .475.345l5.518.442c.499.04.701.663.321.988l-4.204 3.602a.563.563 0 0 0-.182.557l1.285 5.385a.562.562 0 0 1-.84.61l-4.725-2.885a.562.562 0 0 0-.586 0L6.982 20.54a.562.562 0 0 1-.84-.61l1.285-5.386a.562.562 0 0 0-.182-.557l-4.204-3.602a.562.562 0 0 1 .321-.988l5.518-.442a.563.563 0 0 0 .475-.345L11.48 3.5Z" },
-  { name: "investment-projects", label: "Investment Projects", icon: "M3.75 3v11.25A2.25 2.25 0 0 0 6 16.5h2.25M3.75 3h-1.5m1.5 0h16.5m0 0h1.5m-1.5 0v11.25A2.25 2.25 0 0 1 18 16.5h-2.25m-7.5 0h7.5m-7.5 0l-1 3m8.5-3l1 3m0 0l.5 1.5m-.5-1.5h-9.5m0 0l-.5 1.5m.75-9l3-3 2.148 2.148A12.061 12.061 0 0 1 16.5 7.605" },
-  { name: "financial-reports", label: "Financial Reports", icon: "M19.5 14.25v-2.625a3.375 3.375 0 0 0-3.375-3.375h-1.5A1.125 1.125 0 0 1 13.5 7.125v-1.5a3.375 3.375 0 0 0-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 0 0-9-9Z" },
-  { name: "donors", label: "Donors", icon: "M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" },
-  { name: "income", label: "Income (Manual)", icon: "M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" },
-  { name: "expenses", label: "Expenses", icon: "M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 21.75h16.5A2.25 2.25 0 0 0 22.5 19.5v-15a2.25 2.25 0 0 0-2.25-2.25H3.75A2.25 2.25 0 0 0 1.5 4.5v15a2.25 2.25 0 0 0 2.25 2.25Z" },
-  { name: "payments", label: "Payments", icon: "M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" },
-  { name: "pages", label: "CMS Pages", icon: "M12 21a9.004 9.004 0 0 0 8.716-6.747M12 21a9.004 9.004 0 0 1-8.716-6.747M12 21c2.485 0 4.5-4.03 4.5-9S14.485 3 12 3m0 18c-2.485 0-4.5-4.03-4.5-9S9.515 3 12 3m0 0a8.997 8.997 0 0 1 7.843 4.582M12 3a8.997 8.997 0 0 0-7.843 4.582" },
+const [members, payments, incomeEntries, expenseEntries, donorEntries, projects, eventEntries, blogPosts] = await Promise.all([
+  getCollection("members"),
+  getCollection("payments"),
+  getCollection("income"),
+  getCollection("expenses"),
+  getCollection("donors"),
+  getCollection("investment-projects"),
+  getCollection("events"),
+  getCollection("blog"),
+]);
+
+// --- Reporting year: latest year with any financial data ---
+const yearsPresent = new Set<number>();
+incomeEntries.forEach((e) => yearsPresent.add(e.data.date.getFullYear()));
+expenseEntries.forEach((e) => yearsPresent.add(e.data.date.getFullYear()));
+donorEntries.forEach((d) => yearsPresent.add(d.data.date.getFullYear()));
+payments.forEach((p) => yearsPresent.add(p.data.year));
+const reportYear = Math.max(...yearsPresent);
+const paymentYear = Math.max(...payments.map((p) => p.data.year));
+
+// --- Income sources for reporting year ---
+const membershipIncome = payments.filter((p) => p.data.year === reportYear).reduce((s, p) => s + p.data.amount, 0);
+const investmentIncome = projects.reduce((s, p) => s + (p.data.actualReturn || 0), 0);
+const yearDonors = donorEntries.filter((d) => d.data.date.getFullYear() === reportYear);
+const donationIncome = yearDonors.reduce((s, d) => s + d.data.amount, 0);
+const yearIncomeEntries = incomeEntries.filter((e) => e.data.date.getFullYear() === reportYear);
+const manualIncome = yearIncomeEntries.reduce((s, e) => s + e.data.amount, 0);
+
+const incomeSources = [
+  { label: "Membership Collection", amount: membershipIncome },
+  { label: "Donations", amount: donationIncome },
+  { label: "Investment Income", amount: investmentIncome },
+  { label: "Program & Other", amount: manualIncome },
+].filter((i) => i.amount > 0).sort((a, b) => b.amount - a.amount);
+const totalIncome = incomeSources.reduce((s, i) => s + i.amount, 0);
+
+// --- Expenses for reporting year ---
+const yearExpenses = expenseEntries.filter((e) => e.data.date.getFullYear() === reportYear);
+const totalExpense = yearExpenses.reduce((s, e) => s + e.data.amount, 0);
+const expenseByCat: Record<string, number> = {};
+for (const e of yearExpenses) expenseByCat[e.data.category] = (expenseByCat[e.data.category] || 0) + e.data.amount;
+const expenseSources = Object.entries(expenseByCat)
+  .map(([label, amount]) => ({ label, amount }))
+  .sort((a, b) => b.amount - a.amount);
+
+const netSurplus = totalIncome - totalExpense;
+
+// --- Membership collection health (latest payment year) ---
+const activeMembers = members.filter((m) => m.data.membershipStatus === "active");
+const yearPayments = payments.filter((p) => p.data.year === paymentYear);
+const collected = yearPayments.reduce((s, p) => s + p.data.amount, 0);
+const expected = activeMembers.reduce((s, m) => s + m.data.subscriptionAmount * 12, 0);
+const collectionRate = expected > 0 ? Math.round((collected / expected) * 100) : 0;
+const outstanding = Math.max(0, expected - collected);
+
+const paidByMember = new Map<string, number>();
+for (const p of yearPayments) {
+  paidByMember.set(p.data.memberId, (paidByMember.get(p.data.memberId) || 0) + p.data.amount);
+}
+const pendingMembers = activeMembers
+  .map((m) => {
+    const paid = paidByMember.get(m.data.memberId) || 0;
+    const due = m.data.subscriptionAmount * 12;
+    return { name: m.data.name, memberId: m.data.memberId, paid, due, pending: Math.max(0, due - paid) };
+  })
+  .sort((a, b) => b.pending - a.pending)
+  .slice(0, 5);
+const membersPaidFull = activeMembers.filter((m) => (paidByMember.get(m.data.memberId) || 0) >= m.data.subscriptionAmount * 12).length;
+
+// --- Investment portfolio ---
+const totalInvested = projects.reduce((s, p) => s + p.data.investmentAmount, 0);
+const totalCurrentValue = projects.reduce((s, p) => s + p.data.currentValue, 0);
+const totalExpectedReturn = projects.reduce((s, p) => s + p.data.expectedReturn, 0);
+const totalActualReturn = projects.reduce((s, p) => s + (p.data.actualReturn || 0), 0);
+const portfolioGain = totalCurrentValue - totalInvested;
+
+// --- Upcoming events ---
+const upcomingEvents = eventEntries
+  .filter((e) => e.data.status === "upcoming" || e.data.status === "ongoing")
+  .sort((a, b) => a.data.date.getTime() - b.data.date.getTime())
+  .slice(0, 3);
+
+// --- Recent activity feed ---
+type Activity = { date: Date; type: "payment" | "income" | "expense" | "donation"; title: string; amount: number };
+const activity: Activity[] = [];
+for (const p of payments) {
+  activity.push({ date: p.data.date || new Date(p.data.year, p.data.month, 1), type: "payment", title: `${p.data.memberId} · ${MONTHS[p.data.month]} ${p.data.year}`, amount: p.data.amount });
+}
+for (const e of incomeEntries) {
+  activity.push({ date: e.data.date, type: "income", title: e.data.description || e.data.category, amount: e.data.amount });
+}
+for (const e of expenseEntries) {
+  activity.push({ date: e.data.date, type: "expense", title: e.data.description || e.data.category, amount: e.data.amount });
+}
+for (const d of donorEntries) {
+  activity.push({ date: d.data.date, type: "donation", title: d.data.anonymous ? "Anonymous Donor" : d.data.name, amount: d.data.amount });
+}
+const recentActivity = activity.sort((a, b) => b.date.getTime() - a.date.getTime()).slice(0, 8);
+
+const activityMeta = {
+  payment: { dot: "bg-success", label: "Payment" },
+  income: { dot: "bg-accent", label: "Income" },
+  expense: { dot: "bg-error", label: "Expense" },
+  donation: { dot: "bg-warning", label: "Donation" },
+};
+
+// --- Content collection counts ---
+const collectionCounts = [
+  { name: "members", label: "Members", count: members.length },
+  { name: "payments", label: "Payments", count: payments.length },
+  { name: "donors", label: "Donors", count: donorEntries.length },
+  { name: "income", label: "Income Entries", count: incomeEntries.length },
+  { name: "expenses", label: "Expenses", count: expenseEntries.length },
+  { name: "investment-projects", label: "Investments", count: projects.length },
+  { name: "events", label: "Events", count: eventEntries.length },
+  { name: "activities", label: "Activities", count: (await getCollection("activities")).length },
+  { name: "blog", label: "Blog Posts", count: blogPosts.length },
+  { name: "financial-reports", label: "Reports", count: (await getCollection("financial-reports")).length },
+  { name: "gallery", label: "Gallery", count: (await getCollection("gallery")).length },
+  { name: "team", label: "Team", count: (await getCollection("team")).length },
 ];
-
-const counts = await Promise.all(
-  collections.map(async (c) => ({
-    ...c,
-    count: (await getCollection(c.name as any)).length,
-  }))
-);
-
-const totalEntries = counts.reduce((sum, c) => sum + c.count, 0);
-const featuredEntries = (await getCollection("blog")).filter((p) => p.data.featured && p.data.published).length;
-const upcomingEvents = (await getCollection("events")).filter((e) => e.data.status === "upcoming").length;
-const activeMembers = (await getCollection("members")).filter((m) => m.data.membershipStatus === "active").length;
-const activeVolunteers = (await getCollection("volunteers")).filter((v) => v.data.active).length;
 ---
 
 <BaseLayout
-  title="Admin Dashboard"
-  description="Nayee Subah Foundation content management dashboard."
+  title="NSF Operations Dashboard"
+  description="Nayee Subah Foundation operations dashboard — financial overview, membership collection health, investment portfolio, and recent activity."
   noIndex
 >
   <div class="pt-24">
@@ -51,51 +140,279 @@ const activeVolunteers = (await getCollection("volunteers")).filter((v) => v.dat
         <div class="max-w-3xl mb-12">
           <span class="text-accent font-semibold text-sm uppercase tracking-widest">Admin</span>
           <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
-            Content <span class="text-accent">Dashboard</span>
+            Operations <span class="text-accent">Dashboard</span>
           </h1>
           <p class="text-muted text-lg leading-relaxed">
-            Overview of all content collections. Manage content through <a href="/admin/" class="text-accent hover:underline">Sveltia CMS</a> or directly in <code class="text-accent font-mono">src/content/</code>.
+            A live operational view for FY {reportYear} — income, expenses, membership collection, and investments. Data is pulled from the CMS collections. <a href="/admin/" class="text-accent hover:underline">Manage via Sveltia CMS</a>.
           </p>
         </div>
 
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4 mb-12">
-          <div class="card p-5 text-center bg-accent text-accent-text">
-            <div class="text-3xl font-black">{totalEntries}</div>
-            <div class="text-xs uppercase tracking-wider opacity-80 mt-1">Total Entries</div>
+        <!-- KPI cards -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 xl:grid-cols-6 gap-4 mb-12">
+          <div class="card p-5 text-center bg-inverse text-inverted">
+            <div class="text-2xl font-black text-accent">{formatINR(netSurplus)}</div>
+            <div class="text-[11px] uppercase tracking-wider opacity-80 mt-1">Net Surplus FY{reportYear}</div>
           </div>
           <div class="card p-5 text-center">
-            <div class="text-3xl font-black text-success">{activeMembers}</div>
-            <div class="text-xs uppercase tracking-wider text-muted mt-1">Active Members</div>
+            <div class="text-2xl font-black text-success">{formatINR(totalIncome)}</div>
+            <div class="text-[11px] uppercase tracking-wider text-muted mt-1">Income FY{reportYear}</div>
           </div>
           <div class="card p-5 text-center">
-            <div class="text-3xl font-black text-info">{activeVolunteers}</div>
-            <div class="text-xs uppercase tracking-wider text-muted mt-1">Active Volunteers</div>
+            <div class="text-2xl font-black text-error">{formatINR(totalExpense)}</div>
+            <div class="text-[11px] uppercase tracking-wider text-muted mt-1">Expenses FY{reportYear}</div>
           </div>
           <div class="card p-5 text-center">
-            <div class="text-3xl font-black text-warning">{upcomingEvents}</div>
-            <div class="text-xs uppercase tracking-wider text-muted mt-1">Upcoming Events</div>
+            <div class="text-2xl font-black text-accent">{collectionRate}%</div>
+            <div class="text-[11px] uppercase tracking-wider text-muted mt-1">Collection Rate {paymentYear}</div>
           </div>
           <div class="card p-5 text-center">
-            <div class="text-3xl font-black text-accent">{featuredEntries}</div>
-            <div class="text-xs uppercase tracking-wider text-muted mt-1">Featured Stories</div>
+            <div class="text-2xl font-black text-warning">{formatINR(totalCurrentValue)}</div>
+            <div class="text-[11px] uppercase tracking-wider text-muted mt-1">Portfolio Value</div>
+          </div>
+          <div class="card p-5 text-center">
+            <div class="text-2xl font-black text-accent">{activeMembers.length}</div>
+            <div class="text-[11px] uppercase tracking-wider text-muted mt-1">Active Members</div>
           </div>
         </div>
 
-        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {counts.map((c) => (
-            <div class="card p-5 flex items-center gap-4 hover:shadow-lg transition-shadow duration-200">
-              <div class="h-10 w-10 shrink-0 rounded-xl bg-accent-soft text-accent flex items-center justify-center">
-                <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d={c.icon} /></svg>
+        <!-- Financial overview + collection health -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-12">
+          <div class="card p-6 sm:p-8">
+            <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-success"></span>
+              Financial Overview — FY{reportYear}
+            </h2>
+            {incomeSources.length > 0 ? (
+              <div class="space-y-4 mb-6">
+                <div class="text-xs uppercase tracking-wider text-muted mb-2">Income Sources</div>
+                {incomeSources.map((i) => {
+                  const pct = Math.round((i.amount / totalIncome) * 100);
+                  return (
+                    <div>
+                      <div class="flex items-center justify-between text-sm mb-1">
+                        <span class="text-muted">{i.label}</span>
+                        <span class="font-medium">{formatINR(i.amount)}</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-section overflow-hidden">
+                        <div class="h-full rounded-full bg-success" style={`width: ${pct}%`}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+                <div class="pt-3 border-t border-border flex items-center justify-between font-bold">
+                  <span>Total Income</span>
+                  <span class="text-success">{formatINR(totalIncome)}</span>
+                </div>
               </div>
-              <div class="min-w-0 flex-1">
-                <div class="text-sm font-medium truncate">{c.label}</div>
-                <div class="text-2xl font-black">{c.count}</div>
+            ) : (
+              <p class="text-muted text-sm py-4 text-center">No income recorded for FY{reportYear}.</p>
+            )}
+
+            {expenseSources.length > 0 && (
+              <div class="space-y-4">
+                <div class="text-xs uppercase tracking-wider text-muted mb-2">Expense Categories</div>
+                {expenseSources.slice(0, 5).map((e) => {
+                  const pct = Math.round((e.amount / totalExpense) * 100);
+                  return (
+                    <div>
+                      <div class="flex items-center justify-between text-sm mb-1">
+                        <span class="text-muted">{e.label}</span>
+                        <span class="font-medium">{formatINR(e.amount)}</span>
+                      </div>
+                      <div class="h-2 rounded-full bg-section overflow-hidden">
+                        <div class="h-full rounded-full bg-error/70" style={`width: ${pct}%`}></div>
+                      </div>
+                    </div>
+                  );
+                })}
+                {expenseSources.length > 5 && (
+                  <p class="text-xs text-muted">+{expenseSources.length - 5} more categories</p>
+                )}
+                <div class="pt-3 border-t border-border flex items-center justify-between font-bold">
+                  <span>Total Expenses</span>
+                  <span class="text-error">{formatINR(totalExpense)}</span>
+                </div>
+              </div>
+            )}
+            <a href="/transparency/" class="inline-flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover font-medium mt-6">
+              View full transparency report
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </a>
+          </div>
+
+          <div class="card p-6 sm:p-8">
+            <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-accent"></span>
+              Membership Collection — {paymentYear}
+            </h2>
+            <div class="flex items-end justify-between mb-2">
+              <div class="text-4xl font-black text-accent">{collectionRate}%</div>
+              <div class="text-xs text-muted text-right">
+                {formatINR(collected)} of {formatINR(expected)} collected
               </div>
             </div>
-          ))}
+            <div class="h-3 rounded-full bg-section overflow-hidden mb-6">
+              <div class={`h-full rounded-full ${collectionRate >= 75 ? "bg-success" : collectionRate >= 40 ? "bg-warning" : "bg-error"}`} style={`width: ${Math.min(100, collectionRate)}%`}></div>
+            </div>
+            <div class="grid grid-cols-3 gap-3 mb-6">
+              <div class="p-3 rounded-xl bg-accent-soft/20 text-center">
+                <div class="text-lg font-black text-accent">{membersPaidFull}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">Paid in Full</div>
+              </div>
+              <div class="p-3 rounded-xl bg-warning/10 text-center">
+                <div class="text-lg font-black text-warning">{formatINR(outstanding)}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">Outstanding</div>
+              </div>
+              <div class="p-3 rounded-xl bg-accent-soft/20 text-center">
+                <div class="text-lg font-black">{activeMembers.length}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">Active Members</div>
+              </div>
+            </div>
+            {pendingMembers.length > 0 && (
+              <div>
+                <div class="text-xs uppercase tracking-wider text-muted mb-3">Top Pending Dues</div>
+                <ul class="space-y-2">
+                  {pendingMembers.map((m) => (
+                    <li class="flex items-center justify-between gap-3 text-sm">
+                      <div class="min-w-0 flex-1">
+                        <div class="flex items-center justify-between gap-2">
+                          <span class="font-medium truncate">{m.name}</span>
+                          <span class="text-error shrink-0">{formatINR(m.pending)}</span>
+                        </div>
+                        <div class="h-1.5 rounded-full bg-section overflow-hidden mt-1">
+                          <div class="h-full rounded-full bg-success" style={`width: ${m.due > 0 ? Math.round((m.paid / m.due) * 100) : 0}%`}></div>
+                        </div>
+                      </div>
+                      <span class="text-xs text-muted font-mono shrink-0">{m.memberId}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+            <a href="/members/matrix/" class="inline-flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover font-medium mt-6">
+              Open contribution matrix
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </a>
+          </div>
         </div>
 
-        <div class="card p-6 mt-12">
+        <!-- Investment portfolio + upcoming events -->
+        <div class="grid lg:grid-cols-2 gap-6 mb-12">
+          <div class="card p-6 sm:p-8">
+            <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-warning"></span>
+              Investment Portfolio
+            </h2>
+            <div class="grid grid-cols-2 gap-3 mb-6">
+              <div class="p-3 rounded-xl bg-accent-soft/20">
+                <div class="text-sm font-black">{formatINR(totalInvested)}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">Invested Capital</div>
+              </div>
+              <div class={`p-3 rounded-xl ${portfolioGain >= 0 ? "bg-success/10" : "bg-error/10"}`}>
+                <div class={`text-sm font-black ${portfolioGain >= 0 ? "text-success" : "text-error"}`}>{formatINR(totalCurrentValue)}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">{portfolioGain >= 0 ? "Current Value" : "Current Value"}</div>
+              </div>
+              <div class="p-3 rounded-xl bg-accent-soft/20">
+                <div class="text-sm font-black">{formatINR(totalActualReturn)}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">Returns Received</div>
+              </div>
+              <div class="p-3 rounded-xl bg-accent-soft/20">
+                <div class="text-sm font-black">{formatINR(totalExpectedReturn)}</div>
+                <div class="text-[11px] uppercase tracking-wider text-muted mt-0.5">Expected Return</div>
+              </div>
+            </div>
+            <div>
+              <div class="text-xs uppercase tracking-wider text-muted mb-3">Projects</div>
+              <ul class="space-y-4">
+                {projects.slice(0, 4).map((p) => (
+                  <li>
+                    <div class="flex items-center justify-between gap-2 text-sm mb-1">
+                      <span class="font-medium truncate">{p.data.title}</span>
+                      <span class="flex items-center gap-2 shrink-0">
+                        <StatusBadge status={p.data.status} />
+                        <span class="text-muted text-xs">{formatINR(p.data.investmentAmount)}</span>
+                      </span>
+                    </div>
+                    <div class="h-1.5 rounded-full bg-section overflow-hidden">
+                      <div class="h-full rounded-full bg-warning" style={`width: ${p.data.progress}%`}></div>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <a href="/admin/#/collections/investment-projects" class="inline-flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover font-medium mt-6">
+              Manage investment projects
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </a>
+          </div>
+
+          <div class="card p-6 sm:p-8">
+            <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+              <span class="h-3 w-3 rounded-full bg-info"></span>
+              Upcoming Events
+            </h2>
+            {upcomingEvents.length > 0 ? (
+              <ul class="space-y-3">
+                {upcomingEvents.map((e) => (
+                  <li class="flex items-start gap-4 p-3 rounded-xl bg-accent-soft/20">
+                    <div class="shrink-0 h-14 w-14 rounded-xl bg-accent text-accent-text flex flex-col items-center justify-center">
+                      <span class="text-lg font-black leading-none">{e.data.date.getDate()}</span>
+                      <span class="text-[10px] uppercase tracking-wider opacity-90">{MONTHS[e.data.date.getMonth()].slice(0, 3)}</span>
+                    </div>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex items-center gap-2 mb-1">
+                        <StatusBadge status={e.data.status} />
+                      </div>
+                      <p class="font-medium text-sm leading-snug">{e.data.title}</p>
+                      <p class="text-xs text-muted mt-1 truncate">{e.data.venue}</p>
+                    </div>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p class="text-muted text-sm py-8 text-center">No upcoming events scheduled.</p>
+            )}
+            <a href="/admin/#/collections/events" class="inline-flex items-center gap-1.5 text-sm text-accent hover:text-accent-hover font-medium mt-6">
+              Manage events
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" /></svg>
+            </a>
+          </div>
+        </div>
+
+        <!-- Recent activity -->
+        <div class="card p-6 sm:p-8 mb-12">
+          <h2 class="text-xl font-semibold mb-6 flex items-center gap-2">
+            <span class="h-3 w-3 rounded-full bg-accent"></span>
+            Recent Activity
+          </h2>
+          {recentActivity.length > 0 ? (
+            <ul class="divide-y divide-border/60">
+              {recentActivity.map((a) => {
+                const meta = activityMeta[a.type];
+                return (
+                  <li class="flex items-center gap-4 py-3">
+                    <span class={`h-2.5 w-2.5 rounded-full shrink-0 ${meta.dot}`}></span>
+                    <div class="min-w-0 flex-1">
+                      <p class="text-sm font-medium truncate">{a.title}</p>
+                      <p class="text-xs text-muted">{meta.label}</p>
+                    </div>
+                    <div class="flex items-center gap-3 shrink-0">
+                      <span class={`text-sm font-bold ${a.type === "expense" ? "text-error" : "text-success"}`}>
+                        {a.type === "expense" ? "−" : "+"}{formatINR(a.amount)}
+                      </span>
+                      <span class="text-xs text-muted w-16 text-right">{a.date.toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</span>
+                    </div>
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p class="text-muted text-sm py-8 text-center">No financial activity recorded yet.</p>
+          )}
+        </div>
+
+        <!-- Quick actions -->
+        <div class="card p-6 mb-12">
           <h3 class="text-lg font-semibold mb-4 flex items-center gap-2">
             <svg class="h-5 w-5 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="m16.862 4.487 1.687-1.688a1.875 1.875 0 1 1 2.652 2.652L10.582 16.07a4.5 4.5 0 0 1-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 0 1 1.13-1.897l8.932-8.931Zm0 0L19.5 7.125M18 14v4.75A2.25 2.25 0 0 1 15.75 21H5.25A2.25 2.25 0 0 1 3 18.75V8.25A2.25 2.25 0 0 1 5.25 6H10" />
@@ -124,7 +441,7 @@ const activeVolunteers = (await getCollection("volunteers")).filter((v) => v.dat
               Add a Donor
             </a>
             <a href="/members/matrix/" class="flex items-center gap-3 p-3 rounded-xl bg-accent-soft/20 hover:bg-accent-soft/40 transition-colors text-sm">
-              <span class="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent font-bold shrink-0">M</span>
+              <span class="h-8 w-8 rounded-lg bg-accent/20 flex items-center justify-center text-accent font-bold shrink-0">X</span>
               Payment Matrix
             </a>
             <a href="/transparency/" class="flex items-center gap-3 p-3 rounded-xl bg-accent-soft/20 hover:bg-accent-soft/40 transition-colors text-sm">
@@ -138,12 +455,25 @@ const activeVolunteers = (await getCollection("volunteers")).filter((v) => v.dat
           </div>
         </div>
 
-        <div class="card p-6 mt-6">
+        <!-- Content collection counts -->
+        <div class="card p-6 mb-12">
+          <h3 class="text-lg font-semibold mb-4">Content Collections</h3>
+          <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
+            {collectionCounts.map((c) => (
+              <a href={`/admin/#/collections/${c.name}`} class="flex items-center justify-between gap-3 p-3 rounded-xl bg-accent-soft/20 hover:bg-accent-soft/40 transition-colors">
+                <span class="text-sm font-medium">{c.label}</span>
+                <span class="text-lg font-black text-accent">{c.count}</span>
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div class="card p-6">
           <div class="flex items-center gap-3 text-sm text-muted">
             <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
               <path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z" />
             </svg>
-            Content is managed via markdown files in <code class="text-accent font-mono">src/content/</code>. Changes are loaded at build time after commit.
+            All figures are computed at build time from CMS collections. Changes take effect after commit and rebuild.
           </div>
         </div>
       </div>
