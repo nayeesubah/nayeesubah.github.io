@@ -400,25 +400,49 @@ collections:
       - { label: "Language", name: "lang", widget: "hidden", default: "en" }
 
   # ---------------------------------------------------------------------------
-  # Gallery — split into per-category collections so uploaded images are saved
-  # to a category-specific folder inside /public/images/ (e.g. /images/library).
-  # The "Media" field uses variable types: choosing Video reveals a Media URL.
+  # Gallery — single collection (one "Gallery" menu item). Use the category
+  # view filters to browse each album. The "Media" field uses variable types:
+  # choosing Video reveals a Media URL.
   # ---------------------------------------------------------------------------
-  - name: "gallery-library"
-    label: "Gallery — Library"
-    icon: menu_book
+  - name: "gallery"
+    label: "Gallery"
+    icon: photo_library
     folder: "src/content/gallery"
-    filter: { field: "category", value: "library" }
     create: true
     slug: "{{title}}"
-    media_folder: "/public/images/library"
-    public_folder: "/images/library"
+    media_folder: "/public/images/gallery"
+    public_folder: "/images/gallery"
+    view_filters:
+      - label: "Library"
+        field: "category"
+        pattern: "library"
+      - label: "Community Welfare"
+        field: "category"
+        pattern: "community-welfare"
+      - label: "Education"
+        field: "category"
+        pattern: "education"
+      - label: "Healthcare"
+        field: "category"
+        pattern: "healthcare"
+      - label: "Skill Development"
+        field: "category"
+        pattern: "skill-development"
+      - label: "Women Empowerment"
+        field: "category"
+        pattern: "women-empowerment"
+      - label: "Events"
+        field: "category"
+        pattern: "events"
+      - label: "General"
+        field: "category"
+        pattern: "general"
     fields:
       - { label: "Title", name: "title", widget: "string" }
       - label: "Category"
         name: "category"
         widget: "select"
-        options: &gallery-category-options
+        options:
           - { label: "Library", value: "library" }
           - { label: "Community Welfare", value: "community-welfare" }
           - { label: "Education", value: "education" }
@@ -427,323 +451,8 @@ collections:
           - { label: "Women Empowerment", value: "women-empowerment" }
           - { label: "Events", value: "events" }
           - { label: "General", value: "general" }
-        default: "library"
-        hint: "Album the photo belongs to. Uploads are saved to /images/library/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-community-welfare"
-    label: "Gallery — Community Welfare"
-    icon: volunteer_activism
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "community-welfare" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/community-welfare"
-    public_folder: "/images/community-welfare"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
-        default: "community-welfare"
-        hint: "Album the photo belongs to. Uploads are saved to /images/community-welfare/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-education"
-    label: "Gallery — Education"
-    icon: school
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "education" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/education"
-    public_folder: "/images/education"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
-        default: "education"
-        hint: "Album the photo belongs to. Uploads are saved to /images/education/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-healthcare"
-    label: "Gallery — Healthcare"
-    icon: medical_services
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "healthcare" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/healthcare"
-    public_folder: "/images/healthcare"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
-        default: "healthcare"
-        hint: "Album the photo belongs to. Uploads are saved to /images/healthcare/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-skill-development"
-    label: "Gallery — Skill Development"
-    icon: handyman
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "skill-development" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/skill-development"
-    public_folder: "/images/skill-development"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
-        default: "skill-development"
-        hint: "Album the photo belongs to. Uploads are saved to /images/skill-development/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-women-empowerment"
-    label: "Gallery — Women Empowerment"
-    icon: female
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "women-empowerment" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/women-empowerment"
-    public_folder: "/images/women-empowerment"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
-        default: "women-empowerment"
-        hint: "Album the photo belongs to. Uploads are saved to /images/women-empowerment/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-events"
-    label: "Gallery — Events"
-    icon: celebration
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "events" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/events"
-    public_folder: "/images/events"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
-        default: "events"
-        hint: "Album the photo belongs to. Uploads are saved to /images/events/."
-      - label: "Media"
-        name: "media"
-        widget: "object"
-        default: { type: "image" }
-        types:
-          - name: "image"
-            label: "Image"
-            fields:
-              - { label: "Image", name: "image", widget: "image" }
-          - name: "video"
-            label: "Video"
-            fields:
-              - { label: "Thumbnail / Poster", name: "image", widget: "image", required: false, hint: "Cover image shown in the gallery grid" }
-              - { label: "Media URL", name: "mediaUrl", widget: "string", hint: "YouTube, Vimeo, or direct video file URL" }
-      - label: "Related Project"
-        name: "project"
-        widget: "relation"
-        collection: "investment-projects"
-        search_fields: ["title"]
-        display_fields: ["title"]
-        value_field: "{{title}}"
-        required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
-
-  - name: "gallery-general"
-    label: "Gallery — General"
-    icon: photo_library
-    folder: "src/content/gallery"
-    filter: { field: "category", value: "general" }
-    create: true
-    slug: "{{title}}"
-    media_folder: "/public/images/general"
-    public_folder: "/images/general"
-    fields:
-      - { label: "Title", name: "title", widget: "string" }
-      - label: "Category"
-        name: "category"
-        widget: "select"
-        options: *gallery-category-options
         default: "general"
-        hint: "Album the photo belongs to. Uploads are saved to /images/general/."
+        hint: "Album the photo belongs to. Upload images into the matching subfolder, e.g. /images/gallery/library/ or /images/gallery/education/."
       - label: "Media"
         name: "media"
         widget: "object"
@@ -752,7 +461,12 @@ collections:
           - name: "image"
             label: "Image"
             fields:
-              - { label: "Image", name: "image", widget: "image" }
+              - label: "Images"
+                name: "images"
+                widget: "list"
+                required: false
+                hint: "Add one or more photos. The first photo is used as the cover."
+                field: { label: "Photo", name: "image", widget: "image" }
           - name: "video"
             label: "Video"
             fields:

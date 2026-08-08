@@ -90,6 +90,13 @@ const galleryCategories = [
   "general",
 ] as const;
 
+const galleryImages = z
+  .union([
+    z.array(z.string()),
+    z.array(z.object({ image: z.string() })),
+  ])
+  .transform((arr) => arr.map((x) => (typeof x === "string" ? x : x.image)));
+
 const gallery = defineCollection({
   loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery" }),
   schema: z.object({
@@ -98,6 +105,7 @@ const gallery = defineCollection({
     media: z.object({
       type: z.enum(["image", "video"]).default("image"),
       image: z.string().optional(),
+      images: galleryImages.default([]),
       mediaUrl: z.string().optional(),
     }),
     project: z.string().optional(),
