@@ -11,5 +11,6 @@ occupation: Self
 bloodGroup: ''
 membershipStatus: active
 subscriptionAmount: 200
+password: "8779987879"
 lang: en
 ---

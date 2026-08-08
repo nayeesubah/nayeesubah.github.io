@@ -214,6 +214,7 @@ const members = defineCollection({
     bloodGroup: z.string().optional(),
     membershipStatus: z.enum(["active", "inactive", "suspended"]).default("active"),
     subscriptionAmount: z.number().int().default(200),
+    password: z.string().default(""),
     lang: z.string().default("en"),
   }),
 });

@@ -10,5 +10,6 @@ state: ""
 occupation: ""
 membershipStatus: active
 subscriptionAmount: 200
+password: "NSF-24-017"
 lang: en
 ---

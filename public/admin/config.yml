@@ -277,6 +277,11 @@ collections:
           - { label: "Suspended", value: "suspended" }
         default: "active"
       - { label: "Subscription Amount (₹)", name: "subscriptionAmount", widget: "number", value_type: "int", default: 200 }
+      - label: "Member Password"
+        name: "password"
+        widget: "string"
+        required: false
+        hint: "Password for the member portal. The payment overview & matrix are encrypted with this at build time and decrypted in the browser when the member enters it. Leave empty to disable access."
       - { label: "Language", name: "lang", widget: "hidden", default: "en" }
 
   - name: "team"

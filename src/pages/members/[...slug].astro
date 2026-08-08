@@ -4,6 +4,7 @@ import Breadcrumb from "../../components/Breadcrumb.astro";
 import StatusBadge from "../../components/StatusBadge.astro";
 import { getCollection } from "astro:content";
 import { formatINR } from "../../lib/site";
+import { encryptWithPassword } from "../../lib/vault";
 
 export async function getStaticPaths() {
   const members = await getCollection("members");
@@ -16,6 +17,7 @@ export async function getStaticPaths() {
 const { member } = Astro.props;
 const { data } = member;
 const initials = data.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
+const firstName = data.name.split(" ")[0];
 
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
@@ -24,22 +26,57 @@ const allPayments = (await getCollection("payments"))
   .filter((p) => p.data.memberId === data.memberId)
   .map((p) => ({ year: p.data.year, month: p.data.month, status: p.data.status, amount: p.data.amount }));
 
+const vault = await encryptWithPassword(
+  JSON.stringify({
+    subscriptionAmount: data.subscriptionAmount,
+    payments: allPayments,
+  }),
+  data.password || "",
+);
+
+const joinedAt = data.joiningDate;
+const membershipYears = Math.max(0, currentYear - joinedAt.getFullYear());
+const passwordConfigured = Boolean(data.password);
+
 const memberInfo = {
   id: member.id,
   name: data.name,
+  firstName,
   memberId: data.memberId,
-  subscriptionAmount: data.subscriptionAmount,
 };
 ---
 
 <BaseLayout
-  title={`${data.name} — Member Profile`}
-  description={`Member profile for ${data.name} — ${data.memberId}, ${data.city}, ${data.state}`}
+  title={`${data.name} — Member Portal`}
+  description={`Personal member portal for ${data.name} — ${data.memberId}, ${data.city}, ${data.state}`}
 >
   <div class="pt-24">
     <section class="py-16 sm:py-20 lg:py-24">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Breadcrumb path={`/members/${member.id}/`} class="mb-8" />
+
+        <div class="card p-8 sm:p-10 mb-8 relative overflow-hidden">
+          <div class="absolute -top-24 -right-24 h-64 w-64 rounded-full bg-accent/10 blur-3xl pointer-events-none"></div>
+          <div class="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-6">
+            <div>
+              <span class="inline-flex items-center gap-2 text-accent font-semibold text-sm uppercase tracking-widest mb-2">
+                <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z" /></svg>
+                Member Portal
+              </span>
+              <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-body">
+                Welcome back, <span class="text-accent">{firstName}</span>
+              </h1>
+              <p class="text-muted mt-2 text-sm sm:text-base">
+                {data.memberId} &middot; Member since {joinedAt.toLocaleDateString("en-US", { month: "long", year: "numeric" })}
+                {membershipYears > 0 && <span> &middot; {membershipYears} year{membershipYears > 1 ? "s" : ""} with us</span>}
+              </p>
+            </div>
+            <div class="flex flex-col items-start sm:items-end gap-3 shrink-0">
+              <StatusBadge status={data.membershipStatus} size="md" />
+              <span class="text-xs text-muted">{formatINR(data.subscriptionAmount)}/month &middot; {data.city}</span>
+            </div>
+          </div>
+        </div>
 
         <div class="grid lg:grid-cols-3 gap-8 lg:gap-12">
           <div class="lg:col-span-1">
@@ -51,7 +88,7 @@ const memberInfo = {
                   <span class="text-accent font-bold text-3xl">{initials}</span>
                 )}
               </div>
-              <h1 class="text-2xl font-bold text-body">{data.name}</h1>
+              <h2 class="text-2xl font-bold text-body">{data.name}</h2>
               <p class="text-sm text-muted mt-1">{data.memberId}</p>
               <div class="mt-4 flex justify-center">
                 <StatusBadge status={data.membershipStatus} size="md" />
@@ -93,12 +130,6 @@ const memberInfo = {
                     <span class="text-muted">{data.bloodGroup}</span>
                   </div>
                 )}
-                <div class="flex items-center gap-3">
-                  <svg class="h-5 w-5 text-accent shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-                    <path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
-                  </svg>
-                  <span class="text-muted">{formatINR(data.subscriptionAmount)}/month</span>
-                </div>
               </div>
               <a href={`/members/id-card/${member.id}/`} class="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2.5 rounded-xl bg-accent text-accent-text text-sm font-semibold hover:bg-accent-hover transition-colors" target="_blank">
                 <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -110,32 +141,76 @@ const memberInfo = {
           </div>
 
           <div class="lg:col-span-2 space-y-8">
-            <div class="flex items-center justify-between">
-              <h2 class="text-xl font-bold text-body">Payment Overview</h2>
-              <select id="payment-year" class="px-4 py-2 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
-                {years.map((y) => (
-                  <option value={y} selected={y === currentYear}>{y}</option>
-                ))}
-              </select>
+            <div id="vault-gate" class="card p-8 sm:p-10 text-center">
+              <div class="mx-auto h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
+                <svg class="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+                </svg>
+              </div>
+              <h2 class="text-2xl font-bold text-body">Payment Overview & Matrix</h2>
+              <p class="text-muted text-sm mt-2 max-w-md mx-auto">
+                Your contribution details are encrypted and private. Enter your member password to view your payment history.
+              </p>
+              <form id="vault-form" class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
+                <input
+                  id="vault-password"
+                  type="password"
+                  autocomplete="current-password"
+                  placeholder="Enter your password"
+                  class="flex-1 px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+                  aria-label="Member password"
+                  required
+                />
+                <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent text-accent-text text-sm font-semibold hover:bg-accent-hover transition-colors inline-flex items-center justify-center gap-2">
+                  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21h16.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75A2.25 2.25 0 0 0 3.75 21Z" /></svg>
+                  Unlock
+                </button>
+              </form>
+              <p id="vault-error" class="hidden mt-4 text-sm text-error font-medium" role="alert">Incorrect password. Please try again.</p>
+              {!passwordConfigured && (
+                <p class="hidden" id="vault-no-pw">No password has been configured for this member yet.</p>
+              )}
             </div>
 
-            <div id="payment-stats" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+            <div id="vault-content" class="hidden">
+              <div class="flex items-center justify-between">
+                <h2 class="text-xl font-bold text-body">Payment Overview</h2>
+                <select id="payment-year" class="px-4 py-2 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+                  {years.map((y) => (
+                    <option value={y} selected={y === currentYear}>{y}</option>
+                  ))}
+                </select>
+              </div>
 
-            <div class="card p-6">
-              <div id="payment-matrix"></div>
+              <div id="payment-stats" class="grid sm:grid-cols-2 lg:grid-cols-4 gap-4"></div>
+
+              <div class="card p-6">
+                <div id="payment-matrix"></div>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </section>
   </div>
-<script define:vars={{ memberInfo, years, allPayments }}>
+<script>
+  import { decryptWithPassword } from "../../lib/vault";
+  (globalThis as any).__decryptVault = decryptWithPassword;
+</script>
+<script define:vars={{ vault, memberInfo }}>
   const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
   const MONTHS_FULL = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
 
+  const gate = document.getElementById("vault-gate");
+  const content = document.getElementById("vault-content");
+  const form = document.getElementById("vault-form");
+  const passwordInput = document.getElementById("vault-password");
+  const errorEl = document.getElementById("vault-error");
   const yearSelect = document.getElementById("payment-year");
   const statsContainer = document.getElementById("payment-stats");
   const matrixContainer = document.getElementById("payment-matrix");
+
+  let vaultData = null;
 
   function buildPayments(memberId, year, realPayments) {
     const payments = {};
@@ -167,8 +242,8 @@ const memberInfo = {
   }
 
   function render(year) {
-    const payments = buildPayments(memberInfo.memberId, year, allPayments);
-    const amount = memberInfo.subscriptionAmount;
+    const payments = buildPayments(memberInfo.memberId, year, vaultData.payments);
+    const amount = vaultData.subscriptionAmount;
     const now = new Date();
     const currentMonth = now.getMonth();
     const currentYear = now.getFullYear();
@@ -249,6 +324,15 @@ const memberInfo = {
       </td>`);
     }
 
+    const yearPayments = vaultData.payments.filter((p) => p.year === year);
+    const duplicates = {};
+    for (const p of yearPayments) {
+      const k = `${p.month}`;
+      if (!duplicates[k]) duplicates[k] = [];
+      duplicates[k].push(p);
+    }
+    const duplicateKeys = Object.keys(duplicates).filter((k) => duplicates[k].length > 1);
+
     matrixContainer.innerHTML = `
       <div class="flex items-center justify-between mb-6">
         <h2 class="text-xl font-bold text-body">Payment Matrix — ${year}</h2>
@@ -299,18 +383,17 @@ const memberInfo = {
         <div class="mt-4 p-3 rounded-xl bg-error/10 border border-error/20">
           <p class="text-xs font-semibold text-error">⚠ Duplicate payments found for:</p>
           <ul class="mt-1 text-xs text-error/80">
-            ${duplicateKeys.map(k => {
-              const [y, m] = k.split("-");
-              return `<li>${MONTHS_FULL[parseInt(m)]} ${y} — ${duplicates[k].length} entries</li>`;
+            ${duplicateKeys.map((k) => {
+              return `<li>${MONTHS_FULL[parseInt(k)]} ${year} — ${duplicates[k].length} entries</li>`;
             }).join("")}
           </ul>
         </div>
       ` : ""}
-      ${allPayments.filter(p => p.year === year).length > 0 ? `
+      ${yearPayments.length > 0 ? `
         <div class="mt-4 p-3 rounded-xl bg-accent/5 border border-accent/20">
-          <p class="text-xs font-semibold text-accent">✓ ${allPayments.filter(p => p.year === year).length} CMS payment record(s) for ${year}</p>
+          <p class="text-xs font-semibold text-accent">✓ ${yearPayments.length} CMS payment record(s) for ${year}</p>
           <ul class="mt-1 text-xs text-muted space-y-0.5">
-            ${allPayments.filter(p => p.year === year).sort((a, b) => a.month - b.month).map(p =>
+            ${yearPayments.sort((a, b) => a.month - b.month).map((p) =>
               `<li>${MONTHS_FULL[p.month]} — ${p.status === "paid" ? "Paid" : "Partial"} (₹${p.amount.toLocaleString("en-IN")})</li>`
             ).join("")}
           </ul>
@@ -319,16 +402,38 @@ const memberInfo = {
     `;
   }
 
-  // Check for duplicate payments
-  const duplicates = {};
-  for (const p of allPayments) {
-    const key = `${p.year}-${p.month}`;
-    if (!duplicates[key]) duplicates[key] = [];
-    duplicates[key].push(p);
+  async function unlock() {
+    const decryptWithPassword = window.__decryptVault;
+    if (!crypto?.subtle) {
+      errorEl.textContent = "Secure encryption is not supported in this browser.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    if (!decryptWithPassword) {
+      errorEl.textContent = "Secure encryption is not available on this page yet. Please reload.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    const plaintext = await decryptWithPassword(vault, passwordInput.value);
+    if (!plaintext) {
+      errorEl.textContent = "Incorrect password. Please try again.";
+      errorEl.classList.remove("hidden");
+      passwordInput.classList.add("border-error", "ring-1", "ring-error/50");
+      passwordInput.focus();
+      return;
+    }
+    vaultData = JSON.parse(plaintext);
+    errorEl.classList.add("hidden");
+    passwordInput.classList.remove("border-error", "ring-1", "ring-error/50");
+    gate.classList.add("hidden");
+    content.classList.remove("hidden");
+    yearSelect.addEventListener("change", () => render(parseInt(yearSelect.value)));
+    render(parseInt(yearSelect.value));
   }
-  const duplicateKeys = Object.keys(duplicates).filter(k => duplicates[k].length > 1);
 
-  yearSelect.addEventListener("change", () => render(parseInt(yearSelect.value)));
-  render(parseInt(yearSelect.value));
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    unlock();
+  });
 </script>
 </BaseLayout>
