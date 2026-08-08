@@ -167,6 +167,7 @@ const siteSettings = defineCollection({
     currency: z.string().default("INR"),
     language: z.string().default("en"),
     languages: z.array(z.string()).default(["en", "hi"]),
+    matrixPassword: z.string().default(""),
   }),
 });
 

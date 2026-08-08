@@ -2,13 +2,15 @@
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import { getCollection } from "astro:content";
-import { formatINR, MONTHS } from "../../lib/site";
+import { formatINR } from "../../lib/site";
+import { encryptWithPassword } from "../../lib/vault";
 
 const members = await getCollection("members");
 const cities = [...new Set(members.map((m) => m.data.city))].sort();
 const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((a, b) => a - b);
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
+const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const memberData = members.map((m) => ({
   id: m.id,
@@ -26,6 +28,15 @@ const allPayments = (await getCollection("payments")).map((p) => ({
   status: p.data.status,
   amount: p.data.amount,
 }));
+
+const [settings] = await getCollection("site-settings");
+const matrixPassword = settings?.data.matrixPassword || "";
+
+const vault = await encryptWithPassword(
+  JSON.stringify({ memberData, allPayments }),
+  matrixPassword,
+);
+const passwordConfigured = Boolean(matrixPassword);
 ---
 
 <BaseLayout
@@ -42,91 +53,134 @@ const allPayments = (await getCollection("payments")).map((p) => ({
             Contribution <span class="text-accent">Matrix</span>
           </h1>
           <p class="text-muted text-lg leading-relaxed">
-            Yearly overview of member contributions. Each cell shows the payment status for that month.
+            Yearly overview of member contributions. Each cell shows the payment status for that month. This page is restricted to founder and administration.
           </p>
         </div>
 
-        <div id="matrix-controls" class="flex flex-wrap items-center gap-4 mb-8">
-          <select id="filter-year" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
-            {years.map((y) => (
-              <option value={y} selected={y === currentYear}>{y}</option>
-            ))}
-          </select>
-
-          <select id="filter-plan" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
-            <option value="all">All Plans</option>
-            {plans.map((p) => (
-              <option value={p}>{formatINR(p)}/month</option>
-            ))}
-          </select>
-
-          <select id="filter-city" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
-            <option value="all">All Cities</option>
-            {cities.map((c) => (
-              <option value={c}>{c}</option>
-            ))}
-          </select>
-
-          <label class="flex items-center gap-2 text-sm text-muted cursor-pointer">
-            <input type="checkbox" id="filter-active" class="rounded border-input-border text-accent focus:ring-accent/50" checked />
-            Active members only
-          </label>
-
-          <span id="row-count" class="text-sm text-muted ml-auto"></span>
+        <div id="vault-gate" class="card p-8 sm:p-10 text-center mb-10">
+          <div class="mx-auto h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
+            <svg class="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+            </svg>
+          </div>
+          <h2 class="text-2xl font-bold text-body">Restricted Access</h2>
+          <p class="text-muted text-sm mt-2 max-w-md mx-auto">
+            The contribution matrix shows payment data for all members. Enter the admin password to continue.
+          </p>
+          <form id="vault-form" class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
+            <input
+              id="vault-password"
+              type="password"
+              autocomplete="current-password"
+              placeholder="Enter admin password"
+              class="flex-1 px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+              aria-label="Admin password"
+              required
+            />
+            <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent text-accent-text text-sm font-semibold hover:bg-accent-hover transition-colors inline-flex items-center justify-center gap-2">
+              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21h16.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75A2.25 2.25 0 0 0 3.75 21Z" /></svg>
+              Unlock
+            </button>
+          </form>
+          <p id="vault-error" class="hidden mt-4 text-sm text-error font-medium" role="alert">Incorrect password. Please try again.</p>
+          {!passwordConfigured && (
+            <p id="vault-no-pw" class="hidden mt-4 text-sm text-warning font-medium">No admin password has been configured yet.</p>
+          )}
         </div>
 
-        <div class="overflow-x-auto rounded-xl border border-border">
-          <table class="w-full text-sm whitespace-nowrap">
-            <thead>
-              <tr class="bg-accent-soft/50 border-b border-border">
-                <th class="sticky left-0 bg-accent-soft/50 z-10 text-left py-3 px-4 font-medium text-muted min-w-[180px]">Member</th>
-                {MONTHS.map((m) => (
-                  <th class="text-center py-3 px-2 font-medium text-muted min-w-[56px]">{m.slice(0, 3)}</th>
-                ))}
-                <th class="text-right py-3 px-4 font-medium text-muted min-w-[80px]">Total</th>
-              </tr>
-            </thead>
-            <tbody id="matrix-body"></tbody>
-            <tfoot id="matrix-foot">
-              <tr class="bg-accent-soft/30 border-t-2 border-border font-semibold">
-                <td class="sticky left-0 bg-accent-soft/30 z-10 py-3 px-4 text-body">Summary</td>
-                {MONTHS.map((_, idx) => (
-                  <td class="text-center py-3 px-2" id={`summary-${idx}`}></td>
-                ))}
-                <td class="text-right py-3 px-4 text-body" id="summary-total"></td>
-              </tr>
-            </tfoot>
-          </table>
-        </div>
+        <div id="vault-content" class="hidden">
+          <div id="matrix-controls" class="flex flex-wrap items-center gap-4 mb-8">
+            <select id="filter-year" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+              {years.map((y) => (
+                <option value={y} selected={y === currentYear}>{y}</option>
+              ))}
+            </select>
 
-        <div class="mt-6 flex flex-wrap items-center gap-6 text-xs text-muted">
-          <span class="flex items-center gap-1.5">
-            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-success text-white text-[10px] font-bold">\u2713</span> Paid
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="inline-block h-3 w-1 bg-muted/30"></span> Due
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-warning text-white text-[10px] font-bold">P</span> Partial
-          </span>
-          <span class="flex items-center gap-1.5">
-            <span class="inline-block h-1 w-1 rounded-full bg-muted/30"></span> Not Updated
-          </span>
+            <select id="filter-plan" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+              <option value="all">All Plans</option>
+              {plans.map((p) => (
+                <option value={p}>{formatINR(p)}/month</option>
+              ))}
+            </select>
+
+            <select id="filter-city" class="px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors">
+              <option value="all">All Cities</option>
+              {cities.map((c) => (
+                <option value={c}>{c}</option>
+              ))}
+            </select>
+
+            <label class="flex items-center gap-2 text-sm text-muted cursor-pointer">
+              <input type="checkbox" id="filter-active" class="rounded border-input-border text-accent focus:ring-accent/50" checked />
+              Active members only
+            </label>
+
+            <span id="row-count" class="text-sm text-muted ml-auto"></span>
+          </div>
+
+          <div class="overflow-x-auto rounded-xl border border-border">
+            <table class="w-full text-sm whitespace-nowrap">
+              <thead>
+                <tr class="bg-accent-soft/50 border-b border-border">
+                  <th class="sticky left-0 bg-accent-soft/50 z-10 text-left py-3 px-4 font-medium text-muted min-w-[180px]">Member</th>
+                  {MONTHS_SHORT.map((m) => (
+                    <th class="text-center py-3 px-2 font-medium text-muted min-w-[56px]">{m}</th>
+                  ))}
+                  <th class="text-right py-3 px-4 font-medium text-muted min-w-[80px]">Total</th>
+                </tr>
+              </thead>
+              <tbody id="matrix-body"></tbody>
+              <tfoot id="matrix-foot">
+                <tr class="bg-accent-soft/30 border-t-2 border-border font-semibold">
+                  <td class="sticky left-0 bg-accent-soft/30 z-10 py-3 px-4 text-body">Summary</td>
+                  {MONTHS_SHORT.map((_, idx) => (
+                    <td class="text-center py-3 px-2" id={`summary-${idx}`}></td>
+                  ))}
+                  <td class="text-right py-3 px-4 text-body" id="summary-total"></td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+
+          <div class="mt-6 flex flex-wrap items-center gap-6 text-xs text-muted">
+            <span class="flex items-center gap-1.5">
+              <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-success text-white text-[10px] font-bold">\u2713</span> Paid
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block h-3 w-1 bg-muted/30"></span> Due
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-warning text-white text-[10px] font-bold">P</span> Partial
+            </span>
+            <span class="flex items-center gap-1.5">
+              <span class="inline-block h-1 w-1 rounded-full bg-muted/30"></span> Not Updated
+            </span>
+          </div>
         </div>
       </div>
     </section>
   </div>
 </BaseLayout>
 
-<script define:vars={{ memberData, allPayments }}>
-  const MONTHS_3 = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
-
+<script>
+  import { decryptWithPassword } from "../../lib/vault";
+  (globalThis as any).__decryptVault = decryptWithPassword;
+</script>
+<script define:vars={{ vault }}>
+  const gate = document.getElementById("vault-gate");
+  const content = document.getElementById("vault-content");
+  const form = document.getElementById("vault-form");
+  const passwordInput = document.getElementById("vault-password");
+  const errorEl = document.getElementById("vault-error");
   const filterYear = document.getElementById("filter-year");
   const filterPlan = document.getElementById("filter-plan");
   const filterCity = document.getElementById("filter-city");
   const filterActive = document.getElementById("filter-active");
   const rowCount = document.getElementById("row-count");
   const tbody = document.getElementById("matrix-body");
+
+  let memberData = [];
+  let allPayments = [];
 
   function buildPayments(memberId, year) {
     const payments = {};
@@ -253,10 +307,42 @@ const allPayments = (await getCollection("payments")).map((p) => ({
     rowCount.textContent = `${filtered.length} of ${memberData.length} members`;
   }
 
-  filterYear.addEventListener("change", render);
-  filterPlan.addEventListener("change", render);
-  filterCity.addEventListener("change", render);
-  filterActive.addEventListener("change", render);
+  async function unlock() {
+    const decryptWithPassword = window.__decryptVault;
+    if (!decryptWithPassword) {
+      errorEl.textContent = "Secure encryption is not available on this page yet. Please reload.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    if (!crypto?.subtle) {
+      errorEl.textContent = "Secure encryption is not supported in this browser.";
+      errorEl.classList.remove("hidden");
+      return;
+    }
+    const plaintext = await decryptWithPassword(vault, passwordInput.value);
+    if (!plaintext) {
+      errorEl.textContent = "Incorrect password. Please try again.";
+      errorEl.classList.remove("hidden");
+      passwordInput.classList.add("border-error", "ring-1", "ring-error/50");
+      passwordInput.focus();
+      return;
+    }
+    const data = JSON.parse(plaintext);
+    memberData = data.memberData;
+    allPayments = data.allPayments;
+    errorEl.classList.add("hidden");
+    passwordInput.classList.remove("border-error", "ring-1", "ring-error/50");
+    gate.classList.add("hidden");
+    content.classList.remove("hidden");
+    filterYear.addEventListener("change", render);
+    filterPlan.addEventListener("change", render);
+    filterCity.addEventListener("change", render);
+    filterActive.addEventListener("change", render);
+    render();
+  }
 
-  render();
+  form.addEventListener("submit", (e) => {
+    e.preventDefault();
+    unlock();
+  });
 </script>

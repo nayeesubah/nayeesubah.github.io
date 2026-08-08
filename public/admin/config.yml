@@ -50,6 +50,11 @@ collections:
           - { label: "About Video Thumbnail", name: "aboutVideoThumbnail", widget: "image", required: false, hint: "Thumbnail image for the About section video" }
           - { label: "Currency", name: "currency", widget: "string", default: "INR" }
           - { label: "Default Language", name: "language", widget: "string", default: "en", required: false }
+          - label: "Payment Matrix Password"
+            name: "matrixPassword"
+            widget: "string"
+            required: false
+            hint: "Global password for the Payment Matrix page (founder/admin only). The full member payment data is encrypted with this at build time and decrypted in the browser when the correct password is entered."
           - label: "Available Languages"
             name: "languages"
             widget: "list"

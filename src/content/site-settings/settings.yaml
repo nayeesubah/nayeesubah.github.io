@@ -20,6 +20,7 @@ aboutVideoUrl: https://youtu.be/jCCmf0swyDk?si=nsPQcNoiaar-fLJJ
 heroVideoUrl: https://youtu.be/Om6tc4VZz4Q?si=b1ulNhDlQkxRFuMu
 aboutVideoThumbnail: /images/library-front.jpg
 currency: INR
+matrixPassword: "NSF-admin"
 language: ''
 languages:
   - en
