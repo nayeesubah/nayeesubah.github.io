@@ -611,8 +611,16 @@ collections:
           - { label: "Completed", value: "completed" }
           - { label: "Paused", value: "paused" }
         default: "active"
-      - { label: "Expected Return (₹)", name: "expectedReturn", widget: "number", value_type: "int", default: 0 }
-      - { label: "Actual Return (₹)", name: "actualReturn", widget: "number", value_type: "int", default: 0 }
+      - label: "Financing Model"
+        name: "financingModel"
+        widget: "select"
+        options:
+          - { label: "Equity / Revenue-Generating Asset (e.g. solar, farming, rental)", value: "equity" }
+          - { label: "Qard Hasan — Interest-Free Loan (no interest, ever)", value: "qard-hasan" }
+        default: "equity"
+        hint: "Qard Hasan projects never charge interest — the site shows 'Interest Charged: ₹0' and 'Principal Recycled' instead of a Return %. Never add an interest rate anywhere for a Qard Hasan project."
+      - { label: "Expected Return (₹)", name: "expectedReturn", widget: "number", value_type: "int", default: 0, hint: "For Qard Hasan projects, leave this at 0 — there is no interest and no expected return by design." }
+      - { label: "Actual Return (₹)", name: "actualReturn", widget: "number", value_type: "int", default: 0, hint: "For Qard Hasan projects, this field represents principal recycled back into the fund, not profit." }
       - { label: "Description", name: "description", widget: "text" }
       - { label: "Progress (%)", name: "progress", widget: "number", value_type: "int", min: 0, max: 100, default: 0 }
       - label: "Risk Level"

@@ -32,15 +32,22 @@ const currentValuePct = data.investmentAmount > 0
   ? ((currentValueChange / data.investmentAmount) * 100).toFixed(1)
   : "0";
 const isPositiveValue = currentValueChange >= 0;
+const isQardHasan = data.financingModel === "qard-hasan";
 ---
 
 <section class="py-16 sm:py-20 lg:py-24">
   <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
     <div class="grid lg:grid-cols-3 gap-12 lg:gap-16">
       <div class="lg:col-span-2">
-        <div class="flex items-center gap-3 mb-4">
+        <div class="flex items-center gap-3 mb-4 flex-wrap">
           <StatusBadge status={data.status} size="md" />
           <span class="text-sm text-muted">{data.businessCategory}</span>
+          {isQardHasan && (
+            <span class="inline-flex items-center gap-1.5 rounded-full bg-success/10 text-success px-3 py-1 text-xs font-semibold">
+              <svg class="h-3.5 w-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+              Interest-Free · Qard Hasan
+            </span>
+          )}
         </div>
         <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mt-3 mb-6">{data.title}</h1>
         <p class="text-muted text-lg leading-relaxed mb-8">{data.description}</p>
@@ -95,16 +102,32 @@ const isPositiveValue = currentValueChange >= 0;
             </div>
           </div>
 
-          <div class="border-t border-border pt-4">
-            <div class="flex justify-between text-sm mb-3">
-              <span class="text-muted">Expected Annual Return</span>
-              <span class="font-semibold">{formatINR(data.expectedReturn)} ({expectedReturnPct}%)</span>
+          {isQardHasan ? (
+            <div class="border-t border-border pt-4">
+              <div class="flex justify-between text-sm mb-3">
+                <span class="text-muted">Interest Charged</span>
+                <span class="font-semibold text-success">₹0 — by design</span>
+              </div>
+              <div class="flex justify-between text-sm mb-3">
+                <span class="text-muted">Principal Recycled</span>
+                <span class="font-semibold">{formatINR(data.actualReturn)} ({investmentReturn}%)</span>
+              </div>
+              <p class="text-xs text-muted leading-relaxed">
+                Borrowers repay only what they borrowed. Repaid principal is relent to the next family — no interest is ever charged or earned.
+              </p>
             </div>
-            <div class="flex justify-between text-sm mb-3">
-              <span class="text-muted">Current Return</span>
-              <span class="font-semibold text-success">{formatINR(data.actualReturn)} ({investmentReturn}%)</span>
+          ) : (
+            <div class="border-t border-border pt-4">
+              <div class="flex justify-between text-sm mb-3">
+                <span class="text-muted">Expected Annual Return</span>
+                <span class="font-semibold">{formatINR(data.expectedReturn)} ({expectedReturnPct}%)</span>
+              </div>
+              <div class="flex justify-between text-sm mb-3">
+                <span class="text-muted">Current Return</span>
+                <span class="font-semibold text-success">{formatINR(data.actualReturn)} ({investmentReturn}%)</span>
+              </div>
             </div>
-          </div>
+          )}
 
           <div class="border-t border-border pt-4">
             <div class="flex justify-between text-sm mb-3">

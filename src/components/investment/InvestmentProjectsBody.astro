@@ -43,6 +43,7 @@ const riskColors: Record<string, string> = {
         {projects.map((project) => {
           const { data } = project;
           const isPositiveReturn = data.actualReturn >= data.expectedReturn * 0.5;
+          const isQardHasan = data.financingModel === "qard-hasan";
           return (
             <a
               href={`/investment/projects/${project.id}/`}
@@ -61,16 +62,31 @@ const riskColors: Record<string, string> = {
                   <span class="text-muted">Investment</span>
                   <span class="font-semibold">{formatINR(data.investmentAmount)}</span>
                 </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-muted">Expected Return</span>
-                  <span class="font-semibold text-accent">{formatINR(data.expectedReturn)}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-muted">Current Return</span>
-                  <span class={`font-semibold ${isPositiveReturn ? "text-success" : "text-muted"}`}>
-                    {formatINR(data.actualReturn)}
-                  </span>
-                </div>
+                {isQardHasan ? (
+                  <>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-muted">Interest</span>
+                      <span class="font-semibold text-success">0% (Qard Hasan)</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-muted">Principal Recycled</span>
+                      <span class="font-semibold">{formatINR(data.actualReturn)}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-muted">Expected Return</span>
+                      <span class="font-semibold text-accent">{formatINR(data.expectedReturn)}</span>
+                    </div>
+                    <div class="flex justify-between text-sm">
+                      <span class="text-muted">Current Return</span>
+                      <span class={`font-semibold ${isPositiveReturn ? "text-success" : "text-muted"}`}>
+                        {formatINR(data.actualReturn)}
+                      </span>
+                    </div>
+                  </>
+                )}
               </div>
 
               <div class="mb-3">

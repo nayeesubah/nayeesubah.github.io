@@ -324,6 +324,12 @@ const investmentProjects = defineCollection({
     investmentAmount: z.number().int().default(0),
     startDate: z.date({ coerce: true }),
     status: z.enum(["planning", "active", "completed", "paused"]).default("active"),
+    // "equity" = real revenue-generating asset/venture (solar power sold, crops sold, rent
+    // collected) — a genuine profit/revenue share, permissible under Islamic finance.
+    // "qard-hasan" = an interest-free benevolent loan: borrowers repay only the principal,
+    // never more. expectedReturn/actualReturn are repurposed for these as "interest charged"
+    // (always 0, by design) and "principal recycled" — never a yield. See CLAUDE.md > Investment program.
+    financingModel: z.enum(["equity", "qard-hasan"]).default("equity"),
     expectedReturn: z.number().int().default(0),
     actualReturn: z.number().int().default(0),
     description: z.string(),

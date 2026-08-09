@@ -7,20 +7,32 @@ const projects = await getCollection("investment-projects");
 const totalInvestment = projects.reduce((sum, p) => sum + p.data.investmentAmount, 0);
 const totalCurrentValue = projects.reduce((sum, p) => sum + p.data.currentValue, 0);
 const activeProjects = projects.filter((p) => p.data.status === "active");
-const totalExpectedReturn = projects.reduce((sum, p) => sum + p.data.expectedReturn, 0);
-const totalActualReturn = projects.reduce((sum, p) => sum + p.data.actualReturn, 0);
+
+// Profit/ROI figures are computed from revenue-generating ("equity") projects only.
+// Qard Hasan (interest-free loan) projects earn no return by design — their repaid
+// principal is recycled capital, not profit, so it must never be counted as one.
+const equityProjects = projects.filter((p) => p.data.financingModel !== "qard-hasan");
+const qardHasanProjects = projects.filter((p) => p.data.financingModel === "qard-hasan");
+const totalEquityInvestment = equityProjects.reduce((sum, p) => sum + p.data.investmentAmount, 0);
+const totalQardHasanCapital = qardHasanProjects.reduce((sum, p) => sum + p.data.investmentAmount, 0);
+const totalExpectedReturn = equityProjects.reduce((sum, p) => sum + p.data.expectedReturn, 0);
+const totalActualReturn = equityProjects.reduce((sum, p) => sum + p.data.actualReturn, 0);
 const featured = projects.filter((p) => p.data.featured);
 const sortedByReturn = [...projects].sort((a, b) => b.data.actualReturn - a.data.actualReturn);
-const overallROI = totalInvestment > 0 ? ((totalActualReturn / totalInvestment) * 100).toFixed(1) : "0";
+const overallROI = totalEquityInvestment > 0 ? ((totalActualReturn / totalEquityInvestment) * 100).toFixed(1) : "0";
 
 const categoryBreakdown = projects.reduce((acc, p) => {
   const cat = p.data.businessCategory;
-  if (!acc[cat]) acc[cat] = { investment: 0, return: 0, count: 0 };
+  if (!acc[cat]) acc[cat] = { investment: 0, return: 0, recycled: 0, count: 0 };
   acc[cat].investment += p.data.investmentAmount;
-  acc[cat].return += p.data.actualReturn;
+  if (p.data.financingModel === "qard-hasan") {
+    acc[cat].recycled += p.data.actualReturn;
+  } else {
+    acc[cat].return += p.data.actualReturn;
+  }
   acc[cat].count++;
   return acc;
-}, {} as Record<string, { investment: number; return: number; count: number }>);
+}, {} as Record<string, { investment: number; return: number; recycled: number; count: number }>);
 
 const categoryEntries = Object.entries(categoryBreakdown).sort((a, b) => b[1].investment - a[1].investment);
 
@@ -53,7 +65,7 @@ const riskConfig: Record<string, { label: string; class: string }> = {
       <p>Real-time overview of our investment performance and allocation.</p>
     </div>
 
-    <div class="grid lg:grid-cols-5 gap-6 mb-10">
+    <div class="grid lg:grid-cols-6 gap-6 mb-10">
       <div class="card p-5 text-center group">
         <div class="mx-auto mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-accent-soft text-accent group-hover:bg-accent group-hover:text-accent-text transition-all duration-300">
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 6v12m-3-2.818.879.659c1.171.879 3.07.879 4.242 0 1.172-.879 1.172-2.303 0-3.182C13.536 12.219 12.768 12 12 12c-.725 0-1.45-.22-2.003-.659-1.106-.879-1.106-2.303 0-3.182s2.9-.879 4.006 0l.415.33M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" /></svg>
@@ -89,6 +101,13 @@ const riskConfig: Record<string, { label: string; class: string }> = {
         <div class="text-xl font-black text-accent">{overallROI}%</div>
         <div class="text-[10px] uppercase tracking-wider text-muted mt-0.5">Overall ROI</div>
       </div>
+      <div class="card p-5 text-center group">
+        <div class="mx-auto mb-2 inline-flex h-10 w-10 items-center justify-center rounded-xl bg-success/10 text-success group-hover:bg-success group-hover:text-white transition-all duration-300">
+          <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+        </div>
+        <div class="text-xl font-black text-success">{formatINR(totalQardHasanCapital)}</div>
+        <div class="text-[10px] uppercase tracking-wider text-muted mt-0.5">Interest-Free Capital</div>
+      </div>
     </div>
 
     {/* Allocation & Allocation Breakdown */}
@@ -109,7 +128,8 @@ const riskConfig: Record<string, { label: string; class: string }> = {
                 </div>
                 <div class="flex items-center gap-3 mt-1 text-xs text-muted">
                   <span>{data.count} project{data.count > 1 ? "s" : ""}</span>
-                  <span>Return: {formatINR(data.return)}</span>
+                  {data.return > 0 && <span>Return: {formatINR(data.return)}</span>}
+                  {data.recycled > 0 && <span class="text-success">Recycled (interest-free): {formatINR(data.recycled)}</span>}
                 </div>
               </div>
             );
@@ -161,6 +181,7 @@ const riskConfig: Record<string, { label: string; class: string }> = {
           </thead>
           <tbody>
             {sortedByReturn.map((p) => {
+              const isQardHasan = p.data.financingModel === "qard-hasan";
               const achieved = p.data.expectedReturn > 0 ? Math.round((p.data.actualReturn / p.data.expectedReturn) * 100) : 0;
               return (
                 <tr class="border-b border-border last:border-0 hover:bg-accent-soft/30 transition-colors">
@@ -168,17 +189,23 @@ const riskConfig: Record<string, { label: string; class: string }> = {
                     <a href={`/investment/projects/${p.id}/`} class="font-medium hover:text-accent transition-colors">{p.data.title}</a>
                   </td>
                   <td class="text-right py-3 px-4 text-muted">{formatINR(p.data.investmentAmount)}</td>
-                  <td class="text-right py-3 px-4 text-muted">{formatINR(p.data.expectedReturn)}</td>
+                  <td class="text-right py-3 px-4 text-muted">{isQardHasan ? "₹0 interest" : formatINR(p.data.expectedReturn)}</td>
                   <td class="text-right py-3 px-4 font-medium">{formatINR(p.data.actualReturn)}</td>
                   <td class="text-right py-3 px-4">
-                    <span class={`inline-flex items-center gap-1 text-xs font-semibold ${achieved >= 100 ? "text-success" : achieved >= 50 ? "text-warning" : "text-error"}`}>
-                      {achieved}%
-                      {achieved >= 100 ? (
-                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                      ) : (
-                        <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
-                      )}
-                    </span>
+                    {isQardHasan ? (
+                      <span class="inline-flex items-center gap-1 rounded-full bg-success/10 text-success px-2 py-0.5 text-[10px] font-semibold">
+                        Interest-Free
+                      </span>
+                    ) : (
+                      <span class={`inline-flex items-center gap-1 text-xs font-semibold ${achieved >= 100 ? "text-success" : achieved >= 50 ? "text-warning" : "text-error"}`}>
+                        {achieved}%
+                        {achieved >= 100 ? (
+                          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                        ) : (
+                          <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" /></svg>
+                        )}
+                      </span>
+                    )}
                   </td>
                   <td class="text-right py-3 pl-4">
                     <span class={`inline-flex items-center px-2 py-0.5 rounded-full text-[10px] font-semibold ${
@@ -211,7 +238,11 @@ const riskConfig: Record<string, { label: string; class: string }> = {
       <div class="grid sm:grid-cols-2 gap-6 max-w-4xl mx-auto">
         {featured.map((p) => {
           const cfg = riskConfig[p.data.riskLevel] || riskConfig.medium;
+          const isQardHasan = p.data.financingModel === "qard-hasan";
           const achieved = p.data.expectedReturn > 0 ? Math.round((p.data.actualReturn / p.data.expectedReturn) * 100) : 0;
+          const progressColor = isQardHasan
+            ? (p.data.progress >= 100 ? "text-success" : p.data.progress >= 50 ? "text-warning" : "text-error")
+            : (achieved >= 100 ? "text-success" : achieved >= 50 ? "text-warning" : "text-error");
           return (
             <a href={`/investment/projects/${p.id}/`} class="card-hover card p-6 group">
               <div class="flex items-start justify-between mb-4">
@@ -221,6 +252,11 @@ const riskConfig: Record<string, { label: string; class: string }> = {
                 </div>
                 <span class={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.class}`}>{cfg.label}</span>
               </div>
+              {isQardHasan && (
+                <span class="inline-flex items-center gap-1 rounded-full bg-success/10 text-success px-2 py-0.5 text-[10px] font-semibold mb-3">
+                  Interest-Free · Qard Hasan
+                </span>
+              )}
               <p class="text-sm text-muted line-clamp-2 mb-4">{p.data.description}</p>
               <div class="grid grid-cols-3 gap-3 mb-4">
                 <div class="text-center p-2 rounded-lg bg-section">
@@ -228,13 +264,13 @@ const riskConfig: Record<string, { label: string; class: string }> = {
                   <div class="text-sm font-bold">{formatINR(p.data.investmentAmount)}</div>
                 </div>
                 <div class="text-center p-2 rounded-lg bg-section">
-                  <div class="text-xs text-muted">Return</div>
+                  <div class="text-xs text-muted">{isQardHasan ? "Recycled" : "Return"}</div>
                   <div class="text-sm font-bold text-accent">{formatINR(p.data.actualReturn)}</div>
                 </div>
                 <div class="text-center p-2 rounded-lg bg-section">
                   <div class="text-xs text-muted">Progress</div>
                   <div class="text-sm font-bold">
-                    <span class={achieved >= 100 ? "text-success" : achieved >= 50 ? "text-warning" : "text-error"}>
+                    <span class={progressColor}>
                       {p.data.progress}%
                     </span>
                   </div>
@@ -289,15 +325,19 @@ const riskConfig: Record<string, { label: string; class: string }> = {
     <div class="grid lg:grid-cols-2 gap-6">
       {projects.map((p) => {
         const cfg = riskConfig[p.data.riskLevel] || riskConfig.medium;
+        const isQardHasan = p.data.financingModel === "qard-hasan";
         const achieved = p.data.expectedReturn > 0 ? Math.round((p.data.actualReturn / p.data.expectedReturn) * 100) : 0;
-        const isUp = achieved >= 100;
-        const isOnTrack = achieved >= 50 && achieved < 100;
+        const isUp = isQardHasan ? p.data.progress >= 100 : achieved >= 100;
+        const isOnTrack = isQardHasan ? (p.data.progress >= 50 && p.data.progress < 100) : (achieved >= 50 && achieved < 100);
         return (
           <a href={`/investment/projects/${p.id}/`} class="card-hover card p-5 group">
             <div class="flex items-start justify-between mb-3">
-              <div class="flex items-center gap-2">
+              <div class="flex items-center gap-2 flex-wrap">
                 <StatusBadge status={p.data.status} />
                 <span class={`px-2 py-0.5 rounded-full text-[10px] font-semibold ${cfg.class}`}>{cfg.label}</span>
+                {isQardHasan && (
+                  <span class="px-2 py-0.5 rounded-full text-[10px] font-semibold bg-success/10 text-success">Interest-Free</span>
+                )}
               </div>
               <svg class="h-5 w-5 text-muted group-hover:text-accent transition-colors shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M8.25 4.5l7.5 7.5-7.5 7.5" /></svg>
             </div>
@@ -309,7 +349,7 @@ const riskConfig: Record<string, { label: string; class: string }> = {
                 <div class="text-sm font-semibold">{formatINR(p.data.investmentAmount)}</div>
               </div>
               <div>
-                <div class="text-[10px] text-muted">Return</div>
+                <div class="text-[10px] text-muted">{isQardHasan ? "Recycled" : "Return"}</div>
                 <div class="text-sm font-semibold text-accent">{formatINR(p.data.actualReturn)}</div>
               </div>
               <div>
@@ -323,17 +363,26 @@ const riskConfig: Record<string, { label: string; class: string }> = {
               }`} style={`width: ${p.data.progress}%`} />
             </div>
             <div class="flex items-center justify-between mt-2">
-              <span class="text-[10px] text-muted">Expected: {formatINR(p.data.expectedReturn)}</span>
-              <span class={`text-[10px] font-semibold flex items-center gap-0.5 ${
-                isUp ? "text-success" : isOnTrack ? "text-warning" : "text-error"
-              }`}>
-                {achieved}% achieved
-                {isUp ? (
-                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
-                ) : (
-                  <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" /></svg>
-                )}
-              </span>
+              {isQardHasan ? (
+                <>
+                  <span class="text-[10px] text-muted">Interest charged: ₹0</span>
+                  <span class="text-[10px] font-semibold text-success">Qard Hasan</span>
+                </>
+              ) : (
+                <>
+                  <span class="text-[10px] text-muted">Expected: {formatINR(p.data.expectedReturn)}</span>
+                  <span class={`text-[10px] font-semibold flex items-center gap-0.5 ${
+                    isUp ? "text-success" : isOnTrack ? "text-warning" : "text-error"
+                  }`}>
+                    {achieved}% achieved
+                    {isUp ? (
+                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="m4.5 12.75 6 6 9-13.5" /></svg>
+                    ) : (
+                      <svg class="h-3 w-3" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 12h-15" /></svg>
+                    )}
+                  </span>
+                </>
+              )}
             </div>
           </a>
         );
