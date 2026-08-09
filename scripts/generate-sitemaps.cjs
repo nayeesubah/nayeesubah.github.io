@@ -160,7 +160,8 @@ for (const file of walkDir(dist)) {
 
 const allPrecache = [...new Set([...pageUrls, ...assetUrls])].sort();
 
-const swLines = [`const CACHE_NAME = "nayee-subah-v3";`, ""];
+const buildStamp = Date.now().toString(36);
+const swLines = [`const CACHE_NAME = "nayee-subah-${buildStamp}";`, ""];
 swLines.push("const PRECACHE_URLS = [");
 for (const url of allPrecache) {
   swLines.push(`  "${url}",`);

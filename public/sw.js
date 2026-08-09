@@ -1,4 +1,4 @@
-const CACHE_NAME = "nsf-v1";
+const CACHE_NAME = "nsf-v2";
 
 const PRECACHE_URLS = [
   "/",
@@ -68,6 +68,7 @@ async function networkFirst(request) {
 self.addEventListener("fetch", (event) => {
   const { request } = event;
   if (request.method !== "GET") return;
+  if (!/^https?:$/.test(request.url.split(":")[0])) return;
 
   if (request.mode === "navigate") {
     event.respondWith(networkFirst(request));

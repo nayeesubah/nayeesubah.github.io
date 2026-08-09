@@ -1,9 +1,11 @@
 ---
 import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../../components/Breadcrumb.astro";
-import StatusBadge from "../../../components/StatusBadge.astro";
-import { getCollection, render } from "astro:content";
-import { formatINR } from "../../../lib/site";
+import VaultGate from "../../../components/VaultGate.astro";
+import InvestmentProjectBody from "../../../components/investment/InvestmentProjectBody.astro";
+import { experimental_AstroContainer as AstroContainer } from "astro/container";
+import { getCollection } from "astro:content";
+import { encryptWithPassword } from "../../../lib/vault";
 
 export async function getStaticPaths() {
   const projects = await getCollection("investment-projects");
@@ -15,28 +17,14 @@ export async function getStaticPaths() {
 
 const { project } = Astro.props;
 const { data } = project;
-const { Content } = await render(project);
 
-const riskColors: Record<string, string> = {
-  low: "bg-success text-white",
-  medium: "bg-warning text-black",
-  high: "bg-error text-white",
-};
+const [settings] = await getCollection("site-settings");
+const matrixPassword = settings?.data.matrixPassword || "";
 
-const formatDate = (d: Date) =>
-  d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
-
-const investmentReturn = data.actualReturn > 0
-  ? ((data.actualReturn / data.investmentAmount) * 100).toFixed(1)
-  : "—";
-const expectedReturnPct = data.expectedReturn > 0
-  ? ((data.expectedReturn / data.investmentAmount) * 100).toFixed(1)
-  : "—";
-const currentValueChange = data.currentValue - data.investmentAmount;
-const currentValuePct = data.investmentAmount > 0
-  ? ((currentValueChange / data.investmentAmount) * 100).toFixed(1)
-  : "0";
-const isPositiveValue = currentValueChange >= 0;
+const container = await AstroContainer.create();
+const body = await container.renderToString(InvestmentProjectBody, { props: { project } });
+const vault = await encryptWithPassword(body, matrixPassword);
+const passwordConfigured = Boolean(matrixPassword);
 ---
 
 <BaseLayout
@@ -45,99 +33,24 @@ const isPositiveValue = currentValueChange >= 0;
   image={data.images?.[0]}
 >
   <div class="pt-24">
-    <section class="py-16 sm:py-20 lg:py-24">
+    <section class="py-16 sm:py-20 lg:py-24 pb-4">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Breadcrumb path={`/investment/projects/${project.id}/`} class="mb-8" />
-        <div class="grid lg:grid-cols-3 gap-12 lg:gap-16">
-          <div class="lg:col-span-2">
-            <div class="flex items-center gap-3 mb-4">
-              <StatusBadge status={data.status} size="md" />
-              <span class="text-sm text-muted">{data.businessCategory}</span>
-            </div>
-            <h1 class="text-4xl sm:text-5xl lg:text-6xl font-bold tracking-tight mt-3 mb-6">{data.title}</h1>
-            <p class="text-muted text-lg leading-relaxed mb-8">{data.description}</p>
-
-            <div class="mb-8">
-              <div class="flex justify-between text-sm mb-2">
-                <span class="text-muted">Project Progress</span>
-                <span class="font-semibold">{data.progress}%</span>
-              </div>
-              <div class="w-full bg-muted/20 rounded-full h-3">
-                <div class="bg-accent h-3 rounded-full transition-all" style={`width: ${data.progress}%`}></div>
-              </div>
-            </div>
-
-            {data.images && data.images.length > 0 && (
-              <div class="mb-8">
-                <h2 class="text-xl font-semibold mb-4">Project Gallery</h2>
-                <div class="grid grid-cols-2 gap-4">
-                  {data.images.map((img) => (
-                    <div class="aspect-[4/3] rounded-xl overflow-hidden bg-muted/10">
-                      <img src={img} alt={data.title} class="h-full w-full object-cover" loading="lazy" />
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div class="prose prose-lg dark:prose-invert max-w-none">
-              <Content />
-            </div>
-          </div>
-
-          <div class="lg:col-span-1">
-            <div class="card p-6 space-y-5 sticky top-28">
-              <h3 class="font-semibold text-lg">Project Summary</h3>
-
-              <div>
-                <div class="text-xs text-muted uppercase tracking-wider mb-1">Investment Amount</div>
-                <div class="text-2xl font-black text-accent">{formatINR(data.investmentAmount)}</div>
-              </div>
-
-              <div class="border-t border-border pt-4">
-                <div class="flex justify-between text-sm mb-3">
-                  <span class="text-muted">Current Value</span>
-                  <span class="font-semibold">{formatINR(data.currentValue)}</span>
-                </div>
-                <div class="flex justify-between text-sm mb-3">
-                  <span class="text-muted">Value Change</span>
-                  <span class={`font-semibold ${isPositiveValue ? "text-success" : "text-error"}`}>
-                    {isPositiveValue ? "+" : ""}{formatINR(currentValueChange)} ({isPositiveValue ? "+" : ""}{currentValuePct}%)
-                  </span>
-                </div>
-              </div>
-
-              <div class="border-t border-border pt-4">
-                <div class="flex justify-between text-sm mb-3">
-                  <span class="text-muted">Expected Annual Return</span>
-                  <span class="font-semibold">{formatINR(data.expectedReturn)} ({expectedReturnPct}%)</span>
-                </div>
-                <div class="flex justify-between text-sm mb-3">
-                  <span class="text-muted">Current Return</span>
-                  <span class="font-semibold text-success">{formatINR(data.actualReturn)} ({investmentReturn}%)</span>
-                </div>
-              </div>
-
-              <div class="border-t border-border pt-4">
-                <div class="flex justify-between text-sm mb-3">
-                  <span class="text-muted">Start Date</span>
-                  <span class="font-semibold">{formatDate(data.startDate)}</span>
-                </div>
-                <div class="flex justify-between text-sm">
-                  <span class="text-muted">Risk Level</span>
-                  <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${riskColors[data.riskLevel] || "bg-neutral-200 text-neutral-700"}`}>
-                    {data.riskLevel.charAt(0).toUpperCase() + data.riskLevel.slice(1)}
-                  </span>
-                </div>
-              </div>
-
-              <a href="/investment/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-4 py-2.5 font-medium hover:bg-accent-hover transition-all duration-200 w-full text-sm mt-2">
-                Back to Investment Hub
-              </a>
-            </div>
-          </div>
+        <div class="max-w-3xl">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">Investment</span>
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mt-3 mb-4">{data.title}</h1>
+          <p class="text-muted text-lg leading-relaxed">
+            Project details are restricted to founder and administration. Enter the admin password to unlock.
+          </p>
         </div>
       </div>
     </section>
+
+    <VaultGate
+      vault={vault}
+      passwordConfigured={passwordConfigured}
+      title={data.title}
+      description="Investment project details are restricted to founder and administration. Enter the admin password to continue."
+    />
   </div>
 </BaseLayout>

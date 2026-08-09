@@ -330,8 +330,8 @@ const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
 </head>
 <body>
   <div class="controls">
-    <button class="btn-back" onclick="history.back()">← Back</button>
-    <button class="btn-print" onclick="window.print()">🖨 Print ID Card</button>
+    <button class="btn-back" id="btn-back">← Back</button>
+    <button class="btn-print" id="btn-print">🖨 Print ID Card</button>
   </div>
 
   <div class="id-card">
@@ -398,6 +398,12 @@ const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
           correctLevel: QRCode.CorrectLevel.H,
         });
       }
+      document.getElementById("btn-back")?.addEventListener("click", function() {
+        history.back();
+      });
+      document.getElementById("btn-print")?.addEventListener("click", function() {
+        window.print();
+      });
     });
   </script>
 </body>

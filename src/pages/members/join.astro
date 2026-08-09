@@ -61,12 +61,16 @@ const phoneClean = (p: string) => p.replace(/[^0-9]/g, "");
               <div class="grid grid-cols-2 gap-3 mb-3">
                 <div class="text-center p-3 rounded-xl bg-card border border-border">
                   <div class="text-xl font-bold text-accent">₹200</div>
-                  <div class="text-xs text-muted mt-1">Monthly</div>
+                  <div class="text-xs text-muted mt-1">Basic / month</div>
                 </div>
                 <div class="text-center p-3 rounded-xl bg-accent text-accent-text border-2 border-accent">
-                  <div class="text-xl font-bold">₹2,400</div>
-                  <div class="text-xs mt-1 opacity-80">Annual</div>
+                  <div class="text-xl font-bold">₹500</div>
+                  <div class="text-xs mt-1 opacity-80">Standard / month</div>
                 </div>
+              </div>
+              <div class="text-center p-3 rounded-xl bg-accent-soft/40 border border-accent-border/30 mb-3">
+                <div class="text-xl font-bold text-accent">₹1,000</div>
+                <div class="text-xs text-muted mt-1">Premium / month</div>
               </div>
               <div class="text-center p-3 rounded-xl bg-accent-soft/40 border border-accent-border/30">
                 <div class="text-xl font-bold text-accent">₹15,000</div>
@@ -153,7 +157,7 @@ const phoneClean = (p: string) => p.replace(/[^0-9]/g, "");
       `*City:* ${city}`,
       `*State:* ${state}`,
       `*Occupation:* ${occupation || "Not specified"}`,
-      `*Plan:* ₹${plan}/month`,
+      `*Plan:* ${plan === "other" ? "Custom amount (specified in message)" : `₹${plan}/month`}`,
       ``,
       `*Message:*`,
       `${message || "No message provided"}`,

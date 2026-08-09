@@ -156,7 +156,7 @@ const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((
                     data-city={data.city.toLowerCase()}
                     data-status={data.membershipStatus}
                     data-plan={data.subscriptionAmount}
-                    onclick={`window.location.href='/members/${member.id}/'`}
+                    data-href={`/members/${member.id}/`}
                   >
                     <td class="py-3 px-4">
                       <div class="flex items-center gap-3">
@@ -235,6 +235,12 @@ const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((
   filterStatus?.addEventListener("change", filterMembers);
   filterPlan?.addEventListener("change", filterMembers);
   filterCity?.addEventListener("change", filterMembers);
+
+  table?.addEventListener("click", (e) => {
+    const row = (e.target as HTMLElement).closest<HTMLElement>(".member-row");
+    const href = row?.dataset.href;
+    if (href) window.location.href = href;
+  });
 
   viewBtns.forEach((btn) => {
     btn.addEventListener("click", () => {

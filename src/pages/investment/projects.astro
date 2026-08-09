@@ -1,20 +1,19 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
-import StatusBadge from "../../components/StatusBadge.astro";
+import VaultGate from "../../components/VaultGate.astro";
+import InvestmentProjectsBody from "../../components/investment/InvestmentProjectsBody.astro";
+import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection } from "astro:content";
-import { formatINR } from "../../lib/site";
+import { encryptWithPassword } from "../../lib/vault";
 
-const projects = (await getCollection("investment-projects"))
-  .sort((a, b) => b.data.startDate.getTime() - a.data.startDate.getTime());
+const [settings] = await getCollection("site-settings");
+const matrixPassword = settings?.data.matrixPassword || "";
 
-const categories = [...new Set(projects.map((p) => p.data.businessCategory))];
-
-const riskColors: Record<string, string> = {
-  low: "bg-success text-white",
-  medium: "bg-warning text-black",
-  high: "bg-error text-white",
-};
+const container = await AstroContainer.create();
+const body = await container.renderToString(InvestmentProjectsBody);
+const vault = await encryptWithPassword(body, matrixPassword);
+const passwordConfigured = Boolean(matrixPassword);
 ---
 
 <BaseLayout
@@ -22,122 +21,51 @@ const riskColors: Record<string, string> = {
   description="Explore Nayee Subah Foundation's community investment portfolio — agriculture, renewable energy, micro-finance, and community development projects generating social impact."
 >
   <div class="pt-24">
-    <section class="py-16 sm:py-20 lg:py-24">
+    <section class="py-16 sm:py-20 lg:py-24 pb-4">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <Breadcrumb path="/investment/projects/" class="mb-8" />
-        <div class="max-w-3xl mb-12">
+        <div class="max-w-3xl">
           <span class="text-accent font-semibold text-sm uppercase tracking-widest">Investment</span>
-          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
-            Investment <span class="text-accent">Projects</span>
-          </h1>
+          <h1 class="text-3xl sm:text-4xl font-bold tracking-tight mt-3 mb-4">Project Portfolio</h1>
           <p class="text-muted text-lg leading-relaxed">
-            Explore our curated portfolio of investment projects that generate sustainable returns while creating positive community impact.
+            Portfolio project details are restricted to founder and administration. Enter the admin password to unlock.
           </p>
         </div>
-
-        {categories.length > 0 && (
-          <div class="flex flex-wrap gap-2 mb-10" id="category-filters">
-            <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-text transition-colors" data-category="all">All</button>
-            {categories.map((cat) => (
-              <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-soft text-accent hover:bg-accent hover:text-accent-text transition-colors" data-category={cat}>
-                {cat}
-              </button>
-            ))}
-          </div>
-        )}
-
-        {projects.length > 0 ? (
-          <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6" id="projects-grid">
-            {projects.map((project) => {
-              const { data } = project;
-              const isPositiveReturn = data.actualReturn >= data.expectedReturn * 0.5;
-              return (
-                <a
-                  href={`/investment/projects/${project.id}/`}
-                  class="project-item card-hover card p-6 block group"
-                  data-category={data.businessCategory}
-                >
-                  <div class="flex items-start justify-between gap-3 mb-4">
-                    <h3 class="text-lg font-semibold group-hover:text-accent transition-colors">{data.title}</h3>
-                    <StatusBadge status={data.status} />
-                  </div>
-
-                  <div class="text-sm text-muted mb-4">{data.businessCategory}</div>
-
-                  <div class="space-y-2 mb-4">
-                    <div class="flex justify-between text-sm">
-                      <span class="text-muted">Investment</span>
-                      <span class="font-semibold">{formatINR(data.investmentAmount)}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-muted">Expected Return</span>
-                      <span class="font-semibold text-accent">{formatINR(data.expectedReturn)}</span>
-                    </div>
-                    <div class="flex justify-between text-sm">
-                      <span class="text-muted">Current Return</span>
-                      <span class={`font-semibold ${isPositiveReturn ? "text-success" : "text-muted"}`}>
-                        {formatINR(data.actualReturn)}
-                      </span>
-                    </div>
-                  </div>
-
-                  <div class="mb-3">
-                    <div class="flex justify-between text-xs text-muted mb-1.5">
-                      <span>Progress</span>
-                      <span>{data.progress}%</span>
-                    </div>
-                    <div class="w-full bg-muted/20 rounded-full h-2">
-                      <div class="bg-accent h-2 rounded-full transition-all" style={`width: ${data.progress}%`}></div>
-                    </div>
-                  </div>
-
-                  <div class="flex items-center justify-between">
-                    <span class={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-medium ${riskColors[data.riskLevel] || "bg-neutral-200 text-neutral-700"}`}>
-                      {data.riskLevel.charAt(0).toUpperCase() + data.riskLevel.slice(1)} Risk
-                    </span>
-                    {data.currentValue > data.investmentAmount && (
-                      <span class="text-xs text-success font-medium">
-                        +{((data.currentValue - data.investmentAmount) / data.investmentAmount * 100).toFixed(1)}% value
-                      </span>
-                    )}
-                  </div>
-                </a>
-              );
-            })}
-          </div>
-        ) : (
-          <div class="text-center py-20">
-            <div class="text-6xl mb-4">📋</div>
-            <h3 class="text-xl font-semibold mb-2">No Projects Yet</h3>
-            <p class="text-muted">Investment projects will be listed here once available.</p>
-          </div>
-        )}
       </div>
     </section>
+
+    <VaultGate
+      vault={vault}
+      passwordConfigured={passwordConfigured}
+      title="Investment Projects"
+      description="Portfolio project data is restricted to founder and administration. Enter the admin password to continue."
+    />
   </div>
 </BaseLayout>
 
 <script>
-  const buttons = document.querySelectorAll(".filter-btn");
-  const items = document.querySelectorAll(".project-item");
+  (globalThis as any).__initVaultContent = () => {
+    const buttons = document.querySelectorAll(".filter-btn");
+    const items = document.querySelectorAll(".project-item");
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const cat = btn.dataset.category;
-      buttons.forEach((b) => {
-        b.className = b.className
-          .replace("bg-accent text-accent-text", "bg-accent-soft text-accent")
-          .replace("bg-accent-soft text-accent", "bg-accent-soft text-accent");
-      });
-      btn.className = btn.className.replace("bg-accent-soft text-accent", "bg-accent text-accent-text");
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => {
+        const cat = btn.dataset.category;
+        buttons.forEach((b) => {
+          b.className = b.className
+            .replace("bg-accent text-accent-text", "bg-accent-soft text-accent")
+            .replace("bg-accent-soft text-accent", "bg-accent-soft text-accent");
+        });
+        btn.className = btn.className.replace("bg-accent-soft text-accent", "bg-accent text-accent-text");
 
-      items.forEach((item) => {
-        if (cat === "all" || item.dataset.category === cat) {
-          item.style.display = "";
-        } else {
-          item.style.display = "none";
-        }
+        items.forEach((item) => {
+          if (cat === "all" || item.dataset.category === cat) {
+            item.style.display = "";
+          } else {
+            item.style.display = "none";
+          }
+        });
       });
     });
-  });
+  };
 </script>

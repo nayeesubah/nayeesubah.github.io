@@ -3,7 +3,7 @@ import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
 import StatusBadge from "../../components/StatusBadge.astro";
 import { getCollection } from "astro:content";
-import { formatINR, MONTHS } from "../../lib/site";
+import { formatINR, targetMonth } from "../../lib/matrix";
 
 const members = await getCollection("members");
 const totalMembers = members.length;
@@ -13,12 +13,18 @@ const activeCount = activeMembers.length;
 
 const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((a, b) => a - b);
 
-const allPayments = await getCollection("payments");
+const allPayments = (await getCollection("payments")).map((p) => ({
+  memberId: p.data.memberId,
+  year: p.data.year,
+  month: p.data.month,
+  status: p.data.status,
+  amount: p.data.amount,
+}));
 const paymentsByMember: Record<string, { year: number; month: number; status: string }[]> = {};
 for (const p of allPayments) {
-  const mid = p.data.memberId;
+  const mid = p.memberId;
   if (!paymentsByMember[mid]) paymentsByMember[mid] = [];
-  paymentsByMember[mid].push({ year: p.data.year, month: p.data.month, status: p.data.status });
+  paymentsByMember[mid].push({ year: p.year, month: p.month, status: p.status });
 }
 
 const currentMonth = new Date().getMonth();
@@ -28,9 +34,7 @@ const year = currentYear;
 function getPaymentStatus(memberId: string, year: number, month: number): string {
   const real = paymentsByMember[memberId]?.find((p) => p.year === year && p.month === month);
   if (real) return real.status;
-  const now = new Date();
-  const targetMonth = year < now.getFullYear() ? 11 : (year === now.getFullYear() ? now.getMonth() : -1);
-  if (month <= targetMonth) {
+  if (month <= targetMonth(year, currentYear, currentMonth)) {
     return "due";
   }
   return "not-updated";
@@ -117,14 +121,14 @@ const newestMembers = members
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18.75a60.07 60.07 0 0 1 15.797 2.101c.727.198 1.453-.342 1.453-1.096V18.75M3.75 21.75h16.5A2.25 2.25 0 0 0 22.5 19.5v-15a2.25 2.25 0 0 0-2.25-2.25H3.75A2.25 2.25 0 0 0 1.5 4.5v15a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
             </div>
             <div class="text-3xl sm:text-4xl font-black text-accent">{formatINR(totalMonthlyCollection)}</div>
-            <div class="text-xs uppercase tracking-wider text-muted mt-1">Monthly Collection</div>
+            <div class="text-xs uppercase tracking-wider text-muted mt-1">Monthly Target</div>
           </div>
           <div class="card p-6 text-center group">
             <div class="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent-soft text-accent group-hover:bg-accent group-hover:text-accent-text transition-all duration-300">
               <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d="M12 2.25 8.25 6.75 12 4.5l3.75 2.25L12 2.25ZM12 2.25v12.75M12 15.75a3 3 0 1 0 0 6 3 3 0 0 0 0-6Z" /></svg>
             </div>
             <div class="text-3xl sm:text-4xl font-black text-accent">{formatINR(totalAnnualCollection)}</div>
-            <div class="text-xs uppercase tracking-wider text-muted mt-1">Annual Collection</div>
+            <div class="text-xs uppercase tracking-wider text-muted mt-1">Annual Target</div>
           </div>
           <div class="card p-6 text-center group">
             <div class="mx-auto mb-3 inline-flex h-12 w-12 items-center justify-center rounded-xl bg-accent-soft text-accent group-hover:bg-accent group-hover:text-accent-text transition-all duration-300">

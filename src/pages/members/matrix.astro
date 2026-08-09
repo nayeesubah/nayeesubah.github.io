@@ -1,8 +1,9 @@
 ---
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../components/Breadcrumb.astro";
+import VaultGate from "../../components/VaultGate.astro";
 import { getCollection } from "astro:content";
-import { formatINR } from "../../lib/site";
+import { formatINR, MONTHS_SHORT } from "../../lib/matrix";
 import { encryptWithPassword } from "../../lib/vault";
 
 const members = await getCollection("members");
@@ -10,7 +11,6 @@ const cities = [...new Set(members.map((m) => m.data.city))].sort();
 const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((a, b) => a - b);
 const currentYear = new Date().getFullYear();
 const years = Array.from({ length: 5 }, (_, i) => currentYear - 2 + i);
-const MONTHS_SHORT = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
 const memberData = members.map((m) => ({
   id: m.id,
@@ -57,36 +57,12 @@ const passwordConfigured = Boolean(matrixPassword);
           </p>
         </div>
 
-        <div id="vault-gate" class="card p-8 sm:p-10 text-center mb-10">
-          <div class="mx-auto h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
-            <svg class="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
-              <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
-            </svg>
-          </div>
-          <h2 class="text-2xl font-bold text-body">Restricted Access</h2>
-          <p class="text-muted text-sm mt-2 max-w-md mx-auto">
-            The contribution matrix shows payment data for all members. Enter the admin password to continue.
-          </p>
-          <form id="vault-form" class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
-            <input
-              id="vault-password"
-              type="password"
-              autocomplete="current-password"
-              placeholder="Enter admin password"
-              class="flex-1 px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
-              aria-label="Admin password"
-              required
-            />
-            <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent text-accent-text text-sm font-semibold hover:bg-accent-hover transition-colors inline-flex items-center justify-center gap-2">
-              <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21h16.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75A2.25 2.25 0 0 0 3.75 21Z" /></svg>
-              Unlock
-            </button>
-          </form>
-          <p id="vault-error" class="hidden mt-4 text-sm text-error font-medium" role="alert">Incorrect password. Please try again.</p>
-          {!passwordConfigured && (
-            <p id="vault-no-pw" class="hidden mt-4 text-sm text-warning font-medium">No admin password has been configured yet.</p>
-          )}
-        </div>
+        <VaultGate
+          vault={vault}
+          passwordConfigured={passwordConfigured}
+          contentSelector="vault-content"
+          description="The contribution matrix shows payment data for all members. Enter the admin password to continue."
+        />
 
         <div id="vault-content" class="hidden">
           <div id="matrix-controls" class="flex flex-wrap items-center gap-4 mb-8">
@@ -144,7 +120,7 @@ const passwordConfigured = Boolean(matrixPassword);
 
           <div class="mt-6 flex flex-wrap items-center gap-6 text-xs text-muted">
             <span class="flex items-center gap-1.5">
-              <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-success text-white text-[10px] font-bold">\u2713</span> Paid
+              <span class="inline-flex items-center justify-center h-4 w-4 rounded-full bg-success text-white text-[10px] font-bold">{"\u2713"}</span> Paid
             </span>
             <span class="flex items-center gap-1.5">
               <span class="inline-block h-3 w-1 bg-muted/30"></span> Due
@@ -163,186 +139,123 @@ const passwordConfigured = Boolean(matrixPassword);
 </BaseLayout>
 
 <script>
-  import { decryptWithPassword } from "../../lib/vault";
-  (globalThis as any).__decryptVault = decryptWithPassword;
-</script>
-<script define:vars={{ vault }}>
-  const gate = document.getElementById("vault-gate");
-  const content = document.getElementById("vault-content");
-  const form = document.getElementById("vault-form");
-  const passwordInput = document.getElementById("vault-password");
-  const errorEl = document.getElementById("vault-error");
-  const filterYear = document.getElementById("filter-year");
-  const filterPlan = document.getElementById("filter-plan");
-  const filterCity = document.getElementById("filter-city");
-  const filterActive = document.getElementById("filter-active");
-  const rowCount = document.getElementById("row-count");
-  const tbody = document.getElementById("matrix-body");
+  import { formatINR, buildPayments, PAYMENT_COLORS, PAYMENT_LABELS, paymentIcon } from "../../lib/matrix";
 
-  let memberData = [];
-  let allPayments = [];
-
-  function buildPayments(memberId, year) {
-    const payments = {};
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-    const targetMonth = year < currentYear ? 11 : (year === currentYear ? currentMonth : -1);
-
-    const realMap = {};
-    for (const p of allPayments) {
-      if (p.memberId === memberId && p.year === year) realMap[p.month] = p;
-    }
-
-    for (let m = 0; m < 12; m++) {
-      const key = `${year}-${m}`;
-      if (realMap[m] !== undefined) {
-        payments[key] = realMap[m].status;
-      } else if (m <= targetMonth) {
-        payments[key] = "due";
-      } else {
-        payments[key] = "not-updated";
-      }
-    }
-    return payments;
+  interface MemberRow {
+    id: string;
+    name: string;
+    city: string;
+    plan: number;
+    memberId: string;
+    status: string;
   }
 
-  const colorMap = {
-    "paid": "bg-success text-white",
-    "due": "text-muted",
-    "partial": "bg-partial text-white",
-    "not-updated": "text-muted/40",
-  };
-  const labelMap = {
-    "paid": "Paid",
-    "due": "Due",
-    "partial": "Partial",
-    "not-updated": "Not Updated",
-  };
-
-  function formatINR(n) {
-    return "₹" + n.toLocaleString("en-IN");
+  interface PaymentRow {
+    memberId: string;
+    year: number;
+    month: number;
+    status: string;
+    amount: number;
   }
 
-  function render() {
-    const year = parseInt(filterYear.value);
-    const plan = filterPlan.value;
-    const city = filterCity.value.toLowerCase();
-    const activeOnly = filterActive.checked;
+  (globalThis as any).__initVaultContent = (plaintext: string) => {
+    const data = JSON.parse(plaintext) as { memberData: MemberRow[]; allPayments: PaymentRow[] };
 
-    const filtered = memberData.filter((m) => {
-      return (plan === "all" || String(m.plan) === plan) &&
-             (city === "all" || m.city.toLowerCase() === city) &&
-             (!activeOnly || m.status === "active");
-    });
+    const filterYear = document.getElementById("filter-year") as HTMLSelectElement;
+    const filterPlan = document.getElementById("filter-plan") as HTMLSelectElement;
+    const filterCity = document.getElementById("filter-city") as HTMLSelectElement;
+    const filterActive = document.getElementById("filter-active") as HTMLInputElement;
+    const rowCount = document.getElementById("row-count")!;
+    const tbody = document.getElementById("matrix-body")!;
 
-    let html = "";
-    let summaryPaid = Array(12).fill(0);
-    let summaryDue = Array(12).fill(0);
-    let summaryPartial = Array(12).fill(0);
-    let grandTotal = 0;
+    const memberData = data.memberData;
+    const allPayments = data.allPayments;
 
-    for (const m of filtered) {
-      const payments = buildPayments(m.memberId, year);
-      let rowTotal = 0;
-      const cells = [];
+    function summaryCells(paid: number, due: number, partial: number): string {
+      const parts = [];
+      if (paid > 0) parts.push(`<span class="text-success">${paid}</span>`);
+      if (due > 0) parts.push(`<span class="text-muted">${due}</span>`);
+      if (partial > 0) parts.push(`<span class="text-warning">${partial}</span>`);
+      return `<span class="text-[10px]">${parts.join(" / ") || "\u2014"}</span>`;
+    }
 
-      for (let i = 0; i < 12; i++) {
-        const key = `${year}-${i}`;
-        const status = payments[key] || "not-updated";
-        const color = colorMap[status] || "bg-neutral-200 text-white";
-        const label = labelMap[status] || "?";
+    function render() {
+      const year = parseInt(filterYear.value);
+      const plan = filterPlan.value;
+      const city = filterCity.value.toLowerCase();
+      const activeOnly = filterActive.checked;
 
-        if (status === "paid") {
-          rowTotal += m.plan;
-          summaryPaid[i]++;
-        } else if (status === "partial") {
-          rowTotal += Math.floor(m.plan / 2);
-          summaryPartial[i]++;
-        } else if (status === "due") {
-          summaryDue[i]++;
+      const filtered = memberData.filter((m) => {
+        return (plan === "all" || String(m.plan) === plan) &&
+               (city === "all" || m.city.toLowerCase() === city) &&
+               (!activeOnly || m.status === "active");
+      });
+
+      let html = "";
+      let summaryPaid = Array(12).fill(0);
+      let summaryDue = Array(12).fill(0);
+      let summaryPartial = Array(12).fill(0);
+      let grandTotal = 0;
+
+      for (const m of filtered) {
+        const payments = buildPayments(allPayments, m.memberId, year);
+        let rowTotal = 0;
+        const cells = [];
+
+        for (let i = 0; i < 12; i++) {
+          const key = `${year}-${i}`;
+          const status = payments[key] || "not-updated";
+          const color = PAYMENT_COLORS[status] || "text-muted";
+          const label = PAYMENT_LABELS[status] || "?";
+
+          if (status === "paid") {
+            rowTotal += m.plan;
+            summaryPaid[i]++;
+          } else if (status === "partial") {
+            rowTotal += Math.floor(m.plan / 2);
+            summaryPartial[i]++;
+          } else if (status === "due") {
+            summaryDue[i]++;
+          }
+
+          cells.push(`<td class="text-center py-3 px-2">
+            <span class="inline-flex items-center justify-center text-[12px] font-normal ${color}" title="${label}">
+              ${paymentIcon(status)}
+            </span>
+          </td>`);
         }
 
-        cells.push(`<td class="text-center py-3 px-2">
-          <span class="inline-flex items-center justify-center text-[12px] font-normal ${color}" title="${label}">
-            ${status === "paid" ? "\u2713" : status === "partial" ? "P" : status === "due" ? "\u2014" : "\u00B7"}
-          </span>
-        </td>`);
+        grandTotal += rowTotal;
+
+        html += `<tr class="matrix-row border-b border-border/50 hover:bg-accent-soft/30 transition-colors">
+          <td class="sticky left-0 bg-card z-10 py-3 px-4 font-medium text-body">
+            <a href="/members/${m.id}/" class="hover:text-accent transition-colors">${m.name}</a>
+          </td>
+          ${cells.join("")}
+          <td class="text-right py-3 px-4 font-semibold text-body">${formatINR(rowTotal)}</td>
+        </tr>`;
       }
 
-      grandTotal += rowTotal;
+      tbody.innerHTML = html;
 
-      html += `<tr class="matrix-row border-b border-border/50 hover:bg-accent-soft/30 transition-colors">
-        <td class="sticky left-0 bg-card z-10 py-3 px-4 font-medium text-body">
-          <a href="/members/${m.id}/" class="hover:text-accent transition-colors">${m.name}</a>
-        </td>
-        ${cells.join("")}
-        <td class="text-right py-3 px-4 font-semibold text-body">${formatINR(rowTotal)}</td>
-      </tr>`;
-    }
-
-    // Summary row
-    let summaryCells = "";
-    for (let i = 0; i < 12; i++) {
-      const parts = [];
-      if (summaryPaid[i] > 0) parts.push(`<span class="text-success">${summaryPaid[i]}</span>`);
-      if (summaryDue[i] > 0) parts.push(`<span class="text-muted">${summaryDue[i]}</span>`);
-      if (summaryPartial[i] > 0) parts.push(`<span class="text-warning">${summaryPartial[i]}</span>`);
-      summaryCells += `<td class="text-center py-3 px-2"><span class="text-[10px]">${parts.join(" / ") || "\u2014"}</span></td>`;
-    }
-
-    tbody.innerHTML = html;
-    document.getElementById("summary-total").textContent = formatINR(grandTotal);
-    for (let i = 0; i < 12; i++) {
-      const el = document.getElementById(`summary-${i}`);
-      if (el) {
-        const parts = [];
-        if (summaryPaid[i] > 0) parts.push(`<span class="text-success">${summaryPaid[i]}</span>`);
-        if (summaryDue[i] > 0) parts.push(`<span class="text-muted">${summaryDue[i]}</span>`);
-        if (summaryPartial[i] > 0) parts.push(`<span class="text-warning">${summaryPartial[i]}</span>`);
-        el.innerHTML = `<span class="text-[10px]">${parts.join(" / ") || "\u2014"}</span>`;
+      let summaryCellsHtml = "";
+      for (let i = 0; i < 12; i++) {
+        summaryCellsHtml += `<td class="text-center py-3 px-2">${summaryCells(summaryPaid[i], summaryDue[i], summaryPartial[i])}</td>`;
       }
+      document.getElementById("matrix-foot")!.innerHTML = `
+        <tr class="bg-accent-soft/30 border-t-2 border-border font-semibold">
+          <td class="sticky left-0 bg-accent-soft/30 z-10 py-3 px-4 text-body">Summary</td>
+          ${summaryCellsHtml}
+          <td class="text-right py-3 px-4 text-body">${formatINR(grandTotal)}</td>
+        </tr>`;
+
+      rowCount.textContent = `${filtered.length} of ${memberData.length} members`;
     }
 
-    rowCount.textContent = `${filtered.length} of ${memberData.length} members`;
-  }
-
-  async function unlock() {
-    const decryptWithPassword = window.__decryptVault;
-    if (!decryptWithPassword) {
-      errorEl.textContent = "Secure encryption is not available on this page yet. Please reload.";
-      errorEl.classList.remove("hidden");
-      return;
-    }
-    if (!crypto?.subtle) {
-      errorEl.textContent = "Secure encryption is not supported in this browser.";
-      errorEl.classList.remove("hidden");
-      return;
-    }
-    const plaintext = await decryptWithPassword(vault, passwordInput.value);
-    if (!plaintext) {
-      errorEl.textContent = "Incorrect password. Please try again.";
-      errorEl.classList.remove("hidden");
-      passwordInput.classList.add("border-error", "ring-1", "ring-error/50");
-      passwordInput.focus();
-      return;
-    }
-    const data = JSON.parse(plaintext);
-    memberData = data.memberData;
-    allPayments = data.allPayments;
-    errorEl.classList.add("hidden");
-    passwordInput.classList.remove("border-error", "ring-1", "ring-error/50");
-    gate.classList.add("hidden");
-    content.classList.remove("hidden");
     filterYear.addEventListener("change", render);
     filterPlan.addEventListener("change", render);
     filterCity.addEventListener("change", render);
     filterActive.addEventListener("change", render);
     render();
-  }
-
-  form.addEventListener("submit", (e) => {
-    e.preventDefault();
-    unlock();
-  });
+  };
 </script>

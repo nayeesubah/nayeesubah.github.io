@@ -1,0 +1,106 @@
+---
+interface Props {
+  vault: string;
+  passwordConfigured: boolean;
+  title?: string;
+  description?: string;
+  placeholder?: string;
+  ariaLabel?: string;
+  contentSelector?: string;
+}
+
+const {
+  vault,
+  passwordConfigured,
+  title = "Restricted Access",
+  description = "This section is restricted to founder and administration. Enter the admin password to continue.",
+  placeholder = "Enter admin password",
+  ariaLabel = "Admin password",
+  contentSelector,
+} = Astro.props;
+---
+
+<div
+  id="vault-gate"
+  class="card p-8 sm:p-10 text-center mb-10 max-w-2xl mx-auto"
+  data-content-selector={contentSelector ?? undefined}
+>
+  <div class="mx-auto h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
+    <svg class="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+      <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" />
+    </svg>
+  </div>
+  <h2 class="text-2xl font-bold text-body">{title}</h2>
+  <p class="text-muted text-sm mt-2 max-w-md mx-auto">{description}</p>
+  <form id="vault-form" class="mt-6 flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 max-w-md mx-auto">
+    <input
+      id="vault-password"
+      type="password"
+      autocomplete="current-password"
+      placeholder={placeholder}
+      class="flex-1 px-4 py-2.5 rounded-xl border border-input-border bg-card text-body text-sm focus:outline-none focus:ring-2 focus:ring-accent/50 focus:border-accent transition-colors"
+      aria-label={ariaLabel}
+      required
+    />
+    <button type="submit" class="px-5 py-2.5 rounded-xl bg-accent text-accent-text text-sm font-semibold hover:bg-accent-hover transition-colors inline-flex items-center justify-center gap-2">
+      <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 10.5V6.75a4.5 4.5 0 1 1 9 0v3.75M3.75 21h16.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H3.75a2.25 2.25 0 0 0-2.25 2.25v6.75A2.25 2.25 0 0 0 3.75 21Z" /></svg>
+      Unlock
+    </button>
+  </form>
+  <p id="vault-error" class="hidden mt-4 text-sm text-error font-medium" role="alert">Incorrect password. Please try again.</p>
+  {!passwordConfigured && (
+    <p id="vault-no-pw" class="hidden mt-4 text-sm text-warning font-medium">No admin password has been configured yet.</p>
+  )}
+</div>
+
+<script type="application/json" id="vault-payload" set:html={vault}></script>
+
+{!contentSelector && <div id="vault-content" class="hidden"></div>}
+
+<script>
+  import { decryptWithPassword } from "../lib/vault";
+
+  const gate = document.getElementById("vault-gate");
+  const form = document.getElementById("vault-form");
+  const passwordInput = document.getElementById("vault-password");
+  const errorEl = document.getElementById("vault-error");
+  const noPwEl = document.getElementById("vault-no-pw");
+  const payloadEl = document.getElementById("vault-payload");
+
+  function getTarget(): HTMLElement | null {
+    const selector = gate?.dataset.contentSelector;
+    if (selector) return document.getElementById(selector);
+    return document.getElementById("vault-content");
+  }
+
+  async function unlock() {
+    if (!crypto?.subtle) {
+      errorEl!.textContent = "Secure encryption is not supported in this browser.";
+      errorEl!.classList.remove("hidden");
+      return;
+    }
+    const payload = payloadEl?.textContent?.trim() ?? "";
+    const plaintext = await decryptWithPassword(payload, passwordInput!.value);
+    if (!plaintext) {
+      errorEl!.textContent = "Incorrect password. Please try again.";
+      errorEl!.classList.remove("hidden");
+      passwordInput!.classList.add("border-error", "ring-1", "ring-error/50");
+      passwordInput!.focus();
+      return;
+    }
+    errorEl!.classList.add("hidden");
+    if (noPwEl) noPwEl.classList.add("hidden");
+    passwordInput!.classList.remove("border-error", "ring-1", "ring-error/50");
+    gate?.classList.add("hidden");
+    const target = getTarget();
+    if (target) target.classList.remove("hidden");
+    if (typeof (globalThis as any).__initVaultContent === "function") {
+      (globalThis as any).__initVaultContent(plaintext);
+    }
+  }
+
+  form?.addEventListener("submit", (e) => {
+    e.preventDefault();
+    unlock();
+  });
+</script>

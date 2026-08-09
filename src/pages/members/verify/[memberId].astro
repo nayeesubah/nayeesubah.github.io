@@ -18,7 +18,7 @@ const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
 });
 ---
 
-<BaseLayout title={`Verify — ${data.memberId}`} description={`Verification page for ${data.name}`}>
+<BaseLayout title={`Verify — ${data.memberId}`} description={`Verification page for ${data.name}`} seo={{ noIndex: true }}>
   <div class="pt-24">
     <section class="py-16 sm:py-20 lg:py-24">
       <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">
@@ -69,8 +69,10 @@ const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
               <p class="font-semibold text-body mt-1">{data.occupation}</p>
             </div>
             <div class="bg-accent-soft rounded-xl p-4">
-              <p class="text-muted text-xs uppercase tracking-wider">Contact</p>
-              <p class="font-semibold text-body mt-1">{data.mobile}</p>
+              <p class="text-muted text-xs uppercase tracking-wider">Status</p>
+              <p class="font-semibold text-body mt-1">
+                {data.membershipStatus === "active" ? "Active" : data.membershipStatus.charAt(0).toUpperCase() + data.membershipStatus.slice(1)}
+              </p>
             </div>
           </div>
 
