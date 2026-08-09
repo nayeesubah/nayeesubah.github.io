@@ -44,7 +44,10 @@ const passwordConfigured = Boolean(matrixPassword);
 </BaseLayout>
 
 <script>
-  (globalThis as any).__initVaultContent = () => {
+  (globalThis as any).__initVaultContent = (plaintext: string) => {
+    const target = document.getElementById("vault-content");
+    if (target) target.innerHTML = plaintext;
+
     const buttons = document.querySelectorAll(".filter-btn");
     const items = document.querySelectorAll(".project-item");
 

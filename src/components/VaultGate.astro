@@ -96,6 +96,8 @@ const {
     if (target) target.classList.remove("hidden");
     if (typeof (globalThis as any).__initVaultContent === "function") {
       (globalThis as any).__initVaultContent(plaintext);
+    } else if (target) {
+      target.innerHTML = plaintext;
     }
   }
 
