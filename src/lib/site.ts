@@ -39,7 +39,7 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     siteName: "Nayee Subah Foundation",
     tagline: "Empowering Communities, Building Futures",
     description: "A non-profit social organization dedicated to improving society",
-    url: "https://nayeesubah.org",
+    url: "https://nayeesubah.github.io",
     phone: ["+91 9876543210"],
     currency: "INR",
   };

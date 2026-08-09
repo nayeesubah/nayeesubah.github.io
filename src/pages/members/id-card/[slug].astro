@@ -12,7 +12,7 @@ export async function getStaticPaths() {
 const { member } = Astro.props;
 const { data } = member;
 const initials = data.name.split(" ").map((n) => n[0]).join("").slice(0, 2).toUpperCase();
-const verifyUrl = `https://nayeesubah.org/members/verify/${data.memberId}/`;
+const verifyUrl = `https://nayeesubah.github.io/members/verify/${data.memberId}/`;
 const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
   year: "numeric", month: "short",
 });

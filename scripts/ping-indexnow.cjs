@@ -2,7 +2,7 @@ const fs = require("fs");
 const path = require("path");
 const https = require("https");
 
-const HOST = "https://nayeesubah.org";
+const HOST = "https://nayeesubah.github.io";
 const KEY = "76d19145666036d602c04fff0cdbf8b2";
 const dist = path.resolve(__dirname, "..", "dist");
 

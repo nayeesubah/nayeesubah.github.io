@@ -108,7 +108,7 @@ indexLines.push(`<sitemapindex xmlns="http://www.sitemaps.org/schemas/sitemap/0.
 for (const name of Object.keys(groups)) {
   if (groups[name].length === 0) continue;
   indexLines.push("  <sitemap>");
-  indexLines.push(`    <loc>https://nayeesubah.org/sitemap-${name}.xml</loc>`);
+  indexLines.push(`    <loc>https://nayeesubah.github.io/sitemap-${name}.xml</loc>`);
   indexLines.push(`    <lastmod>${latestLastmod}</lastmod>`);
   indexLines.push("  </sitemap>");
 }

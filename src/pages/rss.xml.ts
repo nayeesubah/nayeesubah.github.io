@@ -3,7 +3,7 @@ import type { APIContext } from "astro";
 import { getCollection } from "astro:content";
 
 export async function GET(context: APIContext) {
-  const site = context.site ?? new URL("https://nayeesubah.org");
+  const site = context.site ?? new URL("https://nayeesubah.github.io");
   const posts = (await getCollection("blog"))
     .filter((p) => p.data.published)
     .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());

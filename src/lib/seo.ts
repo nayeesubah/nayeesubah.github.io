@@ -24,7 +24,7 @@ const defaults = {
   title: "Nayee Subah Foundation — Empowering Communities, Building Futures",
   description:
     "Nayee Subah Foundation is a non-profit social organization dedicated to improving society through education, community development, humanitarian support, skill development, employment opportunities, health awareness, and social welfare.",
-  url: "https://nayeesubah.org",
+  url: "https://nayeesubah.github.io",
   image: "/images/og-default.jpg",
 };
 

@@ -5,7 +5,7 @@ import tailwindcss from "@tailwindcss/vite";
 import icon from "astro-icon";
 
 export default defineConfig({
-  site: "https://nayeesubah.org",
+  site: "https://nayeesubah.github.io",
   output: "static",
   trailingSlash: "always",
   build: {
