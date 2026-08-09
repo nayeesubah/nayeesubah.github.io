@@ -1,6 +1,6 @@
 const enc = new TextEncoder();
 const dec = new TextDecoder();
-const ITERATIONS = 150000;
+const ITERATIONS = 600000;
 
 function b64encode(bytes: Uint8Array): string {
   let binary = "";

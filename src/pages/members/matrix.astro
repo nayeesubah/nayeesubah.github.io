@@ -5,6 +5,7 @@ import VaultGate from "../../components/VaultGate.astro";
 import { getCollection } from "astro:content";
 import { formatINR, MONTHS_SHORT } from "../../lib/matrix";
 import { encryptWithPassword } from "../../lib/vault";
+import { getMatrixPassword } from "../../lib/secrets";
 
 const members = await getCollection("members");
 const cities = [...new Set(members.map((m) => m.data.city))].sort();
@@ -29,8 +30,7 @@ const allPayments = (await getCollection("payments")).map((p) => ({
   amount: p.data.amount,
 }));
 
-const [settings] = await getCollection("site-settings");
-const matrixPassword = settings?.data.matrixPassword || "";
+const matrixPassword = getMatrixPassword();
 
 const vault = await encryptWithPassword(
   JSON.stringify({ memberData, allPayments }),
@@ -39,7 +39,7 @@ const vault = await encryptWithPassword(
 const passwordConfigured = Boolean(matrixPassword);
 ---
 
-<BaseLayout
+<BaseLayout searchable={false}
   title="Contribution Matrix"
   description="Yearly contribution matrix for Nayee Subah Foundation members. View payment status by month with filters for year, plan, city, and status."
 >
@@ -61,6 +61,7 @@ const passwordConfigured = Boolean(matrixPassword);
           vault={vault}
           passwordConfigured={passwordConfigured}
           contentSelector="vault-content"
+          cacheKey="nsf-admin"
           description="The contribution matrix shows payment data for all members. Enter the admin password to continue."
         />
 

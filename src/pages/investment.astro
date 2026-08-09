@@ -6,9 +6,9 @@ import InvestmentLandingBody from "../components/investment/InvestmentLandingBod
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection } from "astro:content";
 import { encryptWithPassword } from "../lib/vault";
+import { getMatrixPassword } from "../lib/secrets";
 
-const [settings] = await getCollection("site-settings");
-const matrixPassword = settings?.data.matrixPassword || "";
+const matrixPassword = getMatrixPassword();
 
 const container = await AstroContainer.create();
 const body = await container.renderToString(InvestmentLandingBody);
@@ -16,7 +16,7 @@ const vault = await encryptWithPassword(body, matrixPassword);
 const passwordConfigured = Boolean(matrixPassword);
 ---
 
-<BaseLayout
+<BaseLayout searchable={false}
   title="Investment Program — Fund Community Development"
   description="Nayee Subah Foundation's Investment Program lets you invest in community projects that generate sustainable income while supporting rural development and social welfare in India."
 >
@@ -38,6 +38,7 @@ const passwordConfigured = Boolean(matrixPassword);
       vault={vault}
       passwordConfigured={passwordConfigured}
       title="Investment Portfolio"
+      cacheKey="nsf-admin"
       description="Portfolio performance, allocations, and project details are restricted to founder and administration. Enter the admin password to continue."
     />
   </div>

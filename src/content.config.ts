@@ -158,6 +158,7 @@ const siteSettings = defineCollection({
       facebook: z.string().optional(),
       instagram: z.string().optional(),
       youtube: z.string().optional(),
+      tiktok: z.string().optional(),
       whatsapp: z.string().optional(),
     }).optional(),
     googleMapsEmbedUrl: z.string().optional(),
@@ -167,7 +168,6 @@ const siteSettings = defineCollection({
     currency: z.string().default("INR"),
     language: z.string().default("en"),
     languages: z.array(z.string()).default(["en", "hi"]),
-    matrixPassword: z.string().default(""),
   }),
 });
 
@@ -215,7 +215,6 @@ const members = defineCollection({
     bloodGroup: z.string().optional(),
     membershipStatus: z.enum(["active", "inactive", "suspended"]).default("active"),
     subscriptionAmount: z.number().int().default(200),
-    password: z.string().default(""),
     lang: z.string().default("en"),
   }),
 });

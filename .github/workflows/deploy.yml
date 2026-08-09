@@ -23,7 +23,17 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # Type-check is informational for now (pre-existing strict-TS errors in
+      # inline scripts). `astro build` still validates all content collections.
+      - run: npm run check
+        continue-on-error: true
       - run: npm run build
+        env:
+          # Vault passwords for the members area. Set these as repository secrets
+          # (Settings > Secrets and variables > Actions). Without them the
+          # members matrix/portals build but cannot be unlocked. See CLAUDE.md.
+          MATRIX_PASSWORD: ${{ secrets.MATRIX_PASSWORD }}
+          MEMBER_PASSWORDS: ${{ secrets.MEMBER_PASSWORDS }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: dist/

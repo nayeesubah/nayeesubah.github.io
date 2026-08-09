@@ -37,7 +37,8 @@ export default defineConfig({
   security: {
     csp: {
       scriptDirective: {
-        resources: ["'self'", "https://cdnjs.cloudflare.com", "https://cloud.umami.is", "https://giscus.app"],
+        // 'wasm-unsafe-eval' is required by Pagefind's WebAssembly search engine.
+        resources: ["'self'", "'wasm-unsafe-eval'", "https://cdnjs.cloudflare.com", "https://cloud.umami.is", "https://giscus.app"],
         hashes: ["sha256-Hfr8GprmR1ja6c2yMSZGGVHw/vbhc9SfsyDTzL0jR7Y="],
       },
       styleDirective: {

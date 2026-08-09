@@ -6,6 +6,7 @@ import InvestmentProjectBody from "../../../components/investment/InvestmentProj
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection } from "astro:content";
 import { encryptWithPassword } from "../../../lib/vault";
+import { getMatrixPassword } from "../../../lib/secrets";
 
 export async function getStaticPaths() {
   const projects = await getCollection("investment-projects");
@@ -18,8 +19,7 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { data } = project;
 
-const [settings] = await getCollection("site-settings");
-const matrixPassword = settings?.data.matrixPassword || "";
+const matrixPassword = getMatrixPassword();
 
 const container = await AstroContainer.create();
 const body = await container.renderToString(InvestmentProjectBody, { props: { project } });
@@ -27,7 +27,7 @@ const vault = await encryptWithPassword(body, matrixPassword);
 const passwordConfigured = Boolean(matrixPassword);
 ---
 
-<BaseLayout
+<BaseLayout searchable={false}
   title={data.title}
   description={data.description}
   image={data.images?.[0]}
@@ -50,6 +50,7 @@ const passwordConfigured = Boolean(matrixPassword);
       vault={vault}
       passwordConfigured={passwordConfigured}
       title={data.title}
+      cacheKey="nsf-admin"
       description="Investment project details are restricted to founder and administration. Enter the admin password to continue."
     />
   </div>
