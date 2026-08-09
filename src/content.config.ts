@@ -166,6 +166,7 @@ const siteSettings = defineCollection({
     aboutVideoThumbnail: z.string().optional(),
     heroVideoUrl: z.string().optional(),
     currency: z.string().default("INR"),
+    matrixPassword: z.string().default(""),
     language: z.string().default("en"),
     languages: z.array(z.string()).default(["en", "hi"]),
   }),
@@ -215,6 +216,7 @@ const members = defineCollection({
     bloodGroup: z.string().optional(),
     membershipStatus: z.enum(["active", "inactive", "suspended"]).default("active"),
     subscriptionAmount: z.number().int().default(200),
+    password: z.string().default(""),
     lang: z.string().default("en"),
   }),
 });

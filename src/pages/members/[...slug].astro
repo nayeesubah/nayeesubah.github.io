@@ -6,7 +6,6 @@ import VaultGate from "../../components/VaultGate.astro";
 import { getCollection } from "astro:content";
 import { formatINR } from "../../lib/matrix";
 import { encryptWithPassword } from "../../lib/vault";
-import { getMemberPassword } from "../../lib/secrets";
 
 export async function getStaticPaths() {
   const members = await getCollection("members");
@@ -28,7 +27,7 @@ const allPayments = (await getCollection("payments"))
   .filter((p) => p.data.memberId === data.memberId)
   .map((p) => ({ memberId: data.memberId, year: p.data.year, month: p.data.month, status: p.data.status, amount: p.data.amount }));
 
-const memberPassword = getMemberPassword(data.memberId);
+const memberPassword = data.password || "";
 
 const vault = await encryptWithPassword(
   JSON.stringify({

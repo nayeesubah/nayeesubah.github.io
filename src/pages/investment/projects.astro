@@ -6,9 +6,9 @@ import InvestmentProjectsBody from "../../components/investment/InvestmentProjec
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection } from "astro:content";
 import { encryptWithPassword } from "../../lib/vault";
-import { getMatrixPassword } from "../../lib/secrets";
 
-const matrixPassword = getMatrixPassword();
+const [settings] = await getCollection("site-settings");
+const matrixPassword = settings?.data.matrixPassword || "";
 
 const container = await AstroContainer.create();
 const body = await container.renderToString(InvestmentProjectsBody);

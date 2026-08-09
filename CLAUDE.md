@@ -6,6 +6,7 @@ Static site for the Nayee Subah Foundation (NSF), a non-profit in Giridih, Jhark
 
 1. **Public NGO site** — home, about, activities, blog, events, gallery, donate, transparency/financials, testimonials, partners, success stories.
 2. **Internal members system** — member directory, per-member payment portals, an admin contribution matrix, and investment tracking. Sensitive parts are protected by a client-side encrypted vault (see **Security**).
+3. All content — including the vault passwords below — is managed through **[Sveltia CMS](https://github.com/sveltia/sveltia-cms)** at `/admin/` (`public/admin/config.yml`), a git-backed CMS that commits straight to this repo. Nothing in this project requires touching GitHub's web UI, secrets, or Actions to operate day to day.
 
 ## Commands
 
@@ -40,39 +41,38 @@ npm run indexnow  # ping IndexNow with updated URLs
 
 ## Security
 
-The site is fully static and hosted from a **public** repo, so it cannot hold real secrets in committed files. Private member/payment data is shipped **AES-GCM encrypted** (`src/lib/vault.ts`, PBKDF2 SHA-256, 600k iterations) and decrypted **in the browser** after a password prompt (`src/components/VaultGate.astro`).
+Private member/payment data is shipped **AES-GCM encrypted** (`src/lib/vault.ts`, PBKDF2 SHA-256, 600k iterations) and decrypted **in the browser** after a password prompt (`src/components/VaultGate.astro`).
 
 `VaultGate` remembers a successful unlock in `sessionStorage` for the tab, keyed by its `cacheKey` prop, so one unlock covers every page sharing that key (all admin pages use `cacheKey="nsf-admin"`; each member portal uses `member-<memberId>`). A floating **Lock** button clears the cache and re-locks. It also supports an optional `hint` prop. Cache is per-tab and cleared on tab close or a failed decrypt.
 
-**The matrix password is never committed.** It's resolved at build time by `src/lib/secrets.ts`:
+**Vault passwords are managed as content, entirely through the CMS — by design.** There
+are two fields, editable in Sveltia CMS like any other content:
 
-- **CI / GitHub Actions** — set `MATRIX_PASSWORD` as a repository secret (Settings →
-  Secrets and variables → Actions). The deploy workflow passes it into `astro build`.
-  **Without it, the matrix builds but cannot be unlocked** (page shows "no password
-  configured" — data is never exposed in the clear).
-- **Local builds** — copy `secrets.example.json` → `secrets.json` (git-ignored) and set
-  `matrixPassword`.
+- `matrixPassword` on **Site Settings** (`src/content/site-settings/settings.yaml`) — the
+  password for `/members/matrix/`, which exposes *every* member's data at once. This is
+  the one that matters most; set it to something long and random.
+- `password` on each **member** (`src/content/members/*.md`) — that member's own portal
+  password. Defaults to the member's own `memberId`, which is already public (directory,
+  ID card, verify page) — so out of the box this is a light click-through, not a security
+  boundary, and the blast radius of leaving it alone is small (only that one member's own
+  data, never the whole database). Give a member a real, different password via the same
+  CMS field if you want one.
 
-**Per-member portal passwords default to the member's own `memberId`** (e.g. `NSF-18-002`)
-— no per-member secret to create or maintain, matching the site's original design. This
-is intentionally *not* real confidentiality: the ID is already public (directory, ID
-card, verify page), so unlocking a portal is a light click-through, not a security
-boundary. The blast radius is also small — it only reveals that one member's own data,
-never the whole database. If a specific member needs a real, different password, set an
-override via the optional `MEMBER_PASSWORDS` env var (JSON map `{"NSF-18-002":"...",...}`)
-or `secrets.json`'s `members` map — both only need entries for members you're overriding.
+> ⚠️ **This repo must not be public if these passwords are to mean anything.** Both fields
+> above are plain committed content — anyone who can read the repo (via the GitHub web UI,
+> `git clone`, or the CMS's own GitHub OAuth login) can read `matrixPassword` directly,
+> bypassing the vault's encryption entirely. **Set the repo to Private** in GitHub Settings
+> → General → Danger Zone. GitHub Pages still serves the *built* site (`dist/`) publicly as
+> normal — a private source repo does not affect visitors, only who can read the source
+> (and thus these passwords). This is the one manual GitHub step this project still needs;
+> there is no way around it that keeps password management inside the CMS. Because the repo
+> was public for part of this project's history, treat any password ever set before it went
+> private as compromised and rotate it via the CMS once the repo is private.
 
 What is / isn't protected:
 
 - **Encrypted (vault):** every member's payment history + subscription amount; each member's contact PII (mobile, email, occupation, blood group, city/state) on their portal page; the full members × months matrix.
 - **Public (directory-level):** member name, member ID, membership status, city, subscription tier, joining date. These appear in `/members/`, the ID card, and the verify page by design.
-
-> ⚠️ **Residual risk:** encrypted vaults are publicly downloadable, so their contents
-> are only as safe as the password strength. The matrix password protects the *entire*
-> member database — use a **long, random** passphrase for `MATRIX_PASSWORD` and never
-> reuse a member ID (or anything guessable) for it. Individual member portals are
-> deliberately low-friction, not high-security; if that's ever a problem, move the
-> members area behind a real auth boundary (e.g. Cloudflare Access) or a private host.
 
 ## Deployment
 

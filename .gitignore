@@ -5,6 +5,3 @@ dist/
 !.env.example
 *.local
 .DS_Store
-
-# Local build secrets (vault passwords). Never commit. See CLAUDE.md > Security.
-secrets.json

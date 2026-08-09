@@ -6,7 +6,6 @@ import InvestmentProjectBody from "../../../components/investment/InvestmentProj
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection } from "astro:content";
 import { encryptWithPassword } from "../../../lib/vault";
-import { getMatrixPassword } from "../../../lib/secrets";
 
 export async function getStaticPaths() {
   const projects = await getCollection("investment-projects");
@@ -19,7 +18,8 @@ export async function getStaticPaths() {
 const { project } = Astro.props;
 const { data } = project;
 
-const matrixPassword = getMatrixPassword();
+const [settings] = await getCollection("site-settings");
+const matrixPassword = settings?.data.matrixPassword || "";
 
 const container = await AstroContainer.create();
 const body = await container.renderToString(InvestmentProjectBody, { props: { project } });

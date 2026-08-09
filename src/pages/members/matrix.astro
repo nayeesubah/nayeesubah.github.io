@@ -5,7 +5,6 @@ import VaultGate from "../../components/VaultGate.astro";
 import { getCollection } from "astro:content";
 import { formatINR, MONTHS_SHORT } from "../../lib/matrix";
 import { encryptWithPassword } from "../../lib/vault";
-import { getMatrixPassword } from "../../lib/secrets";
 
 const members = await getCollection("members");
 const cities = [...new Set(members.map((m) => m.data.city))].sort();
@@ -30,7 +29,8 @@ const allPayments = (await getCollection("payments")).map((p) => ({
   amount: p.data.amount,
 }));
 
-const matrixPassword = getMatrixPassword();
+const [settings] = await getCollection("site-settings");
+const matrixPassword = settings?.data.matrixPassword || "";
 
 const vault = await encryptWithPassword(
   JSON.stringify({ memberData, allPayments }),
