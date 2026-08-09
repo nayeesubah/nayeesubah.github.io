@@ -3,7 +3,6 @@ import "../styles/global.css";
 import Navbar from "../components/Navbar.astro";
 import Footer from "../components/Footer.astro";
 import MobileBottomNav from "../components/MobileBottomNav.astro";
-import WhatsAppButton from "../components/WhatsAppButton.astro";
 import PwaToast from "../components/PwaToast.astro";
 import PwaInstallButton from "../components/PwaInstallButton.astro";
 import ThemePicker from "../components/ThemePicker.astro";
@@ -77,9 +76,9 @@ const alternateUrls = Object.keys(languages).map((locale) => ({
     )}
     <script is:inline>
       (function () {
-        // Restore dark mode (default dark)
+        // Restore theme (default light)
         const theme = localStorage.getItem("theme");
-        if (theme !== "light") {
+        if (theme === "dark") {
           document.documentElement.classList.add("dark");
         }
         // Restore color palette theme
@@ -103,7 +102,6 @@ const alternateUrls = Object.keys(languages).map((locale) => ({
     <!-- <ThemePicker /> -->
     <PwaToast />
     <PwaInstallButton />
-    <WhatsAppButton />
 
     <script>
       if (import.meta.env.PROD && "serviceWorker" in navigator) {
