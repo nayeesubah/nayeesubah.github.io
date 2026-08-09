@@ -4,16 +4,24 @@
  * IMPORTANT: this module is SERVER-ONLY. It reads from `process.env` and the
  * local filesystem, so it must never be imported from a client `<script>`.
  *
- * Secrets are resolved in this order:
- *   1. Environment variables (used by CI / GitHub Actions):
- *        - MATRIX_PASSWORD     — master password for /members/matrix/
- *        - MEMBER_PASSWORDS    — JSON map of { "<memberId>": "<password>" }
- *   2. A git-ignored `secrets.json` at the repo root (used for local builds):
- *        { "matrixPassword": "...", "members": { "NSF-18-002": "..." } }
+ * The admin matrix (everyone's data in one place — the high-stakes one) needs
+ * a real secret, resolved in this order:
+ *   1. MATRIX_PASSWORD env var (CI / GitHub Actions repo secret).
+ *   2. `matrixPassword` in a git-ignored `secrets.json` at the repo root
+ *      (used for local builds): { "matrixPassword": "..." }
  *
- * When a secret is missing the vault is encrypted with an empty password and
- * the page reports "no password configured" — data is never exposed in the
- * clear, it simply cannot be unlocked until a real secret is set.
+ * Per-member portals default to the member's own memberId as the password —
+ * same as before, and zero secrets to maintain per member. That's fine here:
+ * a member's ID is already public (directory, ID card, verify page), so this
+ * isn't real confidentiality, just a light click-through; unlocking only
+ * reveals that one member's own data, not the whole database. If a specific
+ * member ever needs stronger protection, set an explicit override via the
+ * MEMBER_PASSWORDS env var (JSON map) or `secrets.json`'s `members` map —
+ * both are optional and only need entries for members you want to override.
+ *
+ * When the matrix secret is missing, the vault is encrypted with an empty
+ * password and the page reports "no password configured" — data is never
+ * exposed in the clear, it simply cannot be unlocked until a real secret is set.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -54,5 +62,9 @@ export function getMemberPassword(memberId: string): string {
       console.warn(`[secrets] failed to parse MEMBER_PASSWORDS env: ${(err as Error).message}`);
     }
   }
-  return loadFile().members?.[memberId] ?? "";
+  const override = loadFile().members?.[memberId];
+  if (override) return override;
+  // No explicit override configured — fall back to the memberId itself, same
+  // as the site's original behavior. No per-member secret to maintain.
+  return memberId;
 }

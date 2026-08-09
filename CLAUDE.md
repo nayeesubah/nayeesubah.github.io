@@ -44,18 +44,23 @@ The site is fully static and hosted from a **public** repo, so it cannot hold re
 
 `VaultGate` remembers a successful unlock in `sessionStorage` for the tab, keyed by its `cacheKey` prop, so one unlock covers every page sharing that key (all admin pages use `cacheKey="nsf-admin"`; each member portal uses `member-<memberId>`). A floating **Lock** button clears the cache and re-locks. It also supports an optional `hint` prop. Cache is per-tab and cleared on tab close or a failed decrypt.
 
-**Passwords are never committed.** They are resolved at build time by `src/lib/secrets.ts`:
+**The matrix password is never committed.** It's resolved at build time by `src/lib/secrets.ts`:
 
-- **CI / GitHub Actions** — set repository secrets (Settings → Secrets and variables → Actions):
-  - `MATRIX_PASSWORD` — master password for `/members/matrix/` (all members + all payments).
-  - `MEMBER_PASSWORDS` — JSON map `{"NSF-18-002":"...", ...}` for per-member portals.
-  - The deploy workflow passes these into `astro build`. **Without them, the members
-    area builds but cannot be unlocked** (pages show "no password configured" — data
-    is never exposed in the clear).
-- **Local builds** — copy `secrets.example.json` → `secrets.json` (git-ignored) and fill it in:
-  ```json
-  { "matrixPassword": "…", "members": { "NSF-18-002": "…" } }
-  ```
+- **CI / GitHub Actions** — set `MATRIX_PASSWORD` as a repository secret (Settings →
+  Secrets and variables → Actions). The deploy workflow passes it into `astro build`.
+  **Without it, the matrix builds but cannot be unlocked** (page shows "no password
+  configured" — data is never exposed in the clear).
+- **Local builds** — copy `secrets.example.json` → `secrets.json` (git-ignored) and set
+  `matrixPassword`.
+
+**Per-member portal passwords default to the member's own `memberId`** (e.g. `NSF-18-002`)
+— no per-member secret to create or maintain, matching the site's original design. This
+is intentionally *not* real confidentiality: the ID is already public (directory, ID
+card, verify page), so unlocking a portal is a light click-through, not a security
+boundary. The blast radius is also small — it only reveals that one member's own data,
+never the whole database. If a specific member needs a real, different password, set an
+override via the optional `MEMBER_PASSWORDS` env var (JSON map `{"NSF-18-002":"...",...}`)
+or `secrets.json`'s `members` map — both only need entries for members you're overriding.
 
 What is / isn't protected:
 
@@ -63,10 +68,11 @@ What is / isn't protected:
 - **Public (directory-level):** member name, member ID, membership status, city, subscription tier, joining date. These appear in `/members/`, the ID card, and the verify page by design.
 
 > ⚠️ **Residual risk:** encrypted vaults are publicly downloadable, so their contents
-> are only as safe as the password strength. Use **long, random** passphrases. Anyone
-> with the matrix password can read the entire member database. For stronger protection,
-> move the members area behind a real auth boundary (e.g. Cloudflare Access) or a private
-> host. Never reuse a member ID (or anything guessable) as a password.
+> are only as safe as the password strength. The matrix password protects the *entire*
+> member database — use a **long, random** passphrase for `MATRIX_PASSWORD` and never
+> reuse a member ID (or anything guessable) for it. Individual member portals are
+> deliberately low-friction, not high-security; if that's ever a problem, move the
+> members area behind a real auth boundary (e.g. Cloudflare Access) or a private host.
 
 ## Deployment
 

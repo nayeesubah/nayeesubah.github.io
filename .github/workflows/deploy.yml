@@ -29,10 +29,12 @@ jobs:
         continue-on-error: true
       - run: npm run build
         env:
-          # Vault passwords for the members area. Set these as repository secrets
-          # (Settings > Secrets and variables > Actions). Without them the
-          # members matrix/portals build but cannot be unlocked. See CLAUDE.md.
+          # Admin matrix password (all members + all payments in one place).
+          # Set as a repository secret (Settings > Secrets and variables > Actions).
+          # Without it the matrix builds but cannot be unlocked. See CLAUDE.md.
           MATRIX_PASSWORD: ${{ secrets.MATRIX_PASSWORD }}
+          # Optional: only needed to override specific members' portal password
+          # away from the default (their own memberId). See CLAUDE.md > Security.
           MEMBER_PASSWORDS: ${{ secrets.MEMBER_PASSWORDS }}
       - uses: actions/upload-pages-artifact@v3
         with:
