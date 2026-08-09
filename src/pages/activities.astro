@@ -2,28 +2,20 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import ActivityCard from "../components/ActivityCard.astro";
+import StatCard from "../components/StatCard.astro";
 import { getCollection } from "astro:content";
+import { ACTIVITY_CATEGORIES } from "../lib/activityCategories";
 
 const activities = (await getCollection("activities"))
   .sort((a, b) => a.data.order - b.data.order);
 
-const categories = [
-  { id: "education", label: "Education" },
-  { id: "healthcare", label: "Healthcare" },
-  { id: "skill-development", label: "Skill Development" },
-  { id: "women-empowerment", label: "Women Empowerment" },
-  { id: "youth-development", label: "Youth Development" },
-  { id: "employment", label: "Employment Support" },
-  { id: "disaster-relief", label: "Disaster Relief" },
-  { id: "blood-donation", label: "Blood Donation" },
-  { id: "tree-plantation", label: "Tree Plantation" },
-  { id: "scholarships", label: "Scholarships" },
-  { id: "community-development", label: "Community Development" },
-  { id: "food-distribution", label: "Food Distribution" },
-  { id: "awareness-campaigns", label: "Awareness Campaigns" },
-  { id: "library", label: "Library" },
-  { id: "helping-local-farmers", label: "Helping Local Farmers" },
-];
+// Only offer filters for categories that actually have a program — clicking a
+// filter should never land on an empty grid.
+const presentCategoryIds = new Set(activities.map((a) => a.data.category));
+const categories = ACTIVITY_CATEGORIES.filter((c) => presentCategoryIds.has(c.id));
+
+const totalVolunteers = activities.reduce((sum, a) => sum + (a.data.volunteers || 0), 0);
+const totalLocations = new Set(activities.map((a) => a.data.location).filter(Boolean)).size;
 ---
 
 <BaseLayout
@@ -44,21 +36,36 @@ const categories = [
           </p>
         </div>
 
-        <div class="flex flex-wrap gap-2 mb-10" id="category-filters">
-          <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-text transition-colors" data-category="all">All</button>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-12">
+          <StatCard value={String(activities.length)} label="Active Programs" />
+          <StatCard value={`${totalVolunteers}+`} label="Volunteers Involved" />
+          <StatCard value={String(categories.length)} label="Focus Areas" />
+          <StatCard value={String(totalLocations)} label="Locations Served" />
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-8" id="category-filters">
+          <button type="button" class="filter-btn is-active px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-text transition-colors" data-category="all">All</button>
           {categories.map((cat) => (
-            <button class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-soft text-accent hover:bg-accent hover:text-accent-text transition-colors" data-category={cat.id}>
+            <button type="button" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-soft text-accent hover:bg-accent hover:text-accent-text transition-colors" data-category={cat.id}>
               {cat.label}
             </button>
           ))}
         </div>
 
+        <p id="results-count" class="text-sm text-muted mb-6" aria-live="polite"></p>
+
         <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="activities-grid">
           {activities.map((activity) => (
-            <div class="activity-item" data-category={activity.data.category}>
+            <div class="activity-item transition-all duration-300 ease-out" data-category={activity.data.category}>
               <ActivityCard activity={activity} />
             </div>
           ))}
+        </div>
+
+        <div id="empty-state" class="hidden text-center py-20">
+          <div class="text-5xl mb-4">🔍</div>
+          <h3 class="text-xl font-semibold mb-2">No activities in this category yet</h3>
+          <p class="text-muted">Check back soon, or explore another focus area above.</p>
         </div>
       </div>
     </section>
@@ -66,25 +73,53 @@ const categories = [
 </BaseLayout>
 
 <script>
-  const buttons = document.querySelectorAll(".filter-btn");
-  const items = document.querySelectorAll(".activity-item");
+  function boot() {
+    const buttons = document.querySelectorAll<HTMLButtonElement>(".filter-btn");
+    const items = document.querySelectorAll<HTMLElement>(".activity-item");
+    const resultsCount = document.getElementById("results-count");
+    const emptyState = document.getElementById("empty-state");
+    const grid = document.getElementById("activities-grid");
+    if (!buttons.length || buttons[0].dataset.wired) return;
 
-  buttons.forEach((btn) => {
-    btn.addEventListener("click", () => {
-      const cat = btn.dataset.category;
-      buttons.forEach((b) => {
-        b.className = b.className.replace("bg-accent text-accent-text", "bg-accent-soft text-accent")
-          .replace("bg-accent-soft text-accent", "bg-accent-soft text-accent");
-      });
-      btn.className = btn.className.replace("bg-accent-soft text-accent", "bg-accent text-accent-text");
-
+    function applyFilter(cat: string) {
+      let visible = 0;
       items.forEach((item) => {
-        if (cat === "all" || item.dataset.category === cat) {
-          item.style.display = "";
+        const match = cat === "all" || item.dataset.category === cat;
+        if (match) visible++;
+        if (match) {
+          item.classList.remove("hidden");
+          requestAnimationFrame(() => item.classList.remove("opacity-0", "scale-95"));
         } else {
-          item.style.display = "none";
+          item.classList.add("opacity-0", "scale-95");
+          window.setTimeout(() => item.classList.add("hidden"), 250);
         }
       });
+
+      if (resultsCount) {
+        resultsCount.textContent = cat === "all"
+          ? `Showing all ${items.length} activities`
+          : `Showing ${visible} of ${items.length} activities`;
+      }
+      grid?.classList.toggle("hidden", visible === 0);
+      emptyState?.classList.toggle("hidden", visible !== 0);
+    }
+
+    buttons.forEach((btn) => {
+      btn.dataset.wired = "1";
+      btn.addEventListener("click", () => {
+        buttons.forEach((b) => {
+          b.classList.remove("is-active", "bg-accent", "text-accent-text");
+          b.classList.add("bg-accent-soft", "text-accent");
+        });
+        btn.classList.add("is-active", "bg-accent", "text-accent-text");
+        btn.classList.remove("bg-accent-soft", "text-accent");
+        applyFilter(btn.dataset.category || "all");
+      });
     });
-  });
+
+    applyFilter("all");
+  }
+
+  document.addEventListener("DOMContentLoaded", boot);
+  document.addEventListener("astro:page-load", boot);
 </script>
