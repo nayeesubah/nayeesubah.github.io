@@ -18,7 +18,7 @@ const joinedDate = new Date(data.joiningDate).toLocaleDateString("en-IN", {
 });
 ---
 
-<BaseLayout title={`Verify — ${data.memberId}`} description={`Verification page for ${data.name}`} seo={{ noIndex: true }}>
+<BaseLayout searchable={false} title={`Verify — ${data.memberId}`} description={`Verification page for ${data.name}`} seo={{ noIndex: true }}>
   <div class="pt-24">
     <section class="py-16 sm:py-20 lg:py-24">
       <div class="mx-auto max-w-2xl px-4 sm:px-6 lg:px-8">

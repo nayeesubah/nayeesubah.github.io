@@ -1,0 +1,45 @@
+/* Native cross-document view transitions (progressive enhancement).
+   Each navigation is a normal full page load, so all page scripts keep working;
+   supporting browsers (Chromium 126+) just animate the swap. Others navigate
+   normally with no animation. */
+@view-transition {
+  navigation: auto;
+}
+
+@keyframes nsf-vt-fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nsf-vt-fade-out {
+  from {
+    opacity: 1;
+  }
+  to {
+    opacity: 0;
+  }
+}
+
+::view-transition-old(root) {
+  animation: nsf-vt-fade-out 0.18s ease both;
+}
+
+::view-transition-new(root) {
+  animation: nsf-vt-fade-in 0.28s ease both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  @view-transition {
+    navigation: none;
+  }
+  ::view-transition-old(root),
+  ::view-transition-new(root) {
+    animation: none;
+  }
+}

@@ -7,42 +7,25 @@ export interface NavItem {
   children?: NavItem[];
 }
 
-export interface SiteSettings {
-  siteName: string;
-  tagline: string;
-  description: string;
-  url: string;
-  logo?: string;
-  logoDark?: string;
-  favicon?: string;
-  phone: string[];
-  email?: string;
-  address?: string;
-  workingHours?: string;
-  social?: {
-    facebook?: string;
-    instagram?: string;
-    youtube?: string;
-    tiktok?: string;
-    whatsapp?: string;
-  };
-  googleMapsEmbedUrl?: string;
-  aboutVideoUrl?: string;
-  aboutVideoThumbnail?: string;
-  heroVideoUrl?: string;
-  currency: string;
-}
+// Derived from the `site-settings` collection schema (src/content.config.ts) so
+// this type can never silently drift from the validated shape.
+export type SiteSettings = CollectionEntry<"site-settings">["data"];
 
 export async function getSiteSettings(): Promise<SiteSettings> {
   const [settings] = await getCollection("site-settings");
-  return settings?.data as unknown as SiteSettings ?? {
+  return settings?.data ?? {
     siteName: "Nayee Subah Foundation",
     tagline: "Empowering Communities, Building Futures",
     description: "A non-profit social organization dedicated to improving society",
     url: "https://nayeesubah.github.io",
+    logo: undefined,
+    logoDark: undefined,
+    favicon: undefined,
     phone: ["+91 9876543210"],
     currency: "INR",
-  };
+    language: "en",
+    languages: ["en", "hi"],
+  } satisfies SiteSettings;
 }
 
 export function formatPrice(price: number, currency: string = "INR"): string {
@@ -52,10 +35,6 @@ export function formatPrice(price: number, currency: string = "INR"): string {
     minimumFractionDigits: 0,
     maximumFractionDigits: 0,
   }).format(price);
-}
-
-export function formatMileage(mileage: number): string {
-  return new Intl.NumberFormat("en-IN").format(mileage) + " km";
 }
 
 export function calculateReadingTime(text: string): number {

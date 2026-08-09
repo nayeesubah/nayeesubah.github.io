@@ -10,7 +10,7 @@ const cities = [...new Set(members.map((m) => m.data.city))].sort();
 const plans = [...new Set(members.map((m) => m.data.subscriptionAmount))].sort((a, b) => a - b);
 ---
 
-<BaseLayout
+<BaseLayout searchable={false}
   title="Member Directory — Nayee Subah Foundation Members"
   description="Browse the Nayee Subah Foundation member directory. Search and filter our registered members by name, city, status, or subscription plan."
 >

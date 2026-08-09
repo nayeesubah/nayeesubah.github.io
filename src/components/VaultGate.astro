@@ -7,6 +7,10 @@ interface Props {
   placeholder?: string;
   ariaLabel?: string;
   contentSelector?: string;
+  hint?: string;
+  /** Groups pages that share a password so one unlock is remembered across them
+   *  within the browser tab. Defaults to the page path. */
+  cacheKey?: string;
 }
 
 const {
@@ -17,6 +21,8 @@ const {
   placeholder = "Enter admin password",
   ariaLabel = "Admin password",
   contentSelector,
+  hint,
+  cacheKey,
 } = Astro.props;
 ---
 
@@ -24,6 +30,7 @@ const {
   id="vault-gate"
   class="card p-8 sm:p-10 text-center mb-10 max-w-2xl mx-auto"
   data-content-selector={contentSelector ?? undefined}
+  data-cache-key={cacheKey ?? undefined}
 >
   <div class="mx-auto h-16 w-16 rounded-2xl bg-accent/10 flex items-center justify-center mb-6">
     <svg class="h-8 w-8 text-accent" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
@@ -48,10 +55,25 @@ const {
     </button>
   </form>
   <p id="vault-error" class="hidden mt-4 text-sm text-error font-medium" role="alert">Incorrect password. Please try again.</p>
+  {hint && (
+    <p class="mt-4 text-xs text-muted">
+      <span class="font-medium">Hint:</span> {hint}
+    </p>
+  )}
   {!passwordConfigured && (
-    <p id="vault-no-pw" class="hidden mt-4 text-sm text-warning font-medium">No admin password has been configured yet.</p>
+    <p id="vault-no-pw" class="hidden mt-4 text-sm text-warning font-medium">No password has been configured yet.</p>
   )}
 </div>
+
+<button
+  id="vault-lock"
+  type="button"
+  class="hidden fixed bottom-5 right-5 z-40 inline-flex items-center gap-2 rounded-full bg-card border border-border shadow-lg px-4 py-2.5 text-sm font-medium text-body hover:text-accent hover:border-accent transition-colors"
+  aria-label="Lock this section again"
+>
+  <svg class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8"><path stroke-linecap="round" stroke-linejoin="round" d="M16.5 10.5V6.75a4.5 4.5 0 1 0-9 0v3.75m-.75 11.25h10.5a2.25 2.25 0 0 0 2.25-2.25v-6.75a2.25 2.25 0 0 0-2.25-2.25H6.75a2.25 2.25 0 0 0-2.25 2.25v6.75a2.25 2.25 0 0 0 2.25 2.25Z" /></svg>
+  Lock
+</button>
 
 <script type="application/json" id="vault-payload" set:html={vault}></script>
 
@@ -60,49 +82,102 @@ const {
 <script>
   import { decryptWithPassword } from "../lib/vault";
 
-  const gate = document.getElementById("vault-gate");
-  const form = document.getElementById("vault-form");
-  const passwordInput = document.getElementById("vault-password");
-  const errorEl = document.getElementById("vault-error");
-  const noPwEl = document.getElementById("vault-no-pw");
-  const payloadEl = document.getElementById("vault-payload");
+  const SS_PREFIX = "nsf-vault:";
 
-  function getTarget(): HTMLElement | null {
-    const selector = gate?.dataset.contentSelector;
+  function cacheKeyFor(gate: HTMLElement): string {
+    return SS_PREFIX + (gate.dataset.cacheKey || location.pathname);
+  }
+
+  function getTarget(gate: HTMLElement): HTMLElement | null {
+    const selector = gate.dataset.contentSelector;
     if (selector) return document.getElementById(selector);
     return document.getElementById("vault-content");
   }
 
-  async function unlock() {
-    if (!crypto?.subtle) {
-      errorEl!.textContent = "Secure encryption is not supported in this browser.";
-      errorEl!.classList.remove("hidden");
-      return;
-    }
-    const payload = payloadEl?.textContent?.trim() ?? "";
-    const plaintext = await decryptWithPassword(payload, passwordInput!.value);
-    if (!plaintext) {
-      errorEl!.textContent = "Incorrect password. Please try again.";
-      errorEl!.classList.remove("hidden");
-      passwordInput!.classList.add("border-error", "ring-1", "ring-error/50");
-      passwordInput!.focus();
-      return;
-    }
-    errorEl!.classList.add("hidden");
-    if (noPwEl) noPwEl.classList.add("hidden");
-    passwordInput!.classList.remove("border-error", "ring-1", "ring-error/50");
-    gate?.classList.add("hidden");
-    const target = getTarget();
+  function reveal(gate: HTMLElement, plaintext: string) {
+    gate.classList.add("hidden");
+    const target = getTarget(gate);
     if (target) target.classList.remove("hidden");
+    const lockBtn = document.getElementById("vault-lock");
+    if (lockBtn) lockBtn.classList.remove("hidden");
     if (typeof (globalThis as any).__initVaultContent === "function") {
       (globalThis as any).__initVaultContent(plaintext);
     } else if (target) {
       target.innerHTML = plaintext;
     }
+    // Let content that needs re-initialising (e.g. lightbox, TOC) hook in.
+    document.dispatchEvent(new CustomEvent("vault:unlocked", { detail: { plaintext } }));
   }
 
-  form?.addEventListener("submit", (e) => {
-    e.preventDefault();
-    unlock();
-  });
+  async function attempt(gate: HTMLElement, password: string, silent: boolean): Promise<boolean> {
+    const payloadEl = document.getElementById("vault-payload");
+    const errorEl = document.getElementById("vault-error");
+    const noPwEl = document.getElementById("vault-no-pw");
+    const passwordInput = document.getElementById("vault-password") as HTMLInputElement | null;
+
+    if (!crypto?.subtle) {
+      if (errorEl && !silent) {
+        errorEl.textContent = "Secure encryption is not supported in this browser.";
+        errorEl.classList.remove("hidden");
+      }
+      return false;
+    }
+
+    const payload = payloadEl?.textContent?.trim() ?? "";
+    const plaintext = await decryptWithPassword(payload, password);
+
+    if (!plaintext) {
+      // A stale cached password no longer works — drop it silently.
+      sessionStorage.removeItem(cacheKeyFor(gate));
+      if (!silent && errorEl && passwordInput) {
+        errorEl.textContent = "Incorrect password. Please try again.";
+        errorEl.classList.remove("hidden");
+        passwordInput.classList.add("border-error", "ring-1", "ring-error/50");
+        passwordInput.focus();
+      }
+      return false;
+    }
+
+    errorEl?.classList.add("hidden");
+    noPwEl?.classList.add("hidden");
+    passwordInput?.classList.remove("border-error", "ring-1", "ring-error/50");
+    sessionStorage.setItem(cacheKeyFor(gate), password);
+    reveal(gate, plaintext);
+    return true;
+  }
+
+  function boot() {
+    const gate = document.getElementById("vault-gate");
+    if (!gate) return;
+
+    const form = document.getElementById("vault-form");
+    if (form && !form.dataset.wired) {
+      form.dataset.wired = "1";
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        const input = document.getElementById("vault-password") as HTMLInputElement | null;
+        attempt(gate, input?.value ?? "", false);
+      });
+    }
+
+    const lockBtn = document.getElementById("vault-lock");
+    if (lockBtn && !lockBtn.dataset.wired) {
+      lockBtn.dataset.wired = "1";
+      lockBtn.addEventListener("click", () => {
+        sessionStorage.removeItem(cacheKeyFor(gate));
+        location.reload();
+      });
+    }
+
+    // Already unlocked earlier in this tab? Restore silently.
+    if (!gate.classList.contains("hidden")) {
+      const cached = sessionStorage.getItem(cacheKeyFor(gate));
+      if (cached) attempt(gate, cached, true);
+    }
+  }
+
+  // Fires after all module scripts run (so page __initVaultContent exists), and
+  // again after each view-transition navigation.
+  document.addEventListener("DOMContentLoaded", boot);
+  document.addEventListener("astro:page-load", boot);
 </script>

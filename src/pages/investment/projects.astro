@@ -6,9 +6,9 @@ import InvestmentProjectsBody from "../../components/investment/InvestmentProjec
 import { experimental_AstroContainer as AstroContainer } from "astro/container";
 import { getCollection } from "astro:content";
 import { encryptWithPassword } from "../../lib/vault";
+import { getMatrixPassword } from "../../lib/secrets";
 
-const [settings] = await getCollection("site-settings");
-const matrixPassword = settings?.data.matrixPassword || "";
+const matrixPassword = getMatrixPassword();
 
 const container = await AstroContainer.create();
 const body = await container.renderToString(InvestmentProjectsBody);
@@ -16,7 +16,7 @@ const vault = await encryptWithPassword(body, matrixPassword);
 const passwordConfigured = Boolean(matrixPassword);
 ---
 
-<BaseLayout
+<BaseLayout searchable={false}
   title="Investment Projects & Portfolio"
   description="Explore Nayee Subah Foundation's community investment portfolio — agriculture, renewable energy, micro-finance, and community development projects generating social impact."
 >
@@ -38,6 +38,7 @@ const passwordConfigured = Boolean(matrixPassword);
       vault={vault}
       passwordConfigured={passwordConfigured}
       title="Investment Projects"
+      cacheKey="nsf-admin"
       description="Portfolio project data is restricted to founder and administration. Enter the admin password to continue."
     />
   </div>

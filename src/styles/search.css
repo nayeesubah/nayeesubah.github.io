@@ -1,0 +1,20 @@
+/* Pagefind UI themed to match the site tokens. These variables reference the
+   site's own color vars, so search automatically adapts to light/dark themes. */
+#search-modal .pagefind-ui {
+  --pagefind-ui-primary: var(--color-accent);
+  --pagefind-ui-text: var(--color-body);
+  --pagefind-ui-background: var(--color-card);
+  --pagefind-ui-border: var(--color-input-border);
+  --pagefind-ui-tag: var(--color-page);
+  --pagefind-ui-border-width: 1px;
+  --pagefind-ui-border-radius: 0.75rem;
+  --pagefind-ui-font: inherit;
+}
+
+#search-modal .pagefind-ui__search-input {
+  background: var(--color-page);
+}
+
+#search-modal .pagefind-ui__result {
+  border-radius: 0.75rem;
+}
