@@ -4,7 +4,6 @@ slug: health-camp-march-2025
 date: 2025-03-20
 venue: Village Community Center, Dumka District, Jharkhand
 description: A free health check-up camp for rural communities with general physicians, eye specialists, and dental care — serving 500+ patients from 12 surrounding villages.
-image: /images/blog/health-camp-event.jpg
 organizers:
   - NSF Health Team
   - Dr. Amit Kumar

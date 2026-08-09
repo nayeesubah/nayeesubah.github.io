@@ -272,7 +272,10 @@ const events = defineCollection({
     organizers: z.array(z.string()).default([]),
     status: z.enum(["upcoming", "ongoing", "completed", "cancelled"]).default("upcoming"),
     featured: z.boolean().default(false),
-    registerLink: z.string().url().optional(),
+    // CMS-compatibility: the CMS writes "" (not an omitted key) when this
+    // optional field is cleared, which z.string().url() alone would reject
+    // and break the whole site build. Tolerate the empty string explicitly.
+    registerLink: z.union([z.string().url(), z.literal("")]).optional(),
     cardDisplay: z.object({
       badgeText: z.string().optional(),
       hideCountdown: z.boolean().default(false),

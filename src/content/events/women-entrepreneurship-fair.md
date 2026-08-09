@@ -4,7 +4,6 @@ slug: women-entrepreneurship-fair
 date: 2025-10-05
 venue: Town Hall, Godda, Jharkhand
 description: A platform for 50+ women entrepreneurs from our skill development program to showcase and sell their products — from handicrafts and garments to food products.
-image: /images/library-front.jpg
 organizers:
   - NSF Women Empowerment Team
   - Jharkhand Women's Development Corporation

@@ -30,10 +30,19 @@ const googleCalUrl = `https://www.google.com/calendar/render?action=TEMPLATE&tex
     <div class="relative">
       {data.image ? (
         <div class="aspect-[16/9] overflow-hidden">
-          <img src={data.image} alt={data.title} class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105" loading="lazy" />
+          <img
+            src={data.image}
+            alt={data.title}
+            class="h-full w-full object-cover transition-transform duration-500 group-hover:scale-105"
+            loading="lazy"
+            transition:name={`event-image-${event.id}`}
+          />
         </div>
       ) : (
-        <div class="aspect-[16/9] bg-gradient-to-br from-accent-soft to-section flex items-center justify-center">
+        <div
+          class="aspect-[16/9] bg-linear-to-br from-accent-soft to-section flex items-center justify-center"
+          transition:name={`event-image-${event.id}`}
+        >
           <svg class="h-16 w-16 text-accent/30" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5" /></svg>
         </div>
       )}

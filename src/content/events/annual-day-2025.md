@@ -4,7 +4,6 @@ slug: annual-day-2025
 date: 2025-12-15
 venue: Community Hall, Giridih, Jharkhand
 description: Join us for our annual celebration featuring cultural programs, success stories, and recognition of members and volunteers who made the year possible.
-image: /images/blog/annual-day.jpg
 organizers:
   - NSF Events Team
   - Priya Singh
