@@ -36,7 +36,7 @@ export const platformInstructions: Record<Platform, PlatformInstructions> = {
     steps: [
       "Tap the Share button (square with arrow) at the bottom of Safari",
       "Scroll down and tap Add to Home Screen",
-      'Type a name for the app (or keep "Ashaz Autoz")',
+      'Type a name for the app (or keep "Nayee Subah")',
       'Tap "Add" in the top-right corner',
       "The app icon will appear on your home screen",
     ],
@@ -46,7 +46,7 @@ export const platformInstructions: Record<Platform, PlatformInstructions> = {
     title: "Install on Desktop",
     steps: [
       "Click the install icon (⊕) in the right side of the address bar",
-      'Alternatively, click the browser menu → "Install Ashaz Autoz"',
+      'Alternatively, click the browser menu → "Install Nayee Subah"',
       'Click "Install" in the popup dialog',
       "The app will open in its own window",
     ],

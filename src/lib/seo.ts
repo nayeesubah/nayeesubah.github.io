@@ -25,7 +25,7 @@ const defaults = {
   description:
     "Nayee Subah Foundation is a non-profit social organization dedicated to improving society through education, community development, humanitarian support, skill development, employment opportunities, health awareness, and social welfare.",
   url: "https://nayeesubah.github.io",
-  image: "/images/og-default.jpg",
+  image: "/images/nsf-logo.png",
 };
 
 export function buildSEO(props: SEOProps) {
