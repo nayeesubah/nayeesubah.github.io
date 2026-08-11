@@ -1,9 +1,13 @@
 ---
+import { t, defaultLang } from "../i18n/ui";
+import { getRelativeLocaleUrl } from "astro:i18n";
+
 export interface Props {
   heroVideoUrl?: string;
 }
 
 const { heroVideoUrl } = Astro.props;
+const locale = Astro.currentLocale || defaultLang;
 ---
 
 <section class="relative min-h-screen flex items-center overflow-hidden">
@@ -23,28 +27,28 @@ const { heroVideoUrl } = Astro.props;
         <div>
           <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent-soft border border-accent-border text-accent text-sm font-medium mb-8 animate-fade-in">
             <span class="h-2 w-2 rounded-full bg-accent animate-pulse" />
-            Empower, Educate, and Transform.
+            {t(locale, "hero.badge")}
           </div>
 
           <h1 class="text-5xl sm:text-6xl lg:text-7xl font-bold text-white drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)] leading-[1.1] tracking-tight mb-6 animate-slide-up">
-            Empowering Lives Through
+            {t(locale, "hero.titleLine1")}
             <br />
-            <span class="text-accent">Education & Awareness</span>
+            <span class="text-accent">{t(locale, "hero.titleAccent")}</span>
           </h1>
 
           <p class="text-lg sm:text-xl text-white/80 max-w-xl mb-10 animate-slide-up drop-shadow-[0_1px_4px_rgba(0,0,0,0.4)]" style="animation-delay: 0.1s">
-            Nayee Subah Foundation is dedicated to promoting education, social reform, and community development in rural Jharkhand — building a new dawn for underprivileged communities.
+            {t(locale, "hero.subtitle")}
           </p>
 
           <div class="flex flex-wrap gap-4 animate-slide-up" style="animation-delay: 0.2s">
-            <a href="/about/" class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-8 py-4 text-lg font-medium hover:bg-accent-hover transition-all duration-200">
-              Learn More
+            <a href={getRelativeLocaleUrl(locale, "/about/")} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-8 py-4 text-lg font-medium hover:bg-accent-hover transition-all duration-200">
+              {t(locale, "hero.cta1")}
               <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
                 <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" />
               </svg>
             </a>
-            <a href="/donate/" class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 text-white px-8 py-4 text-lg font-medium hover:bg-white hover:text-black transition-all duration-200">
-              Support Our Cause
+            <a href={getRelativeLocaleUrl(locale, "/donate/")} class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-white/30 text-white px-8 py-4 text-lg font-medium hover:bg-white hover:text-black transition-all duration-200">
+              {t(locale, "hero.cta2")}
             </a>
           </div>
         </div>
@@ -62,8 +66,8 @@ const { heroVideoUrl } = Astro.props;
                     </div>
                   </div>
                   <div class="text-center">
-                    <p class="text-white/60 text-sm font-medium">Watch our story in action</p>
-                    <p class="text-white/30 text-xs mt-0.5">See how we're transforming lives</p>
+                    <p class="text-white/60 text-sm font-medium">{t(locale, "hero.videoCta")}</p>
+                    <p class="text-white/30 text-xs mt-0.5">{t(locale, "hero.videoSubtitle")}</p>
                   </div>
                 </div>
               </div>

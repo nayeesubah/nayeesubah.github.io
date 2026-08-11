@@ -1,0 +1,237 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import VideoThumbnail from "../../components/VideoThumbnail.astro";
+import { getCollection } from "astro:content";
+import { getSiteSettings, filterByLocale } from "../../lib/site";
+
+
+const locale = "hi" as const;
+
+const ICONS = {
+  education: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342",
+  unity: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  transparency: "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  rural: "M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21",
+};
+
+const copy = {
+  hi: {
+    title: "हमारे बारे में — ग्रामीण झारखंड में एक एनजीओ का मिशन और दृष्टिकोण",
+    description: "नयी सुबह फाउंडेशन के बारे में जानें — ग्रामीण झारखंड और पूरे भारत में शिक्षा, सामाजिक सुधार, स्वास्थ्य सेवा और सामुदायिक विकास को बढ़ावा देने का हमारा मिशन।",
+    badge: "हमारे बारे में",
+    headingLine1: "शिक्षा। एकता।",
+    headingAccent: "एक नयी सुबह",
+    intro: "नयी सुबह फाउंडेशन की स्थापना शिक्षा और उसके प्रसार, सामाजिक सुधार, एकता और सामुदायिक विकास के बारे में जागरूकता पैदा करने के एकमात्र उद्देश्य से की गई है। गिरिडीह, झारखंड में स्थित, हम शिक्षा, स्वास्थ्य सेवा और सामाजिक कल्याण कार्यक्रमों के माध्यम से वंचित समुदायों के उत्थान के लिए समर्पित हैं।",
+    missionHeading: "हमारा",
+    missionAccent: "मिशन",
+    missionP1: "नयी सुबह फाउंडेशन की स्थापना शिक्षा और उसके प्रसार, सामाजिक सुधार, और सामुदायिक एकता के बारे में जागरूकता पैदा करने के उद्देश्य से की गई है। विशेष रूप से ग्रामीण झारखंड में वंचित समुदाय आर्थिक और शैक्षणिक पिछड़ेपन का सामना कर रहे हैं जिसके लिए तत्काल ध्यान और कार्रवाई की आवश्यकता है।",
+    missionP2: "हमारा मिशन है:",
+    missionList: [
+      "समाज में ज्ञान की मशाल को आगे बढ़ाना",
+      "वंचितों को साक्षरता और शिक्षा प्रदान करना",
+      "वंचित छात्रों की बेहतरी के लिए हर संभव साधन उपलब्ध कराना",
+      "करियर मार्गदर्शन कार्यक्रम और सेमिनार आयोजित करना",
+      "बाल श्रम और नशीली दवाओं के दुरुपयोग से लड़ना",
+      "ग्रामीण महिला सशक्तिकरण को बढ़ावा देना और स्थानीय किसानों का समर्थन करना",
+    ],
+    growingTogether: "साथ मिलकर आगे बढ़ना",
+    valuesHeading: "हमारे",
+    valuesAccent: "मूल्य",
+    valuesSubtitle: "वे सिद्धांत जो हमारे हर काम का मार्गदर्शन करते हैं।",
+    values: [
+      { title: "शिक्षा", description: "हम मानते हैं कि शिक्षा गरीबी के चक्र को तोड़ने और बेहतर भविष्य बनाने का सबसे शक्तिशाली साधन है।", icon: ICONS.education },
+      { title: "सामुदायिक एकता", description: "हम पृष्ठभूमि की परवाह किए बिना समुदायों को एक साथ लाते हैं, सद्भाव और सामूहिक प्रगति को बढ़ावा देते हैं।", icon: ICONS.unity },
+      { title: "पारदर्शिता", description: "हमारे सभी कार्यों में पूर्ण खुलापन — हर रुपया ट्रैक किया जाता है, हर निर्णय साझा किया जाता है।", icon: ICONS.transparency },
+      { title: "ग्रामीण फोकस", description: "हम अपने प्रयासों को उन वंचित ग्रामीण समुदायों पर केंद्रित करते हैं जहाँ आवश्यकता सबसे अधिक है।", icon: ICONS.rural },
+    ],
+    teamHeading: "हमारी",
+    teamAccent: "टीम",
+    teamSubtitle: "हमारे मिशन के प्रति समर्पित पेशेवर।",
+    ctaHeading: "बदलाव",
+    ctaHeadingAccent: "का हिस्सा बनें",
+    ctaSubtitle: "ग्रामीण झारखंड में शिक्षा, अवसर और आशा लाने में हमारे साथ जुड़ें। हर सदस्य, स्वयंसेवक और दानदाता एक नयी सुबह बनाने में मदद करता है।",
+    ctaJoin: "सदस्य बनें",
+    ctaSupport: "हमारा समर्थन करें",
+  },
+  ur: {
+    title: "ہمارے بارے میں — دیہی جھارکھنڈ میں ایک این جی او کا مشن اور وژن",
+    description: "نئی صبح فاؤنڈیشن کے بارے میں جانیں — دیہی جھارکھنڈ اور پورے ہندوستان میں تعلیم، سماجی اصلاح، صحت اور کمیونٹی ترقی کو فروغ دینے کا ہمارا مشن۔",
+    badge: "ہمارے بارے میں",
+    headingLine1: "تعلیم۔ اتحاد۔",
+    headingAccent: "ایک نئی صبح",
+    intro: "نئی صبح فاؤنڈیشن کا قیام تعلیم اور اس کے فروغ، سماجی اصلاحات، اتحاد اور کمیونٹی ترقی کے بارے میں آگاہی پیدا کرنے کے واحد مقصد سے کیا گیا ہے۔ گریڈیہ، جھارکھنڈ میں واقع، ہم تعلیم، صحت اور سماجی بہبود کے پروگراموں کے ذریعے پسماندہ کمیونٹیز کی ترقی کے لیے وقف ہیں۔",
+    missionHeading: "ہمارا",
+    missionAccent: "مشن",
+    missionP1: "نئی صبح فاؤنڈیشن کا قیام تعلیم اور اس کے فروغ، سماجی اصلاحات اور کمیونٹی اتحاد کے بارے میں آگاہی پیدا کرنے کے مقصد سے کیا گیا ہے۔ خاص طور پر دیہی جھارکھنڈ میں پسماندہ کمیونٹیز کو معاشی اور تعلیمی پسماندگی کا سامنا ہے جس پر فوری توجہ اور کارروائی کی ضرورت ہے۔",
+    missionP2: "ہمارا مشن ہے:",
+    missionList: [
+      "معاشرے میں علم کی شمع کو آگے بڑھانا",
+      "پسماندہ افراد کو خواندگی اور تعلیم فراہم کرنا",
+      "پسماندہ طلبہ کی بہتری کے لیے ہر ممکن ذریعہ فراہم کرنا",
+      "کیریئر رہنمائی پروگرام اور سیمینار منعقد کرنا",
+      "بچوں کی مزدوری اور منشیات کے استعمال کا مقابلہ کرنا",
+      "دیہی خواتین کو بااختیار بنانے کو فروغ دینا اور مقامی کسانوں کی مدد کرنا",
+    ],
+    growingTogether: "مل کر آگے بڑھنا",
+    valuesHeading: "ہماری",
+    valuesAccent: "اقدار",
+    valuesSubtitle: "وہ اصول جو ہمارے ہر کام کی رہنمائی کرتے ہیں۔",
+    values: [
+      { title: "تعلیم", description: "ہمارا ماننا ہے کہ تعلیم غربت کے چکر کو توڑنے اور بہتر مستقبل بنانے کا سب سے طاقتور ذریعہ ہے۔", icon: ICONS.education },
+      { title: "کمیونٹی اتحاد", description: "ہم پس منظر سے قطع نظر کمیونٹیز کو اکٹھا کرتے ہیں، ہم آہنگی اور اجتماعی ترقی کو فروغ دیتے ہیں۔", icon: ICONS.unity },
+      { title: "شفافیت", description: "ہمارے تمام کاموں میں مکمل کھلا پن — ہر روپیہ ٹریک کیا جاتا ہے، ہر فیصلہ شیئر کیا جاتا ہے۔", icon: ICONS.transparency },
+      { title: "دیہی توجہ", description: "ہم اپنی کوششیں ان پسماندہ دیہی کمیونٹیز پر مرکوز کرتے ہیں جہاں ضرورت سب سے زیادہ ہے۔", icon: ICONS.rural },
+    ],
+    teamHeading: "ہماری",
+    teamAccent: "ٹیم",
+    teamSubtitle: "ہمارے مشن کے لیے وقف پیشہ ور افراد۔",
+    ctaHeading: "تبدیلی",
+    ctaHeadingAccent: "کا حصہ بنیں",
+    ctaSubtitle: "دیہی جھارکھنڈ میں تعلیم، مواقع اور امید لانے میں ہمارے ساتھ شامل ہوں۔ ہر رکن، رضاکار اور عطیہ دہندہ ایک نئی صبح بنانے میں مدد کرتا ہے۔",
+    ctaJoin: "رکن بنیں",
+    ctaSupport: "ہماری مدد کریں",
+  },
+}[locale];
+
+const teamMembers = filterByLocale(await getCollection("team"), locale)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const settings = await getSiteSettings();
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/about/" class="mb-8" />
+        <div class="max-w-3xl">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">{copy.badge}</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
+            {copy.headingLine1}<br />
+            <span class="text-accent">{copy.headingAccent}</span>
+          </h1>
+          <p class="text-muted text-lg leading-relaxed">
+            {copy.intro}
+          </p>
+        </div>
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20 lg:py-24 bg-section">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        {
+          settings.aboutVideoUrl ? (
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h2 class="text-2xl sm:text-3xl font-semibold mb-6">{copy.missionHeading} <span class="text-accent">{copy.missionAccent}</span></h2>
+                <div class="space-y-4 text-muted leading-relaxed">
+                  <p>{copy.missionP1}</p>
+                  <div class="mb-6 lg:hidden">
+                    <VideoThumbnail videoUrl={settings.aboutVideoUrl} thumbnailUrl={settings.aboutVideoThumbnail} />
+                  </div>
+                  <p>{copy.missionP2}</p>
+                  <ul class="space-y-2">
+                    {copy.missionList.map((item) => (
+                      <li class="flex items-start gap-2"><span class="text-accent mt-1.5 shrink-0">✦</span> {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div class="hidden lg:block">
+                <VideoThumbnail videoUrl={settings.aboutVideoUrl} thumbnailUrl={settings.aboutVideoThumbnail} />
+              </div>
+            </div>
+          ) : (
+            <div class="grid lg:grid-cols-2 gap-16 items-center">
+              <div>
+                <h2 class="text-2xl sm:text-3xl font-semibold mb-6">{copy.missionHeading} <span class="text-accent">{copy.missionAccent}</span></h2>
+                <div class="space-y-4 text-muted leading-relaxed">
+                  <p>{copy.missionP1}</p>
+                  <p>{copy.missionP2}</p>
+                  <ul class="space-y-2">
+                    {copy.missionList.map((item) => (
+                      <li class="flex items-start gap-2"><span class="text-accent mt-1.5 shrink-0">✦</span> {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+              <div class="aspect-[4/3] rounded-2xl overflow-hidden bg-accent-soft flex items-center justify-center">
+                <div class="text-center p-12">
+                  <span class="text-8xl">🌱</span>
+                  <p class="mt-6 text-lg text-accent font-medium">{copy.growingTogether}</p>
+                </div>
+              </div>
+            </div>
+          )
+        }
+      </div>
+    </section>
+
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12">
+          <h2>{copy.valuesHeading} <span class="text-accent">{copy.valuesAccent}</span></h2>
+          <p>{copy.valuesSubtitle}</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {copy.values.map((v) => (
+            <div class="card p-6 text-center group">
+              <div class="mx-auto mb-4 inline-flex h-14 w-14 items-center justify-center rounded-2xl bg-accent-soft text-accent group-hover:bg-accent group-hover:text-accent-text transition-all duration-300">
+                <svg class="h-7 w-7" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d={v.icon} />
+                </svg>
+              </div>
+              <h3 class="font-semibold text-lg mb-3">{v.title}</h3>
+              <p class="text-muted text-sm">{v.description}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+
+    {teamMembers.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24 bg-section">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12">
+          <h2>{copy.teamHeading} <span class="text-accent">{copy.teamAccent}</span></h2>
+          <p>{copy.teamSubtitle}</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {teamMembers.map((member) => (
+            <div class="card p-6 text-center group">
+              <div class="mx-auto mb-4 h-24 w-24 rounded-full bg-accent-soft flex items-center justify-center text-accent text-3xl font-bold group-hover:bg-accent group-hover:text-accent-text transition-all duration-300">
+                {member.data.name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+              </div>
+              <h3 class="font-semibold text-lg">{member.data.name}</h3>
+              <p class="text-accent text-sm font-medium mb-2">{member.data.role}</p>
+              {member.data.bio && <p class="text-muted text-sm">{member.data.bio}</p>}
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+    )}
+
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="text-center max-w-3xl mx-auto">
+          <h2 class="text-3xl sm:text-4xl font-bold tracking-tight mb-6">
+            <span class="text-accent">{copy.ctaHeading}</span> {copy.ctaHeadingAccent}
+          </h2>
+          <p class="text-muted text-lg mb-8">
+            {copy.ctaSubtitle}
+          </p>
+          <div class="flex flex-wrap justify-center gap-4">
+            <a href={`/${locale}/members/join/`} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200">
+              {copy.ctaJoin}
+            </a>
+            <a href={`/${locale}/donate/`} class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-btn-secondary-border text-body px-6 py-3 font-medium hover:bg-btn-secondary-hover-bg hover:text-btn-secondary-hover-text transition-all duration-200">
+              {copy.ctaSupport}
+            </a>
+          </div>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>

@@ -3,7 +3,7 @@ import BaseLayout from "../../../layouts/BaseLayout.astro";
 import Breadcrumb from "../../../components/Breadcrumb.astro";
 import { getCollection } from "astro:content";
 
-const posts = (await getCollection("blog")).filter((p) => p.data.published);
+const posts = (await getCollection("blog")).filter((p) => p.data.published && (p.data.lang ?? "en") === "en");
 
 const tags = new Map<string, { tag: string; count: number }>();
 for (const post of posts) {

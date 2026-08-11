@@ -2,8 +2,11 @@
 import BaseLayout from "../layouts/BaseLayout.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import { getCollection } from "astro:content";
+import { defaultLang } from "../i18n/ui";
+import { filterByLocale } from "../lib/site";
 
-const galleryItems = (await getCollection("gallery")).sort((a, b) => {
+const locale = Astro.currentLocale || defaultLang;
+const galleryItems = filterByLocale(await getCollection("gallery"), locale).sort((a, b) => {
   if (!a.data.date || !b.data.date) return 0;
   return b.data.date.getTime() - a.data.date.getTime();
 });

@@ -8,6 +8,18 @@ export const languages = {
 
 export type LanguageCode = keyof typeof languages;
 
+/** Locales that read right-to-left. Drives `dir` on `<html>` and font fallback. */
+export const rtlLocales: readonly LanguageCode[] = ["ur"];
+
+export function isRTL(locale: string): boolean {
+  return (rtlLocales as readonly string[]).includes(locale);
+}
+
+/** Strips a leading `/hi/` or `/ur/` locale segment, leaving a bare path (no leading slash). */
+export function stripLocalePrefix(pathname: string): string {
+  return pathname.replace(/^\/[a-z]{2}\//, "").replace(/^\//, "");
+}
+
 export const ui = {
   en: {
     "nav.home": "Home",
@@ -22,12 +34,20 @@ export const ui = {
     "nav.donate": "Donate Now",
     "nav.volunteer": "Become a Volunteer",
     "nav.toggleTheme": "Toggle dark mode",
+    "nav.darkMode": "Dark Mode",
+    "nav.lightMode": "Light Mode",
+    "common.search": "Search",
     "footer.tagline": "Empowering Communities, Building Futures",
     "footer.description":
       "Nayee Subah Foundation is a non-profit social organization dedicated to improving society through education, community development, humanitarian support, skill development, employment opportunities, health awareness, and social welfare.",
     "footer.quickLinks": "Quick Links",
     "footer.ourWork": "Our Work",
     "footer.support": "Support",
+    "footer.education": "Education",
+    "footer.healthcare": "Healthcare",
+    "footer.skillDevelopment": "Skill Development",
+    "footer.womenEmpowerment": "Women Empowerment",
+    "footer.communityDevelopment": "Community Development",
     "footer.ctaTitle": "Join Us in Making a Difference",
     "footer.ctaSubtitle":
       "Your support can help us create lasting change in communities across India.",
@@ -47,6 +67,21 @@ export const ui = {
     "common.back": "Back",
     "common.learnMore": "Learn More",
     "common.join": "Join Now",
+    "hero.badge": "Empower, Educate, and Transform.",
+    "hero.titleLine1": "Empowering Lives Through",
+    "hero.titleAccent": "Education & Awareness",
+    "hero.subtitle":
+      "Nayee Subah Foundation is dedicated to promoting education, social reform, and community development in rural Jharkhand — building a new dawn for underprivileged communities.",
+    "hero.cta1": "Learn More",
+    "hero.cta2": "Support Our Cause",
+    "hero.videoCta": "Watch our story in action",
+    "hero.videoSubtitle": "See how we're transforming lives",
+    "blog.backToBlog": "Back to Blog",
+    "blog.share": "Share:",
+    "blog.relatedArticles": "Related Articles",
+    "blog.previous": "← Previous",
+    "blog.next": "Next →",
+    "blog.minRead": "min read",
   },
   hi: {
     "nav.home": "होम",
@@ -61,10 +96,20 @@ export const ui = {
     "nav.donate": "दान करें",
     "nav.volunteer": "स्वयंसेवक बनें",
     "nav.toggleTheme": "डार्क मोड टॉगल करें",
+    "nav.darkMode": "डार्क मोड",
+    "nav.lightMode": "लाइट मोड",
+    "common.search": "खोजें",
     "footer.tagline": "समुदायों को सशक्त बनाना, भविष्य का निर्माण",
+    "footer.description":
+      "नयी सुबह फाउंडेशन एक गैर-लाभकारी सामाजिक संस्था है जो शिक्षा, सामुदायिक विकास, मानवीय सहायता, कौशल विकास, रोजगार के अवसर, स्वास्थ्य जागरूकता और सामाजिक कल्याण के माध्यम से समाज को बेहतर बनाने के लिए समर्पित है।",
     "footer.quickLinks": "त्वरित लिंक",
     "footer.ourWork": "हमारा कार्य",
     "footer.support": "सहायता",
+    "footer.education": "शिक्षा",
+    "footer.healthcare": "स्वास्थ्य सेवा",
+    "footer.skillDevelopment": "कौशल विकास",
+    "footer.womenEmpowerment": "महिला सशक्तिकरण",
+    "footer.communityDevelopment": "सामुदायिक विकास",
     "footer.ctaTitle": "बदलाव लाने में हमसे जुड़ें",
     "footer.ctaSubtitle": "आपका सहयोग हमें पूरे भारत के समुदायों में स्थायी बदलाव लाने में मदद कर सकता है।",
     "footer.contact": "संपर्क",
@@ -72,6 +117,7 @@ export const ui = {
     "footer.backToTop": "ऊपर जाएं",
     "footer.privacy": "गोपनीयता नीति",
     "footer.terms": "नियम व शर्तें",
+    "footer.rights": "सर्वाधिकार सुरक्षित।",
     "lang.label": "भाषा",
     "lang.english": "अंग्रेज़ी",
     "lang.hindi": "हिन्दी",
@@ -82,6 +128,21 @@ export const ui = {
     "common.back": "वापस",
     "common.learnMore": "और जानें",
     "common.join": "अभी जुड़ें",
+    "hero.badge": "सशक्त बनाएं, शिक्षित करें, बदलाव लाएं।",
+    "hero.titleLine1": "जीवन को सशक्त बनाना",
+    "hero.titleAccent": "शिक्षा और जागरूकता के माध्यम से",
+    "hero.subtitle":
+      "नयी सुबह फाउंडेशन ग्रामीण झारखंड में शिक्षा, सामाजिक सुधार और सामुदायिक विकास को बढ़ावा देने के लिए समर्पित है — वंचित समुदायों के लिए एक नयी सुबह का निर्माण।",
+    "hero.cta1": "और जानें",
+    "hero.cta2": "हमारे उद्देश्य का समर्थन करें",
+    "hero.videoCta": "हमारी कहानी क्रियान्वित देखें",
+    "hero.videoSubtitle": "देखें कि हम जीवन कैसे बदल रहे हैं",
+    "blog.backToBlog": "ब्लॉग पर वापस जाएं",
+    "blog.share": "साझा करें:",
+    "blog.relatedArticles": "संबंधित लेख",
+    "blog.previous": "← पिछला",
+    "blog.next": "अगला →",
+    "blog.minRead": "मिनट पढ़ें",
   },
   ur: {
     "nav.home": "ہوم",
@@ -96,10 +157,20 @@ export const ui = {
     "nav.donate": "عطیہ کریں",
     "nav.volunteer": "رضاکار بنیں",
     "nav.toggleTheme": "ڈارک موڈ ٹوگل کریں",
+    "nav.darkMode": "ڈارک موڈ",
+    "nav.lightMode": "لائٹ موڈ",
+    "common.search": "تلاش کریں",
     "footer.tagline": "کمیونٹیز کو بااختیار بنانا، مستقبل کی تعمیر",
+    "footer.description":
+      "نئی صبح فاؤنڈیشن ایک غیر منافع بخش سماجی تنظیم ہے جو تعلیم، کمیونٹی ترقی، انسانی امداد، ہنر مندی کی تربیت، روزگار کے مواقع، صحت سے متعلق آگاہی اور سماجی بہبود کے ذریعے معاشرے کو بہتر بنانے کے لیے وقف ہے۔",
     "footer.quickLinks": "فوری لنکس",
     "footer.ourWork": "ہمارا کام",
     "footer.support": "مدد",
+    "footer.education": "تعلیم",
+    "footer.healthcare": "صحت کی سہولیات",
+    "footer.skillDevelopment": "ہنر مندی کی تربیت",
+    "footer.womenEmpowerment": "خواتین کو بااختیار بنانا",
+    "footer.communityDevelopment": "کمیونٹی ترقی",
     "footer.ctaTitle": "فرق پیدا کرنے میں ہمارے ساتھ شامل ہوں",
     "footer.ctaSubtitle": "آپ کا تعاون ہندوستان بھر کی کمیونٹیز میں دیرپا تبدیلی لانے میں ہماری مدد کر سکتا ہے۔",
     "footer.contact": "رابطہ",
@@ -107,6 +178,7 @@ export const ui = {
     "footer.backToTop": "اوپر جائیں",
     "footer.privacy": "رازداری کی پالیسی",
     "footer.terms": "شرائط و ضوابط",
+    "footer.rights": "جملہ حقوق محفوظ ہیں۔",
     "lang.label": "زبان",
     "lang.english": "انگریزی",
     "lang.hindi": "ہندی",
@@ -117,6 +189,21 @@ export const ui = {
     "common.back": "واپس",
     "common.learnMore": "مزید جانیں",
     "common.join": "ابھی شامل ہوں",
+    "hero.badge": "بااختیار بنائیں، تعلیم دیں، تبدیل کریں۔",
+    "hero.titleLine1": "زندگیوں کو بااختیار بنانا",
+    "hero.titleAccent": "تعلیم اور آگاہی کے ذریعے",
+    "hero.subtitle":
+      "نئی صبح فاؤنڈیشن دیہی جھارکھنڈ میں تعلیم، سماجی اصلاح اور کمیونٹی ترقی کو فروغ دینے کے لیے وقف ہے — پسماندہ کمیونٹیز کے لیے ایک نئی صبح کی تعمیر۔",
+    "hero.cta1": "مزید جانیں",
+    "hero.cta2": "ہمارے مقصد کی حمایت کریں",
+    "hero.videoCta": "ہماری کہانی عمل میں دیکھیں",
+    "hero.videoSubtitle": "دیکھیں ہم کس طرح زندگیاں بدل رہے ہیں",
+    "blog.backToBlog": "بلاگ پر واپس جائیں",
+    "blog.share": "شیئر کریں:",
+    "blog.relatedArticles": "متعلقہ مضامین",
+    "blog.previous": "← پچھلا",
+    "blog.next": "اگلا →",
+    "blog.minRead": "منٹ پڑھیں",
   },
 } as const;
 

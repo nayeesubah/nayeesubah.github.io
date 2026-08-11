@@ -1,11 +1,12 @@
 ---
-title: "New Community Library Brings Knowledge and Opportunity to Rural Jharkhand"
+title: New Community Library Brings Knowledge and Opportunity to Rural Jharkhand
 slug: community-library-inauguration
-excerpt: "Nayee Subah Foundation opens its first community library in Dumka district, providing access to 2,000+ books, digital learning resources, and after-school programs for over 500 underprivileged children."
-author: "Nayee Subah Foundation"
+excerpt: Nayee Subah Foundation opens its first community library in Dumka district, providing access to 2,000+ books, digital learning resources, and after-school programs for over 500 underprivileged children.
+author: Nayee Subah Foundation
 date: 2025-03-15
+updatedDate: ''
 image: /images/blog/inauguration-of-community-library.jpg
-category: "Impact Stories"
+category: Impact Stories
 tags:
   - education
   - library
@@ -15,6 +16,7 @@ tags:
   - jharkhand
 featured: true
 published: true
+lang: en
 ---
 
 On March 10, 2025, Nayee Subah Foundation celebrated a milestone moment — the inauguration of its first community library in the Dumka district of Jharkhand. What began as a simple idea to bridge the educational divide has become a vibrant hub of learning, curiosity, and opportunity for hundreds of children and adults alike.
@@ -57,6 +59,6 @@ The foundation is also exploring partnerships with educational technology platfo
 
 "We believe that access to knowledge is a fundamental right," said the foundation's coordinator during the inauguration ceremony. "Every child, regardless of their economic background, deserves the opportunity to learn, grow, and build a better future. This library is our promise to that belief."
 
----
+***
 
 **Support our work:** Help us build more community libraries. [Donate today](/donate/) or [volunteer](/volunteer/) to make a difference in rural education.

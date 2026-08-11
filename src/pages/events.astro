@@ -3,8 +3,10 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import EventCard from "../components/EventCard.astro";
 import { getCollection } from "astro:content";
+import { localeSlug } from "../lib/site";
 
 const allEvents = (await getCollection("events"))
+  .filter((e) => (e.data.lang ?? "en") === "en")
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const bucket = (status: string) => (status === "upcoming" || status === "ongoing" ? "upcoming" : "past");
@@ -46,7 +48,7 @@ const nextDiffDays = nextEvent ? Math.ceil((nextEvent.data.date.getTime() - now)
 
         {nextEvent && (
           <a
-            href={`/events/${nextEvent.id}/`}
+            href={`/events/${localeSlug(nextEvent.id)}/`}
             class="card-hover card block overflow-hidden mb-12 group"
           >
             <div class="grid md:grid-cols-[minmax(0,1fr)_2fr] items-stretch">

@@ -11,8 +11,6 @@ email: nsfgiridih@gmail.com
 address: Vill- Kakni, Gumgi, Tisri, Giridih - 815317, Jharkhand, India
 workingHours: Mon–Sat, 9:00–17:00
 social:
-  facebook: #
-  instagram: #
   youtube: https://youtube.com/@nayeesubahfoundation
   whatsapp: '+918864812200'
 googleMapsEmbedUrl: https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3651.908!2d86.123!3d24.123!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2sNayee+Subah+Foundation!5e0!3m2!1sen!2sin!4v1
@@ -25,3 +23,4 @@ language: ''
 languages:
   - en
   - hi
+  - ur

@@ -1,6 +1,7 @@
 ---
 import StatusBadge from "./StatusBadge.astro";
 import type { CollectionEntry } from "astro:content";
+import { localeSlug } from "../lib/site";
 
 interface Props {
   event: CollectionEntry<"events">;
@@ -8,6 +9,7 @@ interface Props {
 
 const { event } = Astro.props;
 const { data } = event;
+const slug = localeSlug(event.id);
 
 function formatDate(d: Date) {
   return d.toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" });
@@ -26,7 +28,7 @@ const googleCalUrl = `https://www.google.com/calendar/render?action=TEMPLATE&tex
 ---
 
 <div class="card-hover card overflow-hidden group">
-  <a href={`/events/${event.id}/`} class="block">
+  <a href={`/events/${slug}/`} class="block">
     <div class="relative">
       {data.image ? (
         <div class="aspect-[16/9] overflow-hidden">

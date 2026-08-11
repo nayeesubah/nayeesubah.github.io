@@ -4,9 +4,11 @@ import Breadcrumb from "../components/Breadcrumb.astro";
 import StatCard from "../components/StatCard.astro";
 import VideoThumbnail from "../components/VideoThumbnail.astro";
 import { getCollection } from "astro:content";
-import { getSiteSettings } from "../lib/site";
+import { getSiteSettings, filterByLocale } from "../lib/site";
+import { defaultLang } from "../i18n/ui";
 
-const teamMembers = (await getCollection("team"))
+const locale = Astro.currentLocale || defaultLang;
+const teamMembers = filterByLocale(await getCollection("team"), locale)
   .sort((a, b) => a.data.order - b.data.order);
 
 const settings = await getSiteSettings();

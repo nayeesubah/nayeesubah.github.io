@@ -5,7 +5,7 @@ import BlogCard from "../../../components/BlogCard.astro";
 import { getCollection } from "astro:content";
 
 export async function getStaticPaths() {
-  const posts = (await getCollection("blog")).filter((p) => p.data.published);
+  const posts = (await getCollection("blog")).filter((p) => p.data.published && (p.data.lang ?? "en") === "en");
   const tags = new Map<string, { tag: string; posts: typeof posts }>();
   for (const post of posts) {
     for (const tag of post.data.tags ?? []) {

@@ -30,8 +30,49 @@ export const ACTIVITY_CATEGORIES: ActivityCategory[] = [
 export const ACTIVITY_CATEGORY_MAP: Record<string, ActivityCategory> =
   Object.fromEntries(ACTIVITY_CATEGORIES.map((c) => [c.id, c]));
 
-export function activityCategoryLabel(id: string): string {
-  return ACTIVITY_CATEGORY_MAP[id]?.label ?? id;
+// Translated display labels for the category filter chips. Keyed separately from
+// ACTIVITY_CATEGORY_MAP (which stays English) since the underlying `category` enum
+// value is a stable content-schema id, not a display string.
+const CATEGORY_LABELS: Record<string, Record<string, string>> = {
+  en: Object.fromEntries(ACTIVITY_CATEGORIES.map((c) => [c.id, c.label])),
+  hi: {
+    "education": "शिक्षा",
+    "healthcare": "स्वास्थ्य सेवा",
+    "skill-development": "कौशल विकास",
+    "women-empowerment": "महिला सशक्तिकरण",
+    "youth-development": "युवा विकास",
+    "employment": "रोजगार सहायता",
+    "disaster-relief": "आपदा राहत",
+    "blood-donation": "रक्तदान",
+    "tree-plantation": "वृक्षारोपण",
+    "scholarships": "छात्रवृत्ति",
+    "community-development": "सामुदायिक विकास",
+    "food-distribution": "भोजन वितरण",
+    "awareness-campaigns": "जागरूकता अभियान",
+    "library": "सामुदायिक पुस्तकालय",
+    "helping-local-farmers": "स्थानीय किसानों की सहायता",
+  },
+  ur: {
+    "education": "تعلیم",
+    "healthcare": "صحت کی سہولیات",
+    "skill-development": "ہنر مندی کی تربیت",
+    "women-empowerment": "خواتین کو بااختیار بنانا",
+    "youth-development": "نوجوانوں کی ترقی",
+    "employment": "روزگار کی معاونت",
+    "disaster-relief": "آفات میں امداد",
+    "blood-donation": "خون کا عطیہ",
+    "tree-plantation": "شجرکاری",
+    "scholarships": "وظائف",
+    "community-development": "کمیونٹی ترقی",
+    "food-distribution": "خوراک کی تقسیم",
+    "awareness-campaigns": "آگاہی مہمات",
+    "library": "کمیونٹی لائبریری",
+    "helping-local-farmers": "مقامی کسانوں کی مدد",
+  },
+};
+
+export function activityCategoryLabel(id: string, locale: string = "en"): string {
+  return CATEGORY_LABELS[locale]?.[id] ?? ACTIVITY_CATEGORY_MAP[id]?.label ?? id;
 }
 
 export function activityCategoryIcon(id: string): string {

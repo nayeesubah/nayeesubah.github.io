@@ -1,0 +1,161 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Breadcrumb from "../../components/Breadcrumb.astro";
+import ActivityCard from "../../components/ActivityCard.astro";
+import StatCard from "../../components/StatCard.astro";
+import { getCollection } from "astro:content";
+import { ACTIVITY_CATEGORIES, activityCategoryLabel } from "../../lib/activityCategories";
+import { filterByLocale } from "../../lib/site";
+
+
+const locale = "hi" as const;
+
+const copy = {
+  hi: {
+    title: "एनजीओ कार्यक्रम और गतिविधियाँ — शिक्षा, स्वास्थ्य सेवा, कौशल विकास",
+    description: "झारखंड में नयी सुबह फाउंडेशन के एनजीओ कार्यक्रमों और गतिविधियों का अन्वेषण करें — शिक्षा, स्वास्थ्य सेवा, कौशल विकास, महिला सशक्तिकरण, और सामुदायिक विकास पहल।",
+    badge: "हमारा कार्य",
+    heading: "हमारी",
+    headingAccent: "गतिविधियाँ",
+    subtitle: "समुदायों में सकारात्मक बदलाव लाने के लिए हम जो विभिन्न पहल और कार्यक्रम चलाते हैं, उनका अन्वेषण करें।",
+    statPrograms: "सक्रिय कार्यक्रम",
+    statVolunteers: "शामिल स्वयंसेवक",
+    statFocus: "फोकस क्षेत्र",
+    statLocations: "सेवित स्थान",
+    all: "सभी",
+    emptyTitle: "इस श्रेणी में अभी कोई गतिविधि नहीं है",
+    emptyBody: "जल्द ही वापस देखें, या ऊपर दिए गए किसी अन्य फोकस क्षेत्र का अन्वेषण करें।",
+    showingAll: "सभी {n} गतिविधियाँ दिखा रहे हैं",
+    showingFiltered: "{n} में से {v} गतिविधियाँ दिखा रहे हैं",
+  },
+  ur: {
+    title: "این جی او پروگرام اور سرگرمیاں — تعلیم، صحت، ہنر مندی کی تربیت",
+    description: "جھارکھنڈ میں نئی صبح فاؤنڈیشن کے این جی او پروگراموں اور سرگرمیوں کو دریافت کریں — تعلیم، صحت، ہنر مندی کی تربیت، خواتین کو بااختیار بنانا، اور کمیونٹی ترقی کے اقدامات۔",
+    badge: "ہمارا کام",
+    heading: "ہماری",
+    headingAccent: "سرگرمیاں",
+    subtitle: "کمیونٹیز میں مثبت تبدیلی لانے کے لیے ہم جو مختلف اقدامات اور پروگرام چلاتے ہیں، انہیں دریافت کریں۔",
+    statPrograms: "فعال پروگرام",
+    statVolunteers: "شامل رضاکار",
+    statFocus: "توجہ کے شعبے",
+    statLocations: "مقامات کی خدمت",
+    all: "تمام",
+    emptyTitle: "اس زمرے میں ابھی کوئی سرگرمی نہیں ہے",
+    emptyBody: "جلد دوبارہ دیکھیں، یا اوپر دیئے گئے کسی اور شعبے کو دریافت کریں۔",
+    showingAll: "تمام {n} سرگرمیاں دکھائی جا رہی ہیں",
+    showingFiltered: "{n} میں سے {v} سرگرمیاں دکھائی جا رہی ہیں",
+  },
+}[locale];
+
+const activities = filterByLocale(await getCollection("activities"), locale)
+  .sort((a, b) => a.data.order - b.data.order);
+
+const presentCategoryIds = new Set(activities.map((a) => a.data.category));
+const categories = ACTIVITY_CATEGORIES.filter((c) => presentCategoryIds.has(c.id));
+
+const totalVolunteers = activities.reduce((sum, a) => sum + (a.data.volunteers || 0), 0);
+const totalLocations = new Set(activities.map((a) => a.data.location).filter(Boolean)).size;
+---
+
+<BaseLayout title={copy.title} description={copy.description}>
+  <div class="pt-24">
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <Breadcrumb path="/activities/" class="mb-8" />
+        <div class="max-w-3xl mb-12">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">{copy.badge}</span>
+          <h1 class="text-4xl sm:text-5xl lg:text-6xl xl:text-7xl font-bold tracking-tight mt-3 mb-6">
+            {copy.heading} <span class="text-accent">{copy.headingAccent}</span>
+          </h1>
+          <p class="text-muted text-lg leading-relaxed">
+            {copy.subtitle}
+          </p>
+        </div>
+
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 sm:gap-6 mb-12">
+          <StatCard value={String(activities.length)} label={copy.statPrograms} />
+          <StatCard value={`${totalVolunteers}+`} label={copy.statVolunteers} />
+          <StatCard value={String(categories.length)} label={copy.statFocus} />
+          <StatCard value={String(totalLocations)} label={copy.statLocations} />
+        </div>
+
+        <div class="flex flex-wrap gap-2 mb-8" id="category-filters">
+          <button type="button" class="filter-btn is-active px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-text transition-colors" data-category="all">{copy.all}</button>
+          {categories.map((cat) => (
+            <button type="button" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-soft text-accent hover:bg-accent hover:text-accent-text transition-colors" data-category={cat.id}>
+              {activityCategoryLabel(cat.id, locale)}
+            </button>
+          ))}
+        </div>
+
+        <p id="results-count" class="text-sm text-muted mb-6" aria-live="polite"></p>
+
+        <div class="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6" id="activities-grid">
+          {activities.map((activity) => (
+            <div class="activity-item transition-all duration-300 ease-out" data-category={activity.data.category}>
+              <ActivityCard activity={activity} />
+            </div>
+          ))}
+        </div>
+
+        <div id="empty-state" class="hidden text-center py-20">
+          <div class="text-5xl mb-4">🔍</div>
+          <h3 class="text-xl font-semibold mb-2">{copy.emptyTitle}</h3>
+          <p class="text-muted">{copy.emptyBody}</p>
+        </div>
+      </div>
+    </section>
+  </div>
+</BaseLayout>
+
+<script define:vars={{ showingAllTpl: copy.showingAll, showingFilteredTpl: copy.showingFiltered }}>
+  function boot() {
+    const buttons = document.querySelectorAll(".filter-btn");
+    const items = document.querySelectorAll(".activity-item");
+    const resultsCount = document.getElementById("results-count");
+    const emptyState = document.getElementById("empty-state");
+    const grid = document.getElementById("activities-grid");
+    if (!buttons.length || buttons[0].dataset.wired) return;
+
+    function applyFilter(cat) {
+      let visible = 0;
+      items.forEach((item) => {
+        const match = cat === "all" || item.dataset.category === cat;
+        if (match) visible++;
+        if (match) {
+          item.classList.remove("hidden");
+          requestAnimationFrame(() => item.classList.remove("opacity-0", "scale-95"));
+        } else {
+          item.classList.add("opacity-0", "scale-95");
+          window.setTimeout(() => item.classList.add("hidden"), 250);
+        }
+      });
+
+      if (resultsCount) {
+        resultsCount.textContent = cat === "all"
+          ? showingAllTpl.replace("{n}", String(items.length))
+          : showingFilteredTpl.replace("{v}", String(visible)).replace("{n}", String(items.length));
+      }
+      grid?.classList.toggle("hidden", visible === 0);
+      emptyState?.classList.toggle("hidden", visible !== 0);
+    }
+
+    buttons.forEach((btn) => {
+      btn.dataset.wired = "1";
+      btn.addEventListener("click", () => {
+        buttons.forEach((b) => {
+          b.classList.remove("is-active", "bg-accent", "text-accent-text");
+          b.classList.add("bg-accent-soft", "text-accent");
+        });
+        btn.classList.add("is-active", "bg-accent", "text-accent-text");
+        btn.classList.remove("bg-accent-soft", "text-accent");
+        applyFilter(btn.dataset.category || "all");
+      });
+    });
+
+    applyFilter("all");
+  }
+
+  document.addEventListener("DOMContentLoaded", boot);
+  document.addEventListener("astro:page-load", boot);
+</script>

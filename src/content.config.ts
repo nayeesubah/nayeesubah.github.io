@@ -1,5 +1,25 @@
 import { z, defineCollection } from "astro:content";
 import { glob, file } from "astro/loaders";
+import { languages } from "./i18n/ui";
+
+// Validated against the locale registry (src/i18n/ui.ts) so a typo in a content
+// file's `lang` frontmatter fails the build instead of silently mis-filtering.
+const localeCodes = Object.keys(languages) as [string, ...string[]];
+const langSchema = z.enum(localeCodes).default("en");
+
+// Sveltia CMS writes "" (not an omitted key) when an optional datetime field is
+// cleared, which z.date({ coerce: true }).optional() alone rejects (empty string
+// coerces to an Invalid Date). Mirrors the registerLink workaround below.
+const optionalDateSchema = z.union([z.date({ coerce: true }), z.literal("")]).optional();
+
+// Astro's glob loader defaults to using a frontmatter `slug` field (if present) as
+// the entry id instead of the file path. That's exactly wrong for i18n collections
+// structured as <collection>/<locale>/<file>.md: a translation naturally reuses the
+// same `slug` as its source (e.g. via "Add Translation" in Sveltia), so two files in
+// different locale folders collide into one duplicate id. Forcing the id back to the
+// file path (locale-prefixed, e.g. "en/my-post") keeps every entry unique and is what
+// localeSlug() in src/lib/site.ts expects to strip.
+const fileBasedId = ({ entry }: { entry: string }) => entry.replace(/\.(md|mdx)$/, "");
 
 const seoSchema = z.object({
   title: z.string().optional(),
@@ -20,26 +40,26 @@ const blogCategories = [
 ] as const;
 
 const blog = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/blog", generateId: fileBasedId }),
   schema: z.object({
     title: z.string(),
     slug: z.string().optional(),
     excerpt: z.string(),
     author: z.string().default("Nayee Subah Foundation"),
     date: z.date({ coerce: true }),
-    updatedDate: z.date({ coerce: true }).optional(),
+    updatedDate: optionalDateSchema,
     image: z.string().optional(),
     category: z.enum(blogCategories).default("General"),
     tags: z.array(z.string()).default([]),
     featured: z.boolean().default(false),
     published: z.boolean().default(true),
-    lang: z.string().default("en"),
+    lang: langSchema,
     seo: seoSchema.optional(),
   }),
 });
 
 const team = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/team" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/team", generateId: fileBasedId }),
   schema: z.object({
     name: z.string(),
     role: z.string(),
@@ -49,12 +69,12 @@ const team = defineCollection({
     phone: z.string().optional(),
     order: z.number({ coerce: true }).int().default(0),
     type: z.enum(["committee", "staff", "volunteer"]).default("committee"),
-    lang: z.string().default("en"),
+    lang: langSchema,
   }),
 });
 
 const testimonials = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/testimonials" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/testimonials", generateId: fileBasedId }),
   schema: z.object({
     name: z.string(),
     role: z.string().optional(),
@@ -64,18 +84,18 @@ const testimonials = defineCollection({
     rating: z.number({ coerce: true }).int().min(1).max(5).default(5),
     content: z.string(),
     featured: z.boolean().default(false),
-    lang: z.string().default("en"),
+    lang: langSchema,
   }),
 });
 
 const faq = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/faq" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/faq", generateId: fileBasedId }),
   schema: z.object({
     question: z.string(),
     answer: z.string(),
     category: z.enum(["membership", "donation", "investment", "volunteer", "activities", "transparency", "general"]).default("general"),
     order: z.number({ coerce: true }).int().default(0),
-    lang: z.string().default("en"),
+    lang: langSchema,
   }),
 });
 
@@ -98,7 +118,7 @@ const galleryImages = z
   .transform((arr) => arr.map((x) => (typeof x === "string" ? x : x.image)));
 
 const gallery = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/gallery", generateId: fileBasedId }),
   schema: z.object({
     title: z.string().optional(),
     category: z.enum(galleryCategories).default("general"),
@@ -112,31 +132,31 @@ const gallery = defineCollection({
     location: z.string().optional(),
     description: z.string().optional(),
     featured: z.boolean().default(false),
-    date: z.date({ coerce: true }).optional(),
-    lang: z.string().default("en"),
+    date: optionalDateSchema,
+    lang: langSchema,
   }),
 });
 
 const pages = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/pages" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/pages", generateId: fileBasedId }),
   schema: z.object({
     title: z.string(),
     slug: z.string(),
     description: z.string().optional(),
     image: z.string().optional(),
-    lang: z.string().default("en"),
+    lang: langSchema,
     seo: seoSchema.optional(),
   }),
 });
 
 const partners = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/partners" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/partners", generateId: fileBasedId }),
   schema: z.object({
     name: z.string(),
     logo: z.string(),
     url: z.string().optional(),
     order: z.number({ coerce: true }).int().default(0),
-    lang: z.string().default("en"),
+    lang: langSchema,
   }),
 });
 
@@ -229,13 +249,13 @@ const payments = defineCollection({
     month: z.number().int().min(0).max(11),
     status: z.enum(["paid", "partial"]),
     amount: z.number().int(),
-    date: z.date({ coerce: true }).optional(),
+    date: optionalDateSchema,
     notes: z.string().optional(),
   }),
 });
 
 const activities = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/activities" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/activities", generateId: fileBasedId }),
   schema: z.object({
     title: z.string(),
     slug: z.string().optional(),
@@ -249,19 +269,19 @@ const activities = defineCollection({
       "tree-plantation", "scholarships", "community-development",
       "food-distribution", "awareness-campaigns", "library", "helping-local-farmers",
     ]).default("community-development"),
-    date: z.date({ coerce: true }).optional(),
+    date: optionalDateSchema,
     location: z.string().optional(),
     volunteers: z.number().int().default(0),
     impactNumbers: z.record(z.string(), z.union([z.string(), z.number()])).optional(),
     featured: z.boolean().default(false),
     order: z.number({ coerce: true }).int().default(0),
-    lang: z.string().default("en"),
+    lang: langSchema,
     seo: seoSchema.optional(),
   }),
 });
 
 const events = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/events" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/events", generateId: fileBasedId }),
   schema: z.object({
     title: z.string(),
     slug: z.string().optional(),
@@ -281,13 +301,13 @@ const events = defineCollection({
       hideCountdown: z.boolean().default(false),
       shortDescription: z.string().optional(),
     }).optional(),
-    lang: z.string().default("en"),
+    lang: langSchema,
     seo: seoSchema.optional(),
   }),
 });
 
 const successStories = defineCollection({
-  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/success-stories" }),
+  loader: glob({ pattern: "**/*.{md,mdx}", base: "./src/content/success-stories", generateId: fileBasedId }),
   schema: z.object({
     name: z.string(),
     location: z.string().optional(),
@@ -297,7 +317,7 @@ const successStories = defineCollection({
     status: z.string().optional(),
     images: z.array(z.string()).default([]),
     featured: z.boolean().default(false),
-    lang: z.string().default("en"),
+    lang: langSchema,
     seo: seoSchema.optional(),
   }),
 });
@@ -362,7 +382,7 @@ const financialReports = defineCollection({
     amount: z.number().int().optional(),
     description: z.string().optional(),
     file: z.string().optional(),
-    date: z.date({ coerce: true }).optional(),
+    date: optionalDateSchema,
     lang: z.string().default("en"),
     seo: seoSchema.optional(),
   }),

@@ -8,22 +8,21 @@ import BlogCard from "../components/BlogCard.astro";
 import ImpactCard from "../components/ImpactCard.astro";
 import VideoThumbnail from "../components/VideoThumbnail.astro";
 import { getCollection } from "astro:content";
-import { getSiteSettings } from "../lib/site";
+import { getSiteSettings, filterByLocale } from "../lib/site";
+import { defaultLang } from "../i18n/ui";
 
+const locale = Astro.currentLocale || defaultLang;
 const settings = await getSiteSettings();
 
-const featuredActivities = (await getCollection("activities"))
-  .filter((a) => a.data.featured)
+const featuredActivities = filterByLocale((await getCollection("activities")).filter((a) => a.data.featured), locale)
   .sort((a, b) => a.data.order - b.data.order)
   .slice(0, 4);
 
-const latestPosts = (await getCollection("blog"))
-  .filter((p) => p.data.published)
+const latestPosts = filterByLocale((await getCollection("blog")).filter((p) => p.data.published), locale)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
   .slice(0, 3);
 
-const featuredTestimonials = (await getCollection("testimonials"))
-  .filter((t) => t.data.featured)
+const featuredTestimonials = filterByLocale((await getCollection("testimonials")).filter((t) => t.data.featured), locale)
   .slice(0, 3);
 
 const stats = [

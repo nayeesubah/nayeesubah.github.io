@@ -66,16 +66,36 @@ export function getWhatsAppUrl(phone: string, message?: string): string {
   return `https://wa.me/${cleaned}${text}`;
 }
 
-export function generateBreadcrumbs(path: string) {
-  const parts = path.split("/").filter(Boolean);
-  const crumbs = [{ label: "Home", href: "/" }];
+// Content Layer glob loader derives an entry's `id` from its path relative to the
+// collection root, e.g. "en/impact-story-1". Public URLs never include the locale
+// folder, so every place that turns a collection entry into a slug/href needs this.
+export function localeSlug(id: string): string {
+  return id.replace(/^(en|hi|ur)\//, "");
+}
 
-  let current = "";
+// Prefers entries matching `locale`; if none exist yet (translation not added via
+// the CMS), falls back to English rather than rendering an empty section — mirrors
+// the fallback-rewrite behaviour already configured for whole-page routing.
+export function filterByLocale<T extends { data: { lang?: string } }>(
+  items: T[],
+  locale: string,
+): T[] {
+  const matched = items.filter((item) => (item.data.lang ?? "en") === locale);
+  return matched.length > 0 ? matched : items.filter((item) => (item.data.lang ?? "en") === "en");
+}
+
+export function generateBreadcrumbs(path: string, locale: string = "en") {
+  const parts = path.split("/").filter(Boolean);
+  const prefix = locale === "en" ? "" : `/${locale}`;
+  const homeLabel = locale === "hi" ? "होम" : locale === "ur" ? "ہوم" : "Home";
+  const crumbs = [{ label: homeLabel, href: `${prefix}/` }];
+
+  let current = prefix;
   for (const part of parts) {
     current += `/${part}`;
     crumbs.push({
       label: part.replace(/-/g, " ").replace(/\b\w/g, (l) => l.toUpperCase()),
-      href: current,
+      href: `${current}/`,
     });
   }
 

@@ -42,12 +42,17 @@ for (const e of entries) {
 
 const dateByPath = new Map();
 
+// Collections i18n-restructured into per-locale subfolders (src/content/<dir>/en/*.md)
+// only ever generate unprefixed (English) URLs today — see src/pages/<dir>/[...slug].astro.
+// Their hi/ur siblings intentionally aren't scanned here; add them once those routes exist.
 function scanCollection(dir, prefix) {
   const base = path.resolve(__dirname, "..", "src", "content", dir);
   if (!fs.existsSync(base)) return;
-  for (const file of fs.readdirSync(base)) {
+  const localeFolder = path.join(base, "en");
+  const root = fs.existsSync(localeFolder) ? localeFolder : base;
+  for (const file of fs.readdirSync(root)) {
     if (!/\.(md|mdx)$/.test(file)) continue;
-    const raw = fs.readFileSync(path.join(base, file), "utf-8");
+    const raw = fs.readFileSync(path.join(root, file), "utf-8");
     const fm = raw.match(/^---\r?\n([\s\S]*?)\r?\n---/);
     if (!fm) continue;
     const body = fm[1];

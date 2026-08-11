@@ -1,5 +1,6 @@
 ---
 import { generateBreadcrumbs } from "../lib/site";
+import { defaultLang } from "../i18n/ui";
 
 interface Props {
   path: string;
@@ -7,7 +8,8 @@ interface Props {
 }
 
 const { path } = Astro.props;
-const crumbs = generateBreadcrumbs(path);
+const locale = Astro.currentLocale || defaultLang;
+const crumbs = generateBreadcrumbs(path, locale);
 ---
 
 <nav aria-label="Breadcrumb" class={`flex items-center gap-2 text-sm text-muted ${Astro.props.class || ""}`}>

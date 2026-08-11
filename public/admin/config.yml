@@ -12,6 +12,10 @@ logo:
   src: /nsf-logo.png
   show_in_header: true
 
+i18n:
+  structure: multiple_folders
+  locales: [en, hi, ur]
+  default_locale: en
 
 collections:
   - name: "site-settings"
@@ -107,18 +111,20 @@ collections:
     label: "Blog Posts"
     folder: "src/content/blog"
     create: true
+    i18n: true
     slug: "{{title}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
       - { label: "Slug", name: "slug", widget: "string", required: false, hint: "Leave empty to auto-generate from title" }
-      - { label: "Excerpt", name: "excerpt", widget: "text" }
-      - { label: "Author", name: "author", widget: "string", default: "Nayee Subah Foundation" }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "Updated Date", name: "updatedDate", widget: "datetime", required: false }
-      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Excerpt", name: "excerpt", widget: "text", i18n: true }
+      - { label: "Author", name: "author", widget: "string", default: "Nayee Subah Foundation", i18n: "duplicate" }
+      - { label: "Date", name: "date", widget: "datetime", i18n: "duplicate" }
+      - { label: "Updated Date", name: "updatedDate", widget: "datetime", required: false, i18n: "duplicate" }
+      - { label: "Image", name: "image", widget: "image", required: false, i18n: "duplicate" }
       - label: "Category"
         name: "category"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Impact Stories", value: "Impact Stories" }
           - { label: "Program Updates", value: "Program Updates" }
@@ -132,37 +138,47 @@ collections:
         name: "tags"
         widget: "list"
         required: false
+        i18n: true
         field: { label: "Tag", name: "tag", widget: "string" }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Published", name: "published", widget: "boolean", default: true }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, i18n: "duplicate" }
+      - { label: "Published", name: "published", widget: "boolean", default: true, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
       - label: "SEO Settings"
         name: "seo"
         widget: "object"
         required: false
+        i18n: true
         fields:
           - { label: "Meta Title", name: "title", widget: "string", required: false }
           - { label: "Meta Description", name: "description", widget: "text", required: false }
           - { label: "OG Image", name: "image", widget: "image", required: false }
           - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
           - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
 
   - name: "activities"
     label: "Activities"
     folder: "src/content/activities"
     create: true
+    i18n: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
       - { label: "Slug", name: "slug", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text" }
-      - { label: "Excerpt", name: "excerpt", widget: "text", required: false }
-      - { label: "Icon", name: "icon", widget: "string", required: false }
-      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Description", name: "description", widget: "text", i18n: true }
+      - { label: "Excerpt", name: "excerpt", widget: "text", required: false, i18n: true }
+      - { label: "Icon", name: "icon", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Image", name: "image", widget: "image", required: false, i18n: "duplicate" }
       - label: "Category"
         name: "category"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Education", value: "education" }
           - { label: "Healthcare", value: "healthcare" }
@@ -180,41 +196,50 @@ collections:
           - { label: "Library", value: "library" }
           - { label: "Helping Local Farmers", value: "helping-local-farmers" }
         default: "community-development"
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Volunteers", name: "volunteers", widget: "number", value_type: "int", default: 0, required: false }
+      - { label: "Date", name: "date", widget: "datetime", required: false, i18n: "duplicate" }
+      - { label: "Location", name: "location", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Volunteers", name: "volunteers", widget: "number", value_type: "int", default: 0, required: false, i18n: "duplicate" }
       - label: "Impact Numbers"
         name: "impactNumbers"
         widget: "map"
         required: false
+        i18n: true
         hint: "E.g. Students Reached: 500"
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, i18n: "duplicate" }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
       - label: "SEO Settings"
         name: "seo"
         widget: "object"
         required: false
+        i18n: true
         fields:
           - { label: "Meta Title", name: "title", widget: "string", required: false }
           - { label: "Meta Description", name: "description", widget: "text", required: false }
           - { label: "OG Image", name: "image", widget: "image", required: false }
           - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
           - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
 
   - name: "events"
     label: "Events"
     folder: "src/content/events"
     create: true
+    i18n: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
       - { label: "Slug", name: "slug", widget: "string", required: false }
-      - { label: "Date", name: "date", widget: "datetime" }
-      - { label: "Venue", name: "venue", widget: "string" }
-      - { label: "Description", name: "description", widget: "text" }
-      - { label: "Image", name: "image", widget: "image", required: false }
+      - { label: "Date", name: "date", widget: "datetime", i18n: "duplicate" }
+      - { label: "Venue", name: "venue", widget: "string", i18n: true }
+      - { label: "Description", name: "description", widget: "text", i18n: true }
+      - { label: "Image", name: "image", widget: "image", required: false, i18n: "duplicate" }
       - label: "Organizers"
         name: "organizers"
         widget: "relation"
@@ -224,33 +249,43 @@ collections:
         display_fields: ["name"]
         value_field: "{{name}}"
         required: false
+        i18n: "duplicate"
       - label: "Status"
         name: "status"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Upcoming", value: "upcoming" }
           - { label: "Ongoing", value: "ongoing" }
           - { label: "Completed", value: "completed" }
           - { label: "Cancelled", value: "cancelled" }
         default: "upcoming"
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Registration Link", name: "registerLink", widget: "string", required: false, hint: "External URL for event registration (Google Form, Eventbrite, etc.)" }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, i18n: "duplicate" }
+      - { label: "Registration Link", name: "registerLink", widget: "string", required: false, i18n: "duplicate", hint: "External URL for event registration (Google Form, Eventbrite, etc.)" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
       - label: "SEO Settings"
         name: "seo"
         widget: "object"
         required: false
+        i18n: true
         fields:
           - { label: "Meta Title", name: "title", widget: "string", required: false }
           - { label: "Meta Description", name: "description", widget: "text", required: false }
           - { label: "OG Image", name: "image", widget: "image", required: false }
           - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
           - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
       - label: "Event Settings (Card Display)"
         name: "cardDisplay"
         widget: "object"
         required: false
+        i18n: true
         hint: "Override how this event appears on the listing cards"
         fields:
           - { label: "Custom Badge Text", name: "badgeText", widget: "string", required: false, hint: "Override the status badge text (e.g. 'Registration Open')" }
@@ -293,24 +328,32 @@ collections:
     label: "Team"
     folder: "src/content/team"
     create: true
+    i18n: true
     slug: "{{name}}"
     fields:
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Role", name: "role", widget: "string" }
-      - { label: "Bio", name: "bio", widget: "text", required: false }
-      - { label: "Photo", name: "image", widget: "image", required: false }
-      - { label: "Email", name: "email", widget: "string", required: false }
-      - { label: "Phone", name: "phone", widget: "string", required: false }
-      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
+      - { label: "Name", name: "name", widget: "string", i18n: "duplicate" }
+      - { label: "Role", name: "role", widget: "string", i18n: true }
+      - { label: "Bio", name: "bio", widget: "text", required: false, i18n: true }
+      - { label: "Photo", name: "image", widget: "image", required: false, i18n: "duplicate" }
+      - { label: "Email", name: "email", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Phone", name: "phone", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0, i18n: "duplicate" }
       - label: "Type"
         name: "type"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Committee", value: "committee" }
           - { label: "Staff", value: "staff" }
           - { label: "Volunteer", value: "volunteer" }
         default: "committee"
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
 
   - name: "payments"
     label: "Payments"
@@ -358,13 +401,15 @@ collections:
     label: "Testimonials"
     folder: "src/content/testimonials"
     create: true
+    i18n: true
     slug: "{{name}}"
     fields:
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Role", name: "role", widget: "string", required: false }
+      - { label: "Name", name: "name", widget: "string", i18n: "duplicate" }
+      - { label: "Role", name: "role", widget: "string", required: false, i18n: "duplicate" }
       - label: "Type"
         name: "type"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Member", value: "member" }
           - { label: "Volunteer", value: "volunteer" }
@@ -379,24 +424,33 @@ collections:
         display_fields: ["name", "memberId"]
         value_field: "{{memberId}}"
         required: false
+        i18n: "duplicate"
         hint: "Link to a member if Type is 'Member'"
-      - { label: "Avatar", name: "avatar", widget: "image", required: false }
-      - { label: "Rating", name: "rating", widget: "number", value_type: "int", min: 1, max: 5, default: 5 }
-      - { label: "Content", name: "content", widget: "text" }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Avatar", name: "avatar", widget: "image", required: false, i18n: "duplicate" }
+      - { label: "Rating", name: "rating", widget: "number", value_type: "int", min: 1, max: 5, default: 5, i18n: "duplicate" }
+      - { label: "Content", name: "content", widget: "text", i18n: true }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
 
   - name: "faq"
     label: "FAQs"
     folder: "src/content/faq"
     create: true
+    i18n: true
     slug: "{{question}}"
     fields:
-      - { label: "Question", name: "question", widget: "string" }
-      - { label: "Answer", name: "answer", widget: "text" }
+      - { label: "Question", name: "question", widget: "string", i18n: true }
+      - { label: "Answer", name: "answer", widget: "text", i18n: true }
       - label: "Category"
         name: "category"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Membership", value: "membership" }
           - { label: "Donation", value: "donation" }
@@ -406,8 +460,14 @@ collections:
           - { label: "Transparency", value: "transparency" }
           - { label: "General", value: "general" }
         default: "general"
-      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
 
   # ---------------------------------------------------------------------------
   # Gallery — single collection (one "Gallery" menu item). Use the category
@@ -419,6 +479,7 @@ collections:
     icon: photo_library
     folder: "src/content/gallery"
     create: true
+    i18n: true
     slug: "{{title}}"
     media_folder: "/public/images/gallery"
     public_folder: "/images/gallery"
@@ -448,10 +509,11 @@ collections:
         field: "category"
         pattern: "general"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
       - label: "Category"
         name: "category"
         widget: "select"
+        i18n: "duplicate"
         options:
           - { label: "Library", value: "library" }
           - { label: "Community Welfare", value: "community-welfare" }
@@ -467,6 +529,7 @@ collections:
         name: "media"
         widget: "object"
         default: { type: "image" }
+        i18n: "duplicate"
         types:
           - name: "image"
             label: "Image"
@@ -490,77 +553,108 @@ collections:
         display_fields: ["title"]
         value_field: "{{title}}"
         required: false
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Date", name: "date", widget: "datetime", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+        i18n: "duplicate"
+      - { label: "Location", name: "location", widget: "string", required: false, i18n: true }
+      - { label: "Description", name: "description", widget: "text", required: false, i18n: true }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, i18n: "duplicate" }
+      - { label: "Date", name: "date", widget: "datetime", required: false, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
 
   - name: "pages"
     label: "Pages"
     folder: "src/content/pages"
     create: true
+    i18n: true
     slug: "{{slug}}"
     fields:
-      - { label: "Title", name: "title", widget: "string" }
+      - { label: "Title", name: "title", widget: "string", i18n: true }
       - { label: "Slug", name: "slug", widget: "string" }
-      - { label: "Description", name: "description", widget: "text", required: false }
-      - { label: "Image", name: "image", widget: "image", required: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Description", name: "description", widget: "text", required: false, i18n: true }
+      - { label: "Image", name: "image", widget: "image", required: false, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
       - label: "SEO Settings"
         name: "seo"
         widget: "object"
         required: false
+        i18n: true
         fields:
           - { label: "Meta Title", name: "title", widget: "string", required: false }
           - { label: "Meta Description", name: "description", widget: "text", required: false }
           - { label: "OG Image", name: "image", widget: "image", required: false }
           - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
           - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
 
   - name: "partners"
     label: "Partners"
     folder: "src/content/partners"
     create: true
+    i18n: true
     slug: "{{name}}"
     fields:
-      - { label: "Organization Name", name: "name", widget: "string" }
-      - { label: "Logo", name: "logo", widget: "image" }
-      - { label: "Website URL", name: "url", widget: "string", required: false }
-      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0 }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Organization Name", name: "name", widget: "string", i18n: "duplicate" }
+      - { label: "Logo", name: "logo", widget: "image", i18n: "duplicate" }
+      - { label: "Website URL", name: "url", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Order", name: "order", widget: "number", value_type: "int", default: 0, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
 
   - name: "success-stories"
     label: "Success Stories"
     folder: "src/content/success-stories"
     create: true
+    i18n: true
     slug: "{{name}}"
     fields:
-      - { label: "Name", name: "name", widget: "string" }
-      - { label: "Location", name: "location", widget: "string", required: false }
-      - { label: "Background", name: "background", widget: "text", required: false }
-      - { label: "Challenges", name: "challenges", widget: "text", required: false }
-      - { label: "How We Helped", name: "help", widget: "text" }
-      - { label: "Current Status", name: "status", widget: "string", required: false }
+      - { label: "Name", name: "name", widget: "string", i18n: "duplicate" }
+      - { label: "Location", name: "location", widget: "string", required: false, i18n: "duplicate" }
+      - { label: "Background", name: "background", widget: "text", required: false, i18n: true }
+      - { label: "Challenges", name: "challenges", widget: "text", required: false, i18n: true }
+      - { label: "How We Helped", name: "help", widget: "text", i18n: true }
+      - { label: "Current Status", name: "status", widget: "string", required: false, i18n: true }
       - label: "Images"
         name: "images"
         widget: "list"
         required: false
+        i18n: "duplicate"
         field: { label: "Image", name: "image", widget: "image" }
-      - { label: "Featured", name: "featured", widget: "boolean", default: false }
-      - { label: "Language", name: "lang", widget: "hidden", default: "en" }
+      - { label: "Featured", name: "featured", widget: "boolean", default: false, i18n: "duplicate" }
+      - label: "Language"
+        name: "lang"
+        widget: "select"
+        i18n: true
+        options: ["en", "hi", "ur"]
+        default: "en"
+        hint: "Kept in sync with the locale tab — only change this if you know what you're doing."
       - label: "SEO Settings"
         name: "seo"
         widget: "object"
         required: false
+        i18n: true
         fields:
           - { label: "Meta Title", name: "title", widget: "string", required: false }
           - { label: "Meta Description", name: "description", widget: "text", required: false }
           - { label: "OG Image", name: "image", widget: "image", required: false }
           - { label: "Canonical URL", name: "canonical", widget: "string", required: false }
           - { label: "No Index", name: "noIndex", widget: "boolean", required: false, default: false }
-      - { label: "Body", name: "body", widget: "markdown" }
+      - { label: "Body", name: "body", widget: "markdown", i18n: true }
 
   - name: "volunteers"
     label: "Volunteers"

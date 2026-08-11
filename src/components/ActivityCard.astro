@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
 import { activityCategoryIcon, activityCategoryLabel } from "../lib/activityCategories";
+import { localeSlug } from "../lib/site";
 
 interface Props {
   activity: CollectionEntry<"activities">;
@@ -13,7 +14,7 @@ const topImpact = data.impactNumbers ? Object.entries(data.impactNumbers).slice(
 ---
 
 <a
-  href={`/activities/${activity.id}/`}
+  href={`/activities/${localeSlug(activity.id)}/`}
   class="activity-card card-hover card block overflow-hidden group"
   aria-label={`${data.title} — ${activityCategoryLabel(data.category)}`}
 >

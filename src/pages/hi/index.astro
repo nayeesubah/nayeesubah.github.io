@@ -1,0 +1,423 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import Hero from "../../components/Hero.astro";
+import StatCard from "../../components/StatCard.astro";
+import ActivityCard from "../../components/ActivityCard.astro";
+import TestimonialCard from "../../components/TestimonialCard.astro";
+import BlogCard from "../../components/BlogCard.astro";
+import ImpactCard from "../../components/ImpactCard.astro";
+import VideoThumbnail from "../../components/VideoThumbnail.astro";
+import { getCollection } from "astro:content";
+import { getSiteSettings, filterByLocale } from "../../lib/site";
+
+
+const locale = "hi" as const;
+
+const ICONS = {
+  members: "M15 19.128a9.38 9.38 0 0 0 2.625.372 9.337 9.337 0 0 0 4.121-.952 4.125 4.125 0 0 0-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 0 1 8.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0 1 11.964-3.07M12 6.375a3.375 3.375 0 1 1-6.75 0 3.375 3.375 0 0 1 6.75 0Zm8.25 2.25a2.625 2.625 0 1 1-5.25 0 2.625 2.625 0 0 1 5.25 0Z",
+  lives: "M12 21v-8.25M15.75 21v-8.25M8.25 21v-8.25M3 9l9-6 9 6m-1.5 12V10.332A48.36 48.36 0 0 0 12 9.75c-2.551 0-5.056.2-7.5.582V21M3 21h18M12 6.75h.008v.008H12V6.75Z",
+  students: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342",
+  volunteers: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Zm6 3a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Zm-13.5 0a2.25 2.25 0 1 1-4.5 0 2.25 2.25 0 0 1 4.5 0Z",
+  library: "M12 6.042A8.967 8.967 0 0 0 6 3.75c-1.052 0-2.062.18-3 .512v14.25A8.987 8.987 0 0 1 6 18c2.305 0 4.408.867 6 2.292m0-14.25a8.966 8.966 0 0 1 6-2.292c1.052 0 2.062.18 3 .512v14.25A8.987 8.987 0 0 0 18 18a8.967 8.967 0 0 0-6 2.292m0-14.25v14.25",
+  patients: "M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12Z",
+  education: "M4.26 10.147a60.438 60.438 0 0 0-.491 6.347A48.627 48.627 0 0 1 12 20.904a48.627 48.627 0 0 1 8.232-4.41 60.46 60.46 0 0 0-.491-6.347m-15.482 0a50.57 50.57 0 0 0-2.658-.813A59.905 59.905 0 0 1 12 3.493a59.902 59.902 0 0 1 10.399 5.84c-.896.248-1.783.52-2.658.814m-15.482 0A50.697 50.697 0 0 1 12 13.489a50.702 50.702 0 0 1 7.74-3.342",
+  unity: "M18 18.72a9.094 9.094 0 0 0 3.741-.479 3 3 0 0 0-4.682-2.72m.94 3.198.001.031c0 .225-.012.447-.037.666A11.944 11.944 0 0 1 12 21c-2.17 0-4.207-.576-5.963-1.584A6.062 6.062 0 0 1 6 18.719m12 0a5.971 5.971 0 0 0-.941-3.197m0 0A5.995 5.995 0 0 0 12 12.75a5.995 5.995 0 0 0-5.058 2.772m0 0a3 3 0 0 0-4.681 2.72 8.986 8.986 0 0 0 3.74.477m.94-3.197a5.971 5.971 0 0 0-.94 3.197M15 6.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  transparency: "M2.036 12.322a1.012 1.012 0 0 1 0-.639C3.423 7.51 7.36 4.5 12 4.5c4.638 0 8.573 3.007 9.963 7.178.07.207.07.431 0 .639C20.577 16.49 16.64 19.5 12 19.5c-4.638 0-8.573-3.007-9.963-7.178Z M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z",
+  rural: "M2.25 21h19.5m-18-18v18m10.5-18v18m6-13.5V21M6.75 6.75h.75m-.75 3h.75m-.75 3h.75m3-6h.75m-.75 3h.75m-.75 3h.75M6.75 21v-3.375c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125V21",
+};
+
+const copy = {
+  hi: {
+    title: "झारखंड के गिरिडीह में एनजीओ — शिक्षा और सामुदायिक विकास",
+    description: "नयी सुबह फाउंडेशन झारखंड के गिरिडीह में एक गैर-लाभकारी एनजीओ है जो ग्रामीण भारत में शिक्षा, स्वास्थ्य सेवा, कौशल विकास, महिला सशक्तिकरण और सामुदायिक विकास के लिए काम करता है।",
+    founderLabel: "संस्थापक का संदेश",
+    founderHeading: "एक",
+    founderHeadingAccent: "नयी सुबह",
+    founderHeadingSuffix: "का सपना",
+    founderQuote1: "\"नयी सुबह फाउंडेशन का जन्म एक सरल विश्वास से हुआ — कि हर बच्चा, चाहे वह कहीं भी पैदा हुआ हो, सीखने, बढ़ने और भविष्य बनाने का अवसर पाने का हक़दार है। झारखंड में बड़े होते हुए, मैंने प्रतिभाशाली मस्तिष्कों को प्रतिभा की कमी से नहीं, बल्कि पहुँच की कमी से रुकते देखा।\"",
+    founderQuote2: "\"हमारा मिशन उस अंतर को पाटना है। चाहे शिक्षा, स्वास्थ्य सेवा, कौशल विकास, या सामुदायिक सशक्तिकरण के माध्यम से — हम एक नयी सुबह का निर्माण कर रहे हैं, जहाँ कोई सपना बहुत दूर नहीं और कोई बच्चा पीछे नहीं छूटता।\"",
+    founderName: "मोहम्मद इरफ़ान",
+    founderTitle: "संस्थापक, नयी सुबह फाउंडेशन",
+    founderCred: "सॉफ्टवेयर इंजीनियर | पूर्व शोधकर्ता, IIRS ISRO",
+    stats: [
+      { label: "सक्रिय सदस्य", value: "150+", icon: ICONS.members },
+      { label: "प्रभावित जीवन", value: "2,000+", icon: ICONS.lives },
+      { label: "शिक्षित छात्र", value: "500+", icon: ICONS.students },
+      { label: "स्वयंसेवक", value: "50+", icon: ICONS.volunteers },
+    ],
+    aboutBadge: "नयी सुबह फाउंडेशन के बारे में",
+    aboutHeading: "शिक्षा और एकता के माध्यम से",
+    aboutHeadingAccent: "सशक्तिकरण",
+    aboutP1: "नयी सुबह फाउंडेशन की स्थापना शिक्षा और उसके प्रसार, सामाजिक सुधार, एकता और सामुदायिक विकास के बारे में जागरूकता पैदा करने के एकमात्र उद्देश्य से की गई है। हम ग्रामीण झारखंड में वंचित समुदायों के उत्थान के लिए अथक प्रयास करते हैं।",
+    aboutP2: "अपने कोचिंग सेंटर, पुस्तकालय, स्वास्थ्य शिविरों, करियर मार्गदर्शन, महिला सशक्तिकरण और किसान सहायता कार्यक्रमों के माध्यम से, हम स्थायी बदलाव ला रहे हैं — एक समय में एक समुदाय।",
+    learnMission: "हमारा मिशन जानें",
+    educationForAll: "सभी के लिए शिक्षा",
+    ruralDevelopment: "ग्रामीण विकास",
+    libraryBadge: "सामुदायिक पुस्तकालय",
+    libraryHeading: "हर बच्चे के लिए",
+    libraryHeadingAccent: "ज्ञान",
+    libraryP1: "नयी सुबह फाउंडेशन गिरिडीह के ग्रामीण गाँवों में वंचित बच्चों के बीच पढ़ने की संस्कृति और शैक्षणिक उत्कृष्टता को बढ़ावा देने के लिए पुस्तकालय स्थापित करता है।",
+    libraryP2: "हमारे पुस्तकालय पाठ्यपुस्तकों, प्रतियोगी परीक्षा गाइड, कहानी की किताबों और संदर्भ सामग्री तक मुफ्त पहुँच प्रदान करते हैं — छात्रों को बोर्ड परीक्षाओं, इंजीनियरिंग और मेडिकल प्रवेश परीक्षाओं, और अन्य प्रतियोगी परीक्षाओं की तैयारी में मदद करते हैं।",
+    booksInLibrary: "पुस्तकालय में किताबें",
+    studentsServed: "सेवित छात्र",
+    learnMore: "और जानें",
+    approachHeading: "हमारा",
+    approachAccent: "दृष्टिकोण",
+    approachSubtitle: "वे सिद्धांत जो ग्रामीण झारखंड में हमारे मिशन का मार्गदर्शन करते हैं।",
+    whyNSF: [
+      { title: "शिक्षा सर्वोपरि", description: "हम मानते हैं कि शिक्षा गरीबी के चक्र को तोड़ने और बेहतर भविष्य बनाने का सबसे शक्तिशाली साधन है।", icon: ICONS.education },
+      { title: "सामुदायिक एकता", description: "हम पृष्ठभूमि की परवाह किए बिना समुदायों को एक साथ लाते हैं, सद्भाव और सामूहिक प्रगति को बढ़ावा देते हैं।", icon: ICONS.unity },
+      { title: "पारदर्शिता", description: "हमारे सभी कार्यों में पूर्ण खुलापन — हर रुपया ट्रैक किया जाता है, हर निर्णय साझा किया जाता है।", icon: ICONS.transparency },
+      { title: "ग्रामीण फोकस", description: "हम अपने प्रयासों को उन वंचित ग्रामीण समुदायों पर केंद्रित करते हैं जहाँ आवश्यकता सबसे अधिक है और संसाधन सबसे कम।", icon: ICONS.rural },
+    ],
+    impactHeading: "हमारा",
+    impactAccent: "प्रभाव",
+    impactSubtitle: "हमारे द्वारा सेवा किए गए समुदायों में मापने योग्य बदलाव।",
+    impactNumbers: [
+      { value: "500+", label: "शिक्षित बच्चे", icon: ICONS.education },
+      { value: "3,000+", label: "पुस्तकालय में किताबें", icon: ICONS.library },
+      { value: "2,000+", label: "इलाज किए गए मरीज़", icon: ICONS.patients },
+      { value: "200+", label: "सशक्त महिलाएँ", icon: ICONS.volunteers },
+    ],
+    activitiesHeading: "हमारी",
+    activitiesAccent: "गतिविधियाँ",
+    activitiesSubtitle: "उन पहलों को देखें जिन पर हम काम कर रहे हैं।",
+    viewAllActivities: "सभी गतिविधियाँ देखें",
+    testimonialsHeading: "लोग क्या",
+    testimonialsAccent: "कहते हैं",
+    testimonialsSubtitle: "उन लोगों से सुनें जिनका जीवन हमारे काम से प्रभावित हुआ है।",
+    blogHeading: "ज़मीनी",
+    blogAccent: "स्तर से",
+    blogSubtitle: "ग्रामीण झारखंड में हमारे काम की कहानियाँ, अपडेट और जानकारियाँ।",
+    viewAllNews: "सभी समाचार देखें",
+    ctaHeading: "हमारे साथ एक नयी सुबह बनाएं",
+    ctaSubtitle: "चाहे मासिक सदस्यता के माध्यम से, एकमुश्त दान, या स्वयंसेवक के रूप में आपका समय — आपका योगदान ग्रामीण झारखंड में शिक्षा, आशा और अवसर लाता है।",
+    ctaSupport: "हमारे काम का समर्थन करें",
+    ctaJoin: "सदस्य बनें",
+  },
+  ur: {
+    title: "جھارکھنڈ کے گریڈیہ میں این جی او — تعلیم اور کمیونٹی ترقی",
+    description: "نئی صبح فاؤنڈیشن جھارکھنڈ کے گریڈیہ میں ایک غیر منافع بخش این جی او ہے جو دیہی ہندوستان میں تعلیم، صحت، ہنر مندی کی تربیت، خواتین کو بااختیار بنانے اور کمیونٹی ترقی کے لیے کام کرتی ہے۔",
+    founderLabel: "بانی کا پیغام",
+    founderHeading: "ایک",
+    founderHeadingAccent: "نئی صبح",
+    founderHeadingSuffix: "کا خواب",
+    founderQuote1: "\"نئی صبح فاؤنڈیشن کا آغاز ایک سادہ یقین سے ہوا — کہ ہر بچہ، چاہے وہ کہیں بھی پیدا ہوا ہو، سیکھنے، بڑھنے اور مستقبل بنانے کے موقع کا حقدار ہے۔ جھارکھنڈ میں پرورش پاتے ہوئے، میں نے ذہین دماغوں کو صلاحیت کی کمی سے نہیں بلکہ رسائی کی کمی سے پیچھے رہتے دیکھا۔\"",
+    founderQuote2: "\"ہمارا مشن اس فرق کو پاٹنا ہے۔ چاہے تعلیم، صحت، ہنر مندی کی تربیت، یا کمیونٹی کو بااختیار بنانے کے ذریعے — ہم ایک نئی صبح تعمیر کر رہے ہیں، جہاں کوئی خواب بہت دور نہیں اور کوئی بچہ پیچھے نہیں چھوڑا جاتا۔\"",
+    founderName: "محمد عرفان",
+    founderTitle: "بانی، نئی صبح فاؤنڈیشن",
+    founderCred: "سافٹ ویئر انجینئر | سابق محقق، IIRS ISRO",
+    stats: [
+      { label: "فعال ارکان", value: "150+", icon: ICONS.members },
+      { label: "متاثرہ زندگیاں", value: "2,000+", icon: ICONS.lives },
+      { label: "تعلیم یافتہ طلبہ", value: "500+", icon: ICONS.students },
+      { label: "رضاکار", value: "50+", icon: ICONS.volunteers },
+    ],
+    aboutBadge: "نئی صبح فاؤنڈیشن کے بارے میں",
+    aboutHeading: "تعلیم اور اتحاد کے ذریعے",
+    aboutHeadingAccent: "بااختیار بنانا",
+    aboutP1: "نئی صبح فاؤنڈیشن کا قیام تعلیم اور اس کے فروغ، سماجی اصلاحات، اتحاد اور کمیونٹی ترقی کے بارے میں آگاہی پیدا کرنے کے واحد مقصد سے کیا گیا ہے۔ ہم دیہی جھارکھنڈ میں پسماندہ کمیونٹیز کی ترقی کے لیے انتھک محنت کرتے ہیں۔",
+    aboutP2: "اپنے کوچنگ سینٹر، لائبریری، صحت کیمپوں، کیریئر رہنمائی، خواتین کو بااختیار بنانے اور کسانوں کی معاونت کے پروگراموں کے ذریعے، ہم دیرپا تبدیلی لا رہے ہیں — ایک وقت میں ایک کمیونٹی۔",
+    learnMission: "ہمارا مشن جانیں",
+    educationForAll: "سب کے لیے تعلیم",
+    ruralDevelopment: "دیہی ترقی",
+    libraryBadge: "کمیونٹی لائبریری",
+    libraryHeading: "ہر بچے کے لیے",
+    libraryHeadingAccent: "علم",
+    libraryP1: "نئی صبح فاؤنڈیشن گریڈیہ کے دیہی گاؤں میں پسماندہ بچوں کے درمیان مطالعہ کی ثقافت اور تعلیمی فضیلت کو فروغ دینے کے لیے لائبریریاں قائم کرتی ہے۔",
+    libraryP2: "ہماری لائبریریاں نصابی کتابوں، مسابقتی امتحان کی رہنما کتابوں، کہانی کی کتابوں اور حوالہ جاتی مواد تک مفت رسائی فراہم کرتی ہیں — طلبہ کو بورڈ امتحانات، انجینئرنگ اور میڈیکل داخلہ ٹیسٹ، اور دیگر مسابقتی امتحانات کی تیاری میں مدد فراہم کرتی ہیں۔",
+    booksInLibrary: "لائبریری میں کتابیں",
+    studentsServed: "مستفید طلبہ",
+    learnMore: "مزید جانیں",
+    approachHeading: "ہمارا",
+    approachAccent: "طریقہ کار",
+    approachSubtitle: "وہ اصول جو دیہی جھارکھنڈ میں ہمارے مشن کی رہنمائی کرتے ہیں۔",
+    whyNSF: [
+      { title: "تعلیم اولین ترجیح", description: "ہمارا ماننا ہے کہ تعلیم غربت کے چکر کو توڑنے اور بہتر مستقبل بنانے کا سب سے طاقتور ذریعہ ہے۔", icon: ICONS.education },
+      { title: "کمیونٹی اتحاد", description: "ہم پس منظر سے قطع نظر کمیونٹیز کو اکٹھا کرتے ہیں، ہم آہنگی اور اجتماعی ترقی کو فروغ دیتے ہیں۔", icon: ICONS.unity },
+      { title: "شفافیت", description: "ہمارے تمام کاموں میں مکمل کھلا پن — ہر روپیہ ٹریک کیا جاتا ہے، ہر فیصلہ شیئر کیا جاتا ہے۔", icon: ICONS.transparency },
+      { title: "دیہی توجہ", description: "ہم اپنی کوششیں ان پسماندہ دیہی کمیونٹیز پر مرکوز کرتے ہیں جہاں ضرورت سب سے زیادہ اور وسائل سب سے کم ہیں۔", icon: ICONS.rural },
+    ],
+    impactHeading: "ہمارا",
+    impactAccent: "اثر",
+    impactSubtitle: "ہماری خدمت کی جانے والی کمیونٹیز میں قابل پیمائش تبدیلی۔",
+    impactNumbers: [
+      { value: "500+", label: "تعلیم یافتہ بچے", icon: ICONS.education },
+      { value: "3,000+", label: "لائبریری میں کتابیں", icon: ICONS.library },
+      { value: "2,000+", label: "علاج شدہ مریض", icon: ICONS.patients },
+      { value: "200+", label: "بااختیار خواتین", icon: ICONS.volunteers },
+    ],
+    activitiesHeading: "ہماری",
+    activitiesAccent: "سرگرمیاں",
+    activitiesSubtitle: "ان اقدامات کو دیکھیں جن پر ہم کام کر رہے ہیں۔",
+    viewAllActivities: "تمام سرگرمیاں دیکھیں",
+    testimonialsHeading: "لوگ کیا",
+    testimonialsAccent: "کہتے ہیں",
+    testimonialsSubtitle: "ان لوگوں سے سنیں جن کی زندگیاں ہمارے کام سے متاثر ہوئی ہیں۔",
+    blogHeading: "میدان",
+    blogAccent: "سے",
+    blogSubtitle: "دیہی جھارکھنڈ میں ہمارے کام کی کہانیاں، اپ ڈیٹس اور تفصیلات۔",
+    viewAllNews: "تمام خبریں دیکھیں",
+    ctaHeading: "ہمارے ساتھ ایک نئی صبح بنائیں",
+    ctaSubtitle: "چاہے ماہانہ رکنیت کے ذریعے، ایک بار کے عطیے، یا رضاکار کے طور پر آپ کا وقت — آپ کا تعاون دیہی جھارکھنڈ میں تعلیم، امید اور مواقع لاتا ہے۔",
+    ctaSupport: "ہمارے کام کی حمایت کریں",
+    ctaJoin: "رکن بنیں",
+  },
+}[locale];
+
+const settings = await getSiteSettings();
+
+const featuredActivities = filterByLocale((await getCollection("activities")).filter((a) => a.data.featured), locale)
+  .sort((a, b) => a.data.order - b.data.order)
+  .slice(0, 4);
+
+const latestPosts = filterByLocale((await getCollection("blog")).filter((p) => p.data.published), locale)
+  .sort((a, b) => b.data.date.getTime() - a.data.date.getTime())
+  .slice(0, 3);
+
+const featuredTestimonials = filterByLocale((await getCollection("testimonials")).filter((t) => t.data.featured), locale)
+  .slice(0, 3);
+---
+
+<BaseLayout preloadHero title={copy.title} description={copy.description}>
+  <Hero heroVideoUrl={settings.heroVideoUrl} />
+
+  {/* Founder's Message */}
+  <section class="py-16 sm:py-20 lg:py-24 bg-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-5 gap-10 lg:gap-16 items-center">
+        <div class="lg:col-span-2 flex justify-center">
+          <div class="relative">
+            <div class="h-56 w-56 sm:h-64 sm:w-64 rounded-full bg-accent-soft flex items-center justify-center text-accent text-6xl sm:text-7xl font-bold ring-4 ring-accent/20 ring-offset-4 ring-offset-section">
+              MI
+            </div>
+            <div class="absolute -bottom-2 -right-2 rounded-full bg-accent text-accent-text p-3 shadow-lg">
+              <svg class="h-6 w-6" fill="currentColor" viewBox="0 0 24 24"><path d="M4.5 6.375a4.125 4.125 0 1 1 8.25 0 4.125 4.125 0 0 1-8.25 0ZM14.25 8.625a3.375 3.375 0 1 1 6.75 0 3.375 3.375 0 0 1-6.75 0ZM1.5 19.125a7.125 7.125 0 0 1 14.25 0v.003l-.001.119a.75.75 0 0 1-.363.63 13.067 13.067 0 0 1-6.761 1.873c-2.472 0-4.786-.684-6.76-1.873a.75.75 0 0 1-.364-.63l-.001-.122ZM17.25 19.128l-.001.144a2.25 2.25 0 0 1-.233.96 10.088 10.088 0 0 0 5.06-1.01.75.75 0 0 0 .42-.643 4.875 4.875 0 0 0-6.957-4.611 8.586 8.586 0 0 1 1.71 5.157v.003Z"/></svg>
+            </div>
+          </div>
+        </div>
+        <div class="lg:col-span-3">
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">{copy.founderLabel}</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
+            {copy.founderHeading} <span class="text-accent">{copy.founderHeadingAccent}</span> {copy.founderHeadingSuffix}
+          </h2>
+          <div class="space-y-4 text-muted leading-relaxed text-lg">
+            <p>{copy.founderQuote1}</p>
+            <p>{copy.founderQuote2}</p>
+          </div>
+          <div class="mt-6 flex items-center gap-4">
+            <div class="h-px flex-1 bg-border max-w-16" />
+            <div>
+              <p class="font-semibold text-body">{copy.founderName}</p>
+              <p class="text-sm text-muted">{copy.founderTitle}</p>
+              <p class="text-xs text-muted/60">{copy.founderCred}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Stats Bar */}
+  <section class="py-16">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-8">
+        {copy.stats.map((stat) => <StatCard {...stat} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* About Intro */}
+  <section class="py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">{copy.aboutBadge}</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
+            {copy.aboutHeading}
+            <span class="text-accent"> {copy.aboutHeadingAccent}</span>
+          </h2>
+          <p class="text-muted leading-relaxed text-lg mb-6">
+            {copy.aboutP1}
+          </p>
+          <p class="text-muted leading-relaxed mb-8">
+            {copy.aboutP2}
+          </p>
+          <a href={`/${locale}/about/`} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200">
+            {copy.learnMission}
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+        <div class="grid grid-cols-2 gap-4">
+          <div class="aspect-[3/4] rounded-2xl overflow-hidden bg-accent-soft flex items-center justify-center">
+            <div class="text-center p-8">
+              <span class="text-6xl">📚</span>
+              <p class="mt-4 text-sm text-accent font-medium">{copy.educationForAll}</p>
+            </div>
+          </div>
+          <div class="aspect-[3/4] rounded-2xl overflow-hidden mt-8 bg-section flex items-center justify-center">
+            <div class="text-center p-8">
+              <span class="text-6xl">🌾</span>
+              <p class="mt-4 text-sm text-accent font-medium">{copy.ruralDevelopment}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {/* Community Library */}
+  <section class="py-16 sm:py-20 lg:py-24 bg-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="grid lg:grid-cols-2 gap-12 lg:gap-20 items-center">
+        <div>
+          <span class="text-accent font-semibold text-sm uppercase tracking-widest">{copy.libraryBadge}</span>
+          <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight mt-3 mb-6">
+            {copy.libraryHeading} <span class="text-accent">{copy.libraryHeadingAccent}</span>
+          </h2>
+          <p class="text-muted leading-relaxed text-lg mb-6">
+            {copy.libraryP1}
+          </p>
+          <p class="text-muted leading-relaxed mb-6">
+            {copy.libraryP2}
+          </p>
+          <div class="grid grid-cols-2 gap-4 mb-8">
+            <div class="card p-4 text-center">
+              <div class="text-2xl font-bold text-accent">3,000+</div>
+              <div class="text-sm text-muted">{copy.booksInLibrary}</div>
+            </div>
+            <div class="card p-4 text-center">
+              <div class="text-2xl font-bold text-accent">500+</div>
+              <div class="text-sm text-muted">{copy.studentsServed}</div>
+            </div>
+          </div>
+          <a href={`/${locale}/activities/community-library/`} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium hover:bg-accent-hover transition-all duration-200">
+            {copy.learnMore}
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+        <div>
+          <VideoThumbnail videoUrl={settings.aboutVideoUrl} thumbnailUrl={settings.aboutVideoThumbnail} />
+        </div>
+      </div>
+    </div>
+  </section>
+
+  {/* Our Approach */}
+  <section class="py-16 sm:py-20 lg:py-24 bg-section">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="section-title mb-12 sm:mb-16">
+        <h2>{copy.approachHeading} <span class="text-accent">{copy.approachAccent}</span></h2>
+        <p>{copy.approachSubtitle}</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        {copy.whyNSF.map((item) => (
+          <div class="text-center group">
+            <div class="mx-auto mb-5 inline-flex h-16 w-16 items-center justify-center rounded-2xl bg-accent-soft text-accent transition-all duration-300 group-hover:bg-accent group-hover:text-accent-text">
+              <svg class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5"><path stroke-linecap="round" stroke-linejoin="round" d={item.icon} /></svg>
+            </div>
+            <h3 class="text-lg font-semibold mb-3">{item.title}</h3>
+            <p class="text-muted text-sm leading-relaxed">{item.description}</p>
+          </div>
+        ))}
+      </div>
+    </div>
+  </section>
+
+  {/* Impact Numbers */}
+  <section class="py-16 sm:py-20 lg:py-24">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div class="section-title mb-12 sm:mb-16">
+        <h2>{copy.impactHeading} <span class="text-accent">{copy.impactAccent}</span></h2>
+        <p>{copy.impactSubtitle}</p>
+      </div>
+      <div class="grid grid-cols-2 lg:grid-cols-4 gap-6">
+        {copy.impactNumbers.map((item) => <ImpactCard {...item} />)}
+      </div>
+    </div>
+  </section>
+
+  {/* Featured Activities */}
+  {featuredActivities.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24 bg-section">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12 sm:mb-16">
+          <h2>{copy.activitiesHeading} <span class="text-accent">{copy.activitiesAccent}</span></h2>
+          <p>{copy.activitiesSubtitle}</p>
+        </div>
+        <div class="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          {featuredActivities.map((activity) => <ActivityCard activity={activity} />)}
+        </div>
+        <div class="text-center mt-10">
+          <a href={`/${locale}/activities/`} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-8 py-4 text-lg font-medium hover:bg-accent-hover transition-all duration-200">
+            {copy.viewAllActivities}
+            <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"><path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5L21 12m0 0l-7.5 7.5M21 12H3" /></svg>
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Testimonials */}
+  {featuredTestimonials.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12 sm:mb-16">
+          <h2>{copy.testimonialsHeading} <span class="text-accent">{copy.testimonialsAccent}</span></h2>
+          <p>{copy.testimonialsSubtitle}</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {featuredTestimonials.map((t) => (
+            <TestimonialCard
+              name={t.data.name}
+              content={t.data.content}
+              role={t.data.type}
+              avatar={t.data.avatar}
+              rating={t.data.rating}
+            />
+          ))}
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* Blog */}
+  {latestPosts.length > 0 && (
+    <section class="py-16 sm:py-20 lg:py-24 bg-section">
+      <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div class="section-title mb-12 sm:mb-16">
+          <h2>{copy.blogHeading} <span class="text-accent">{copy.blogAccent}</span></h2>
+          <p>{copy.blogSubtitle}</p>
+        </div>
+        <div class="grid md:grid-cols-3 gap-6">
+          {latestPosts.map((post) => <BlogCard post={post} />)}
+        </div>
+        <div class="text-center mt-10">
+          <a href={`/${locale}/blog/`} class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-btn-secondary-border text-body px-6 py-3 font-medium hover:bg-btn-secondary-hover-bg hover:text-btn-secondary-hover-text transition-all duration-200">
+            {copy.viewAllNews}
+          </a>
+        </div>
+      </div>
+    </section>
+  )}
+
+  {/* CTA */}
+  <section class="py-16 sm:py-20 lg:py-24 relative overflow-hidden bg-inverse">
+    <div class="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(5,150,105,0.1),transparent_60%)]" />
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+      <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold tracking-tight text-inverted mb-4">
+        {copy.ctaHeading}
+      </h2>
+      <p class="text-inverted/60 text-lg max-w-2xl mx-auto mb-8">
+        {copy.ctaSubtitle}
+      </p>
+      <div class="flex flex-wrap justify-center gap-4">
+        <a href={`/${locale}/donate/`} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-8 py-4 text-lg font-medium hover:bg-accent-hover transition-all duration-200">
+          {copy.ctaSupport}
+        </a>
+        <a href={`/${locale}/members/join/`} class="inline-flex items-center justify-center gap-2 rounded-xl border-2 border-inverted/30 text-inverted px-8 py-4 text-lg font-medium hover:bg-inverted hover:text-inverse transition-all duration-200">
+          {copy.ctaJoin}
+        </a>
+      </div>
+    </div>
+  </section>
+</BaseLayout>

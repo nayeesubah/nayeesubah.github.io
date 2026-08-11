@@ -5,22 +5,25 @@ import BlogCard from "../../components/BlogCard.astro";
 import TableOfContents from "../../components/TableOfContents.astro";
 import Comments from "../../components/Comments.astro";
 import { getCollection, render } from "astro:content";
-import { calculateReadingTime, formatDate } from "../../lib/site";
+import { calculateReadingTime, formatDate, localeSlug } from "../../lib/site";
 
 export async function getStaticPaths() {
-  const posts = await getCollection("blog");
+  // Unprefixed /blog/ routes serve the default locale only — once translated posts
+  // exist, a mirrored src/pages/hi/blog/[...slug].astro filters to data.lang === "hi".
+  const posts = (await getCollection("blog")).filter((p) => (p.data.lang ?? "en") === "en");
   return posts.map((post) => ({
-    params: { slug: post.id },
+    params: { slug: localeSlug(post.id) },
     props: { post },
   }));
 }
 
 const { post } = Astro.props;
 const { data } = post;
+const slug = localeSlug(post.id);
 const { Content, headings } = await render(post);
 
 const allPosts = (await getCollection("blog"))
-  .filter((p) => p.data.published)
+  .filter((p) => p.data.published && (p.data.lang ?? "en") === "en")
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const currentIndex = allPosts.findIndex((p) => p.id === post.id);
@@ -44,7 +47,7 @@ const relatedPosts = allPosts
   .map((r) => r.post);
 
 const readingTime = calculateReadingTime(post.body || data.excerpt);
-const url = `${import.meta.env.SITE || "https://nayeesubah.github.io"}/blog/${post.id}/`;
+const url = `${import.meta.env.SITE || "https://nayeesubah.github.io"}/blog/${slug}/`;
 ---
 
 <BaseLayout
@@ -65,7 +68,7 @@ const url = `${import.meta.env.SITE || "https://nayeesubah.github.io"}/blog/${po
   <div class="pt-24">
     <section class="py-16 sm:py-20 lg:py-24">
       <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <Breadcrumb path={`/blog/${post.id}/`} class="mb-8" />
+        <Breadcrumb path={`/blog/${slug}/`} class="mb-8" />
         <div class="lg:grid lg:grid-cols-[minmax(0,1fr)_240px] lg:gap-10 items-start">
           <article class="max-w-3xl mx-auto lg:mx-0">
             <div class="mb-8">
@@ -139,13 +142,13 @@ const url = `${import.meta.env.SITE || "https://nayeesubah.github.io"}/blog/${po
 
             <div class="mt-6 grid grid-cols-2 gap-4">
               {prevPost && (
-                <a href={`/blog/${prevPost.id}/`} class="card p-4 hover:border-accent-border transition-colors text-left">
+                <a href={`/blog/${localeSlug(prevPost.id)}/`} class="card p-4 hover:border-accent-border transition-colors text-left">
                   <span class="text-xs text-muted">← Previous</span>
                   <p class="text-sm font-medium truncate mt-1">{prevPost.data.title}</p>
                 </a>
               )}
               {nextPost && (
-                <a href={`/blog/${nextPost.id}/`} class="card p-4 hover:border-accent-border transition-colors text-left col-start-2">
+                <a href={`/blog/${localeSlug(nextPost.id)}/`} class="card p-4 hover:border-accent-border transition-colors text-left col-start-2">
                   <span class="text-xs text-muted">Next →</span>
                   <p class="text-sm font-medium truncate mt-1">{nextPost.data.title}</p>
                 </a>

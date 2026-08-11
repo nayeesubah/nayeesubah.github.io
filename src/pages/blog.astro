@@ -3,9 +3,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import Breadcrumb from "../components/Breadcrumb.astro";
 import BlogCard from "../components/BlogCard.astro";
 import { getCollection } from "astro:content";
+import { defaultLang } from "../i18n/ui";
+import { filterByLocale } from "../lib/site";
 
-const posts = (await getCollection("blog"))
-  .filter((p) => p.data.published)
+const locale = Astro.currentLocale || defaultLang;
+const posts = filterByLocale((await getCollection("blog")).filter((p) => p.data.published), locale)
   .sort((a, b) => b.data.date.getTime() - a.data.date.getTime());
 
 const categories = [...new Set(posts.map((p) => p.data.category))];

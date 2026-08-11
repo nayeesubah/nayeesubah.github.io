@@ -4,9 +4,12 @@ import Breadcrumb from "../components/Breadcrumb.astro";
 import ActivityCard from "../components/ActivityCard.astro";
 import StatCard from "../components/StatCard.astro";
 import { getCollection } from "astro:content";
-import { ACTIVITY_CATEGORIES } from "../lib/activityCategories";
+import { ACTIVITY_CATEGORIES, activityCategoryLabel } from "../lib/activityCategories";
+import { defaultLang } from "../i18n/ui";
+import { filterByLocale } from "../lib/site";
 
-const activities = (await getCollection("activities"))
+const locale = Astro.currentLocale || defaultLang;
+const activities = filterByLocale(await getCollection("activities"), locale)
   .sort((a, b) => a.data.order - b.data.order);
 
 // Only offer filters for categories that actually have a program — clicking a
@@ -47,7 +50,7 @@ const totalLocations = new Set(activities.map((a) => a.data.location).filter(Boo
           <button type="button" class="filter-btn is-active px-4 py-2 rounded-lg text-sm font-medium bg-accent text-accent-text transition-colors" data-category="all">All</button>
           {categories.map((cat) => (
             <button type="button" class="filter-btn px-4 py-2 rounded-lg text-sm font-medium bg-accent-soft text-accent hover:bg-accent hover:text-accent-text transition-colors" data-category={cat.id}>
-              {cat.label}
+              {activityCategoryLabel(cat.id, locale)}
             </button>
           ))}
         </div>

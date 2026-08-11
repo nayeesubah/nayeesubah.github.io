@@ -1,6 +1,7 @@
 ---
 import type { CollectionEntry } from "astro:content";
-import { calculateReadingTime, formatShortDate } from "../lib/site";
+import { calculateReadingTime, formatShortDate, localeSlug } from "../lib/site";
+import { getRelativeLocaleUrl } from "astro:i18n";
 
 interface Props {
   post: CollectionEntry<"blog">;
@@ -9,6 +10,9 @@ interface Props {
 const { post } = Astro.props;
 const { data } = post;
 const readingTime = calculateReadingTime(post.body || data.excerpt);
+// Link to wherever this post's own language is actually served, not the
+// current page's locale — a card can appear on a fallback (untranslated) page.
+const href = getRelativeLocaleUrl(data.lang ?? "en", `/blog/${localeSlug(post.id)}/`);
 ---
 
 <article class="rounded-2xl bg-card border-border shadow-sm hover:shadow-lg hover:border-accent-border hover:-translate-y-1 transition-all duration-300 overflow-hidden group">
@@ -34,7 +38,7 @@ const readingTime = calculateReadingTime(post.body || data.excerpt);
     </div>
 
     <h3 class="text-lg font-semibold mb-2 line-clamp-2">
-      <a href={`/blog/${post.id}/`} class="hover:text-accent transition-colors">
+      <a href={href} class="hover:text-accent transition-colors">
         {data.title}
       </a>
     </h3>
@@ -57,7 +61,7 @@ const readingTime = calculateReadingTime(post.body || data.excerpt);
     )}
 
     <a
-      href={`/blog/${post.id}/`}
+      href={href}
       class="inline-flex items-center gap-1 text-sm font-medium text-accent hover:text-accent-hover transition-colors"
       aria-label={`Read more about ${data.title}`}
     >

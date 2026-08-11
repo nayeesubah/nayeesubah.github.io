@@ -10,7 +10,7 @@ import PwaInstallButton from "../components/PwaInstallButton.astro";
 import ThemePicker from "../components/ThemePicker.astro";
 import SEO from "../components/SEO.astro";
 import type { SEOProps } from "../lib/seo";
-import { languages, defaultLang } from "../i18n/ui";
+import { languages, defaultLang, isRTL, stripLocalePrefix } from "../i18n/ui";
 import { getAbsoluteLocaleUrl } from "astro:i18n";
 
 export interface Props {
@@ -26,8 +26,7 @@ export interface Props {
 const { seo, title, description, image, preloadHero, searchable = true } = Astro.props;
 const seoProps = { ...seo, title, description, image };
 const currentLocale = Astro.currentLocale || defaultLang;
-const pathname = Astro.url.pathname.replace(/^\/[a-z]{2}\//, "").replace(/^\//, "");
-const localePath = pathname === "" ? "" : pathname;
+const localePath = stripLocalePrefix(Astro.url.pathname);
 const alternateUrls = Object.keys(languages).map((locale) => ({
   locale,
   href: getAbsoluteLocaleUrl(locale, localePath),
@@ -35,7 +34,7 @@ const alternateUrls = Object.keys(languages).map((locale) => ({
 ---
 
 <!doctype html>
-<html lang={currentLocale} class="scroll-smooth">
+<html lang={currentLocale} dir={isRTL(currentLocale) ? "rtl" : "ltr"} class="scroll-smooth">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />

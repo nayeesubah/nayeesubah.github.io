@@ -18,6 +18,12 @@
     -moz-osx-font-smoothing: grayscale;
   }
 
+  /* Urdu is not covered by the self-hosted Latin webfonts (fonts.css), so fall
+     back to whatever Urdu-capable font the visitor's OS ships. */
+  :lang(ur) {
+    font-family: "Noto Nastaliq Urdu", "Jameel Noori Nastaleeq", "Noto Naskh Arabic", ui-sans-serif, system-ui, sans-serif;
+  }
+
   ::selection {
     background-color: color-mix(in srgb, var(--color-selection-mix) 20%, transparent);
     color: var(--color-body);

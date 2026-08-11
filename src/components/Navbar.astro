@@ -1,6 +1,7 @@
 ---
 import { t, defaultLang, type UiKey } from "../i18n/ui";
 import { getRelativeLocaleUrl } from "astro:i18n";
+import LanguageSwitcher from "./LanguageSwitcher.astro";
 
 const locale = Astro.currentLocale || defaultLang;
 const navItems = [
@@ -52,6 +53,7 @@ const navItems = [
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
         </button>
+        <LanguageSwitcher />
         <a href={getRelativeLocaleUrl(locale, "/donate/")} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium text-sm hover:bg-accent-hover transition-all duration-200 ml-4">
           {t(locale, "nav.donate")}
         </a>
@@ -80,7 +82,7 @@ const navItems = [
           <svg class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="m21 21-5.197-5.197m0 0A7.5 7.5 0 1 0 5.196 5.196a7.5 7.5 0 0 0 10.607 10.607Z" />
           </svg>
-          Search
+          {t(locale, "common.search")}
         </button>
         <button id="theme-toggle-mobile" class="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-medium text-body/80 hover:bg-accent-soft hover:text-accent transition-colors">
           <svg class="h-5 w-5 block dark:hidden" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
@@ -89,8 +91,11 @@ const navItems = [
           <svg class="h-5 w-5 hidden dark:block" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
             <path stroke-linecap="round" stroke-linejoin="round" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z" />
           </svg>
-          <span class="dark:hidden">Dark Mode</span><span class="hidden dark:inline">Light Mode</span>
+          <span class="dark:hidden">{t(locale, "nav.darkMode")}</span><span class="hidden dark:inline">{t(locale, "nav.lightMode")}</span>
         </button>
+        <div class="border-t border-border mt-2 pt-2">
+          <LanguageSwitcher />
+        </div>
         <a href={getRelativeLocaleUrl(locale, "/donate/")} class="inline-flex items-center justify-center gap-2 rounded-xl bg-accent text-accent-text px-6 py-3 font-medium text-sm hover:bg-accent-hover transition-all duration-200 mt-3 w-full">
           {t(locale, "nav.donate")}
         </a>
